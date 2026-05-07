@@ -3,10 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ระบบแจ้งยอดโรงหนัง Full Version</title>
+<title>ระบบแจ้งยอดโรงหนัง Online (Full Version)</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
 <style>
-/* --- Style คงเดิมเพื่อความคุ้นเคย --- */
+/* --- Style เดิมทั้งหมด --- */
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: 'Noto Sans Thai', sans-serif; background: #1e1e1e; color: white; padding: 20px; min-height: 100vh; }
 h1 { text-align: center; color: #facc15; font-size: 24px; margin-bottom: 6px; }
@@ -43,7 +47,7 @@ td { border: 1px solid #ddd; padding: 10px; text-align: center; font-size: 13px;
 <body>
 
 <h1>🎬 ระบบแจ้งยอดโรงหนัง</h1>
-<p class="subtitle">Full Cinema Database (เพิ่มช่องกรอกหมายเลขโรง)</p>
+<p class="subtitle">โครงการ: Newnane | แชร์ยอดออนไลน์แบบ Real-time</p>
 
 <div class="date-bar">
     <label>📅 วันที่รายการ:</label>
@@ -55,7 +59,6 @@ td { border: 1px solid #ddd; padding: 10px; text-align: center; font-size: 13px;
     <button class="tab-btn" onclick="showPage('p2', this)">📊 ยอดข้างเคียง</button>
 </div>
 
-<!-- หน้า 1 -->
 <div id="p1" class="page active">
     <div class="box">
         <div class="field-group"><label>ชื่อหนัง</label><input type="text" id="movieName"></div>
@@ -83,7 +86,6 @@ td { border: 1px solid #ddd; padding: 10px; text-align: center; font-size: 13px;
     </div>
 </div>
 
-<!-- หน้า 2 -->
 <div id="p2" class="page">
     <div class="comp-box">
         <h3 style="font-size:14px;color:#facc15;margin-bottom:10px">✏️ จัดการชื่อหนังเปรียบเทียบ</h3>
@@ -110,6 +112,21 @@ td { border: 1px solid #ddd; padding: 10px; text-align: center; font-size: 13px;
 </div>
 
 <script>
+// --- 2. ตั้งค่า Firebase (ใช้ข้อมูลจริงของคุณ) ---
+const firebaseConfig = {
+  apiKey: "AIzaSyBGDiT7wGEnigYpAp7Q3nUNiLNHtcKYEDI",
+  authDomain: "newnane-fe1b7.firebaseapp.com",
+  databaseURL: "https://newnane-fe1b7-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "newnane-fe1b7",
+  storageBucket: "newnane-fe1b7.firebasestorage.app",
+  messagingSenderId: "227043707783",
+  appId: "1:227043707783:web:24b4c5b0e9f53e5661a122",
+  measurementId: "G-51PY5LTRLD"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
 // --- รายชื่อโรงหนังทั้งหมด (ห้ามลบ) ---
 const BRANCH_HTML = `
     <optgroup label="🏙 กรุงเทพฯ - สุขุมวิท/ใจกลางเมือง">
@@ -198,10 +215,9 @@ const BRANCH_HTML = `
     </optgroup>
 `;
 
-let fullDatabase = JSON.parse(localStorage.getItem('cinema_db_v4')) || {};
-let compMovies = JSON.parse(localStorage.getItem('comp_movies_v4')) || ["Mortal Kombat 2", "Captain America"];
 let currentDay = "";
 let data1 = [], data2 = [];
+let compMovies = ["Mortal Kombat 2", "Captain America"];
 
 function init() {
     const today = new Date().toISOString().split('T')[0];
@@ -209,27 +225,38 @@ function init() {
     currentDay = today;
     document.getElementById('branch').innerHTML = BRANCH_HTML;
     document.getElementById('c-branch').innerHTML = BRANCH_HTML;
-    loadDayData(today);
-    buildCompMovieInputs();
-    renderAll();
+    
+    // โหลดข้อมูลออนไลน์
+    syncOnlineData(today);
 }
 
-function loadDayData(date) {
-    if (fullDatabase[date]) {
-        data1 = fullDatabase[date].data1 || [];
-        data2 = fullDatabase[date].data2 || [];
-    } else { data1 = []; data2 = []; }
+function syncOnlineData(date) {
+    // ฟังการเปลี่ยนแปลงของข้อมูลรายวัน
+    db.ref('cinema_data/' + date).on('value', (snapshot) => {
+        const val = snapshot.val();
+        data1 = (val && val.data1) ? val.data1 : [];
+        data2 = (val && val.data2) ? val.data2 : [];
+        renderAll();
+    });
+
+    // ฟังการเปลี่ยนแปลงของรายชื่อหนังข้างเคียง
+    db.ref('comp_movies').on('value', (snapshot) => {
+        const val = snapshot.val();
+        if (val) {
+            compMovies = val;
+            buildCompMovieInputs();
+        }
+    });
 }
 
 function save() {
-    fullDatabase[currentDay] = { data1, data2 };
-    localStorage.setItem('cinema_db_v4', JSON.stringify(fullDatabase));
-    localStorage.setItem('comp_movies_v4', JSON.stringify(compMovies));
+    db.ref('cinema_data/' + currentDay).set({ data1, data2 });
+    db.ref('comp_movies').set(compMovies);
 }
 
 function changeDate() {
-    save(); currentDay = document.getElementById('selectedDate').value;
-    loadDayData(currentDay); renderAll();
+    currentDay = document.getElementById('selectedDate').value;
+    syncOnlineData(currentDay);
 }
 
 // --- Logic หน้า 1 ---
@@ -244,7 +271,7 @@ function addData() {
         seats: parseInt(document.getElementById('seats').value) || 0,
         money: parseFloat(document.getElementById('money').value) || 0
     });
-    save(); renderTable1();
+    save();
 }
 
 function renderTable1() {
@@ -260,7 +287,7 @@ function renderTable1() {
             <td>${d.round}</td>
             <td class="editable" contenteditable="true" onblur="update1(${i},'seats',this.innerText)">${d.seats}</td>
             <td class="editable" contenteditable="true" onblur="update1(${i},'money',this.innerText)">${d.money.toLocaleString()}</td>
-            <td><button class="deleteBtn" onclick="data1.splice(${i},1);save();renderTable1()">ลบ</button></td>
+            <td><button class="deleteBtn" onclick="data1.splice(${i},1);save()">ลบ</button></td>
         </tr>
     `).join('');
     updateStats1();
@@ -269,7 +296,7 @@ function renderTable1() {
 function update1(i, f, v) { 
     if(f === 'theater') data1[i][f] = v;
     else data1[i][f] = parseFloat(v.replace(/,/g,'')) || 0; 
-    save(); updateStats1(); 
+    save();
 }
 
 function updateStats1() {
@@ -288,7 +315,7 @@ function addComp() {
         income: parseFloat(document.getElementById('c-income').value) || 0,
         audience: parseInt(document.getElementById('c-audience').value) || 0
     });
-    save(); renderTable2();
+    save();
 }
 
 function renderTable2() {
@@ -300,13 +327,13 @@ function renderTable2() {
             <td class="editable" contenteditable="true" onblur="update2(${i},'rounds',this.innerText)">${d.rounds}</td>
             <td class="editable" contenteditable="true" onblur="update2(${i},'income',this.innerText)">${d.income.toLocaleString()}</td>
             <td class="editable" contenteditable="true" onblur="update2(${i},'audience',this.innerText)">${d.audience.toLocaleString()}</td>
-            <td><button class="deleteBtn" onclick="data2.splice(${i},1);save();renderTable2()">ลบ</button></td>
+            <td><button class="deleteBtn" onclick="data2.splice(${i},1);save()">ลบ</button></td>
         </tr>
     `).join('');
     updateStats2();
 }
 
-function update2(i, f, v) { data2[i][f] = parseFloat(v.replace(/,/g,'')) || 0; save(); updateStats2(); }
+function update2(i, f, v) { data2[i][f] = parseFloat(v.replace(/,/g,'')) || 0; save(); }
 
 function updateStats2() {
     const statsDiv = document.getElementById('stats2');
@@ -320,8 +347,8 @@ function updateStats2() {
 function buildCompMovieInputs() {
     document.getElementById('compMovieInputs').innerHTML = compMovies.map((m, i) => `
         <div class="movie-input-wrap">
-            <input type="text" value="${m}" oninput="compMovies[${i}]=this.value; save(); updateCompMovieSelect();">
-            <button class="deleteBtn" style="padding:5px" onclick="compMovies.splice(${i},1);save();buildCompMovieInputs();renderTable2()">✕</button>
+            <input type="text" value="${m}" oninput="compMovies[${i}]=this.value; save();">
+            <button class="deleteBtn" style="padding:5px" onclick="compMovies.splice(${i},1);save()">✕</button>
         </div>
     `).join('');
     updateCompMovieSelect();
@@ -332,7 +359,7 @@ function updateCompMovieSelect() {
     sel.innerHTML = compMovies.map(m => `<option value="${m}">${m}</option>`).join('');
 }
 
-function addNewMovieSlot() { compMovies.push("หนังใหม่"); buildCompMovieInputs(); save(); }
+function addNewMovieSlot() { compMovies.push("หนังใหม่"); save(); }
 function showPage(id, el) {
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     document.querySelectorAll('.tab-btn').forEach(t => t.classList.remove('active'));
