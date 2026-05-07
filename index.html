@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ระบบแจ้งยอดโรงหนัง Online (Full Custom)</title>
+<title>Cinema Management - Advanced Movie & System Split</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
 
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
@@ -13,132 +13,131 @@
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: 'Noto Sans Thai', sans-serif; background: #121212; color: #e0e0e0; padding: 15px; min-height: 100vh; }
     
-    /* Header & Filter */
     .header-section { text-align: center; margin-bottom: 20px; }
     .filter-card { background: #1e1e1e; padding: 15px; border-radius: 12px; border: 1px solid #333; margin-bottom: 15px; }
     .filter-card label { display: block; margin-bottom: 8px; color: #facc15; font-weight: bold; font-size: 14px; }
     
     select, input { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #444; background: #2a2a2a; color: white; font-size: 14px; outline: none; }
-    select:focus, input:focus { border-color: #facc15; }
+    
+    .status-selector { display: flex; gap: 5px; margin-bottom: 10px; }
+    .status-btn { flex: 1; padding: 10px; border-radius: 6px; border: 1px solid #444; cursor: pointer; text-align: center; font-weight: bold; font-size: 12px; background: #333; color: #888; }
+    .status-btn.pre.active { background: #ef4444; color: white; border-color: #ef4444; }
+    .status-btn.real.active { background: #22c55e; color: white; border-color: #22c55e; }
 
-    /* Tabs */
+    .row-pre { color: #ef4444 !important; font-weight: 500; }
+    .row-real { color: #16a34a !important; font-weight: bold; }
+
     .tabs { display: flex; gap: 5px; margin-bottom: 15px; }
-    .tab-btn { flex: 1; padding: 12px; border: none; border-radius: 8px; background: #333; color: #888; cursor: pointer; font-weight: bold; transition: 0.3s; }
+    .tab-btn { flex: 1; padding: 12px; border: none; border-radius: 8px; background: #333; color: #888; cursor: pointer; font-weight: bold; }
     .tab-btn.active { background: #facc15; color: #000; }
 
     .page { display: none; }
     .page.active { display: block; }
 
-    /* Cards & Stats */
     .box { background: #1e1e1e; padding: 15px; border-radius: 12px; margin-bottom: 15px; border: 1px solid #333; }
     .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
-    .stat-card { background: #262626; padding: 15px; border-radius: 10px; text-align: center; border-bottom: 4px solid #facc15; }
-    .stat-label { font-size: 11px; color: #aaa; text-transform: uppercase; margin-bottom: 5px; }
-    .stat-value { font-size: 18px; font-weight: bold; color: #fff; }
+    .stat-card { background: #262626; padding: 12px; border-radius: 10px; text-align: center; border-bottom: 4px solid #444; }
+    .stat-value { font-size: 16px; font-weight: bold; }
 
-    /* Table */
+    /* Advanced Summary Table for TOTAL */
+    .total-summary-box { display: none; background: #1e1e1e; border: 1px solid #facc15; border-radius: 12px; padding: 15px; margin-bottom: 15px; overflow-x: auto; }
+    .total-summary-box h4 { color: #facc15; margin-bottom: 12px; text-align: center; font-size: 16px; }
+    .summary-table { width: 100%; border-collapse: collapse; min-width: 500px; color: #eee; font-size: 12px; }
+    .summary-table th { background: #333; color: #facc15; padding: 10px; text-align: left; border: 1px solid #444; }
+    .summary-table td { padding: 8px 10px; border: 1px solid #444; background: #262626; }
+    .summary-table tr.movie-total-row td { background: #333; font-weight: bold; color: #facc15; border-top: 2px solid #444; }
+
     .table-container { overflow-x: auto; background: #fff; border-radius: 10px; }
-    table { width: 100%; border-collapse: collapse; color: #333; font-size: 13px; min-width: 800px; }
-    th { background: #444; color: white; padding: 12px; text-align: center; }
+    table { width: 100%; border-collapse: collapse; color: #333; font-size: 13px; min-width: 900px; }
+    th { background: #333; color: white; padding: 12px; }
     td { padding: 10px; border-bottom: 1px solid #eee; text-align: center; }
-    tr:nth-child(even) { background: #f9f9f9; }
-    .del-btn { background: #ff4d4d; color: white; border: none; padding: 5px 8px; border-radius: 4px; cursor: pointer; }
+    
+    .editable { cursor: pointer; position: relative; padding-right: 15px !important; }
+    .editable::after { content: '✏️'; font-size: 8px; position: absolute; right: 2px; top: 50%; transform: translateY(-50%); opacity: 0.5; }
+    .edit-input { width: 80px !important; padding: 4px !important; color: #000 !important; background: #fff !important; text-align: center; border: 1px solid #3b82f6 !important; }
 
-    /* Movie Manager */
-    .movie-manager { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
-    .movie-tag { background: #333; padding: 5px 10px; border-radius: 20px; font-size: 12px; display: flex; align-items: center; gap: 8px; border: 1px solid #444; }
-    .movie-tag span { cursor: pointer; color: #ff4d4d; font-weight: bold; }
-
-    .btn-add { background: #22c55e; color: white; border: none; padding: 12px; border-radius: 8px; width: 100%; font-weight: bold; margin-top: 10px; cursor: pointer; }
-    .sound-sum { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 15px; }
-    .sound-item { background: #2a2a2a; padding: 8px 12px; border-radius: 6px; font-size: 12px; border-left: 3px solid #3b82f6; }
+    .btn-confirm { background: #22c55e; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 11px; margin-right: 5px; }
+    .del-btn { background: #ff4d4d; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 11px; }
+    .btn-add { background: #3b82f6; color: white; border: none; padding: 15px; border-radius: 8px; width: 100%; font-weight: bold; margin-top: 10px; cursor: pointer; }
+    .movie-tag { background: #333; padding: 5px 10px; border-radius: 20px; font-size: 12px; display: inline-flex; align-items: center; gap: 8px; margin: 2px; border: 1px solid #444; }
 </style>
 </head>
 <body>
 
 <div class="header-section">
-    <h2 style="color:#facc15">Cinema Report System</h2>
-    <p style="font-size:12px; color:#666">โครงการ: Newnane | Real-time Database</p>
+    <h2 style="color:#facc15">Cinema Management</h2>
+    <input type="date" id="targetDate" onchange="loadData()" style="width: auto; margin-top: 10px; border-color: #facc15;">
 </div>
 
 <div class="filter-card">
-    <label>📅 เลือกวันที่และสาขา</label>
-    <div style="display: flex; gap: 10px;">
-        <input type="date" id="targetDate" onchange="loadData()">
-        <select id="branchSelector" onchange="renderAll()">
-            <option value="TOTAL">--- ดูยอดรวมทุกสาขา ---</option>
-            <optgroup label="📍 นนทบุรี / ติวานนท์">
-                <option value="ESPLANADE RATTANATIBATE">ESPLANADE RATTANATIBATE</option>
-                <option value="MAJOR CHARN CHANGWATTHANA">MAJOR CINEPLEX CHARN CHANGWATTHANA</option>
-                <option value="MAJOR HOLLYWOOD CHANGWATTHANA">MAJOR HOLLYWOOD CHANGWATTHANA</option>
-                <option value="MAJOR TIWANON">MAJOR CINEPLEX TIWANON</option>
-            </optgroup>
-            <optgroup label="📍 เชียงใหม่">
-                <option value="MAJOR FESTIVAL CHIANGMAI">MAJOR CINEPLEX FESTIVAL CHIANGMAI</option>
-                <option value="MAJOR AIRPORT CHIANGMAI">MAJOR CINEPLEX AIRPORT CHIANGMAI</option>
-                <option value="SF MAYA CHIANGMAI">SF CINEMA MAYA CHIANGMAI</option>
-            </optgroup>
-            <optgroup label="📍 เพชรเกษม / บางแค">
-                <option value="MAJOR PETCHAKASEM">MAJOR CINEPLEX PETCHAKASEM</option>
-                <option value="SF THE MALL BANGKAE">SF CINEMA THE MALL BANGKAE</option>
-                <option value="SF BIG C PETCHAKASEM">SF CINEMA BIG C PETCHAKASEM</option>
-            </optgroup>
-            <optgroup label="📍 รัชโยธิน / เลียบด่วน">
-                <option value="MAJOR RATCHAYOTHIN">MAJOR CINEPLLEX RATCHAYOTHIN</option>
-                <option value="MAJOR EASTVILLE">MAJOR EASTVILLE</option>
-                <option value="SFX THE CRYSTAL EKAMAI-RAMINTRA">SFX THE CRYSTAL EKAMAI-RAMINTRA</option>
-            </optgroup>
-            <optgroup label="📍 เวสต์เกต / ราชพฤกษ์">
-                <option value="MAJOR CENTRAL WESTGATE">MAJOR CENTRAL WESTGATE</option>
-                <option value="SF COSMO BAZAAR">SF CINEMA COSMO BAZAAR</option>
-                <option value="MAJOR ROBINSON RATCHAPRUK">MAJOR ROBINSON RATCHAPRUK</option>
-                <option value="SF CENTRAL CHAENGWATTANA">SF CINEMA CENTRAL CHAENGWATTANA</option>
-            </optgroup>
-            <optgroup label="📍 สมุทรปราการ / บางพลี">
-                <option value="MAJOR SAMRONG">MAJOR CINEPLEX SAMRONG</option>
-                <option value="MAJOR SAMUTPRAKARN">MAJOR CINEPLEX SAMUTPRAKARN</option>
-                <option value="EGV BIG C SAMUTPRAKARN">EGV BIG C SAMUTPRAKARN</option>
-                <option value="SF BIG C BANGPLEE">SF CINEMA BIG C BANGPLEE</option>
-                <option value="SF MARKET VILLAGE SUVARNABHUMI">SF CINEMA MARKET VILLAGE SUVARNABHUMI</option>
-            </optgroup>
-            <optgroup label="📍 รามอินทรา / รังสิต / ปทุมธานี">
-                <option value="EGV RANGSIT">EGV RANGSIT</option>
-                <option value="MAJOR RANGSIT">MAJOR CINEPLEX RANGSIT</option>
-                <option value="MAJOR RANGSIT KLONG6">MAJOR CINEPLEX RANGSIT KLONG6</option>
-                <option value="MAJOR LOTUS NAWANAKORN">MAJOR CINE PLEX LOTUS NAWANAKORN</option>
-                <option value="SFX THE MALL NGAMWONGWAN">SFX CINEMA THE MALL NGAMWONGWAN</option>
-                <option value="SF RAMINTRA">SF CINEMA RAMINTRA</option>
-                <option value="MAJOR PATUMTANI">MAJOR CINEPLEX PATUMTANI</option>
-                <option value="MAJOR BANGKADI">MAJOR BANGKADI</option>
-                <option value="SF ROBINSON SRISAMAN">SF CINEMA ROBINSON SRISAMAN</option>
-            </optgroup>
-            <optgroup label="📍 อื่นๆ (ปิ่นเกล้า/ฝั่งธน/ในเมือง)">
-                <option value="ICON">ICON CINECONIC</option>
-                <option value="PARAGON CINEPLEX">PARAGON CINEPLEX</option>
-                <option value="SF MBK CENTER">SF CINEMA MBK CENTER</option>
-                <option value="QUARTIER CINEART">QUARTIER CINEART</option>
-                <option value="WESTVILLE">WESTVILLE</option>
-                <option value="SF THE CRYSTAL RATCHAPRUEK">SF CINEMA THE CRYSTAL RATCHAPRUEK</option>
-                <option value="SF THE MALL TAPRA">SF CINEMA THE MALL TAPRA</option>
-            </optgroup>
-        </select>
-    </div>
+    <label>🏢 เลือกสาขา</label>
+    <select id="branchSelector" onchange="renderAll()">
+        <option value="TOTAL">--- ดูยอดรวมทุกสาขา (แยกหนัง/แยกเสียง) ---</option>
+        <optgroup label="📍 สาขาทั้งหมด">
+            <option value="ESPLANADE RATTANATIBATE">ESPLANADE RATTANATIBATE</option>
+            <option value="MAJOR CINEPLEX CHARN CHANGWATTHANA">MAJOR CINEPLEX CHARN CHANGWATTHANA</option>
+            <option value="MAJOR HOLLYWOOD CHANGWATTHANA">MAJOR HOLLYWOOD CHANGWATTHANA</option>
+            <option value="MAJOR CINEPLEX TIWANON">MAJOR CINEPLEX TIWANON</option>
+            <option value="SF CINEMA CENTRAL CHAENGWATTANA">SF CINEMA CENTRAL CHAENGWATTANA</option>
+            <option value="MAJOR CINEPLEX FESTIVAL CHIANGMAI">MAJOR CINEPLEX FESTIVAL CHIANGMAI</option>
+            <option value="MAJOR CINEPLEX AIRPORT CHIANGMAI">MAJOR CINEPLEX AIRPORT CHIANGMAI</option>
+            <option value="SF MAYA CHIANGMAI">SF CINEMA MAYA CHIANGMAI</option>
+            <option value="MAJOR CINEPLEX PETCHAKASEM">MAJOR CINEPLEX PETCHAKASEM</option>
+            <option value="SF CINEMA THE MALL BANGKAE">SF CINEMA THE MALL BANGKAE</option>
+            <option value="WESTVILLE">WESTVILLE</option>
+            <option value="MAJOR CENTRAL WESTGATE">MAJOR CENTRAL WESTGATE</option>
+            <option value="PARAGON CINEPLEX">PARAGON CINEPLEX</option>
+            <option value="SF WORLD CINEMA CENTRAL WORLD">SF WORLD CINEMA CENTRAL WORLD</option>
+            <option value="ICON">ICON CINECONIC</option>
+            <option value="MAJOR CINEPLEX MEGA BANGNA">MAJOR CINEPLEX MEGA BANGNA</option>
+        </optgroup>
+    </select>
+</div>
+
+<div id="advancedSummary" class="total-summary-box">
+    <h4>📈 สรุปรายได้แยกตามเรื่องและระบบเสียง</h4>
+    <table class="summary-table">
+        <thead>
+            <tr>
+                <th>ชื่อภาพยนตร์</th>
+                <th>ระบบ/เสียง</th>
+                <th style="text-align:right">ยอดรวม (บาท)</th>
+            </tr>
+        </thead>
+        <tbody id="summarySplitBody"></tbody>
+    </table>
 </div>
 
 <div class="tabs">
-    <button class="tab-btn active" id="tab1" onclick="switchPage(1)">คีย์รายได้หลัก</button>
+    <button class="tab-btn active" id="tab1" onclick="switchPage(1)">รายได้หลัก</button>
     <button class="tab-btn" id="tab2" onclick="switchPage(2)">ยอดข้างเคียง</button>
+</div>
+
+<div class="box" id="movieManagerBox">
+    <label style="font-size:12px; color:#facc15">🎬 จัดการรายชื่อหนัง</label>
+    <div style="display:flex; gap:5px; margin-bottom:10px">
+        <input type="text" id="global_new_movie" placeholder="พิมพ์ชื่อหนังใหม่...">
+        <button onclick="addMovieName()" style="background:#3b82f6; border:none; padding:10px; border-radius:8px; color:white; width: 80px;">เพิ่ม</button>
+    </div>
+    <div id="movie_list_tags"></div>
 </div>
 
 <div id="p1" class="page active">
     <div class="box" id="inputBox1">
+        <div class="status-selector">
+            <div id="status-pre-1" class="status-btn pre active" onclick="setEntryStatus(1, 'PRE')">ยอดเบื้องต้น</div>
+            <div id="status-real-1" class="status-btn real" onclick="setEntryStatus(1, 'REAL')">ปิดยอดจริง</div>
+        </div>
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px">
-            <input type="text" id="m_name" placeholder="ชื่อหนัง">
+            <select id="m_name_sel"></select>
             <select id="m_sys">
-                <option>2D/TH</option><option>2D/EN</option><option>IMAX</option><option>4DX</option>
+                <option>2D/TH</option><option>2D/EN</option>
+                <option>IMAX/TH</option><option>IMAX/EN</option>
+                <option>4DX/TH</option><option>4DX/EN</option>
+                <option>ScreenX</option>
             </select>
             <input type="number" id="m_the" placeholder="โรง">
-            <input type="text" id="m_round" placeholder="รอบ (เช่น 14:00)">
+            <input type="text" id="m_round" placeholder="รอบ">
             <input type="number" id="m_seat" placeholder="ที่นั่ง">
             <input type="number" id="m_money" placeholder="ยอดเงิน">
         </div>
@@ -146,53 +145,48 @@
     </div>
 
     <div class="stats-grid">
-        <div class="stat-card"><div class="stat-label">ยอดเงินรวม</div><div id="total1_money" class="stat-value">0</div></div>
-        <div class="stat-card"><div class="stat-label">ที่นั่งรวม</div><div id="total1_seat" class="stat-value">0</div></div>
+        <div class="stat-card" style="border-color:#ef4444"><div class="stat-label">เบื้องต้นรวม</div><div id="sum1_pre" class="stat-value" style="color:#ef4444">0</div></div>
+        <div class="stat-card" style="border-color:#22c55e"><div class="stat-label">ยอดจริงรวม</div><div id="sum1_real" class="stat-value" style="color:#22c55e">0</div></div>
     </div>
-    
-    <div class="sound-sum" id="sound_p1"></div>
 
     <div class="table-container">
         <table>
-            <thead><tr><th>สาขา</th><th>หนัง</th><th>ระบบ</th><th>โรง/รอบ</th><th>ยอด</th><th>ลบ</th></tr></thead>
+            <thead><tr><th>สถานะ</th><th>สาขา</th><th>หนัง</th><th>ระบบ</th><th>ที่นั่ง (แก้ได้)</th><th>ยอดเงิน (แก้ได้)</th><th>จัดการ</th></tr></thead>
             <tbody id="tbody1"></tbody>
         </table>
     </div>
 </div>
 
 <div id="p2" class="page">
-    <div class="box">
-        <label style="font-size:12px; color:#facc15">🎬 จัดการรายชื่อหนัง</label>
-        <div style="display:flex; gap:5px; margin-bottom:10px">
-            <input type="text" id="new_movie_name" placeholder="เพิ่มชื่อหนังใหม่ที่นี่...">
-            <button onclick="addMovieName()" style="background:#3b82f6; border:none; padding:10px; border-radius:8px; color:white; cursor:pointer">เพิ่ม</button>
-        </div>
-        <div class="movie-manager" id="movie_list_tags"></div>
-    </div>
-
     <div class="box" id="inputBox2">
+        <div class="status-selector">
+            <div id="status-pre-2" class="status-btn pre active" onclick="setEntryStatus(2, 'PRE')">ยอดเบื้องต้น</div>
+            <div id="status-real-2" class="status-btn real" onclick="setEntryStatus(2, 'REAL')">ปิดยอดจริง</div>
+        </div>
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px">
             <select id="c_movie"></select>
-            <select id="c_sys"><option>2D/TH</option><option>2D/EN</option><option>IMAX</option></select>
-            <input type="number" id="c_rounds" placeholder="จำนวนรอบ">
+            <select id="c_sys"><option>2D/TH</option><option>2D/EN</option><option>IMAX/TH</option><option>IMAX/EN</option></select>
+            <input type="number" id="c_rounds" placeholder="รอบ">
             <input type="number" id="c_income" placeholder="รายได้">
             <input type="number" id="c_view" placeholder="ผู้ชม">
         </div>
         <button class="btn-add" onclick="saveData2()">บันทึกยอดข้างเคียง</button>
     </div>
 
-    <div class="sound-sum" id="sound_p2"></div>
+    <div class="stats-grid">
+        <div class="stat-card" style="border-color:#ef4444"><div class="stat-label">เบื้องต้น</div><div id="sum2_pre" class="stat-value" style="color:#ef4444">0</div></div>
+        <div class="stat-card" style="border-color:#22c55e"><div class="stat-label">ยอดจริง</div><div id="sum2_real" class="stat-value" style="color:#22c55e">0</div></div>
+    </div>
 
     <div class="table-container">
         <table>
-            <thead><tr><th>สาขา</th><th>หนัง</th><th>ระบบ</th><th>รอบ</th><th>รายได้</th><th>ผู้ชม</th><th>ลบ</th></tr></thead>
+            <thead><tr><th>สถานะ</th><th>สาขา</th><th>หนัง</th><th>รายได้ (แก้ได้)</th><th>ผู้ชม (แก้ได้)</th><th>จัดการ</th></tr></thead>
             <tbody id="tbody2"></tbody>
         </table>
     </div>
 </div>
 
 <script>
-// Firebase Config
 const firebaseConfig = {
     apiKey: "AIzaSyBGDiT7wGEnigYpAp7Q3nUNiLNHtcKYEDI",
     authDomain: "newnane-fe1b7.firebaseapp.com",
@@ -206,15 +200,14 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
 let rawData1 = [], rawData2 = [], customMovies = [];
+let currentStatus1 = 'PRE', currentStatus2 = 'PRE';
 
 function init() {
     const today = new Date().toISOString().split('T')[0];
     document.getElementById('targetDate').value = today;
     loadData();
-    
-    // Load Custom Movies
     db.ref('settings/movies').on('value', snap => {
-        customMovies = snap.val() || ["Mortal Kombat 2", "Captain America"];
+        customMovies = snap.val() || ["Mortal Kombat 2"];
         renderMovieSettings();
     });
 }
@@ -231,59 +224,148 @@ function loadData() {
 
 function renderAll() {
     const branch = document.getElementById('branchSelector').value;
-    
-    // กรองข้อมูล
-    const f1 = (branch === "TOTAL") ? rawData1 : rawData1.filter(d => d.b === branch);
-    const f2 = (branch === "TOTAL") ? rawData2 : rawData2.filter(d => d.b === branch);
+    const isTotal = (branch === "TOTAL");
+    const f1 = isTotal ? rawData1 : rawData1.filter(d => d.b === branch);
+    const f2 = isTotal ? rawData2 : rawData2.filter(d => d.b === branch);
 
-    // ซ่อนช่องคีย์ถ้าดูยอดรวม
-    document.getElementById('inputBox1').style.display = (branch === "TOTAL") ? 'none' : 'block';
-    document.getElementById('inputBox2').style.display = (branch === "TOTAL") ? 'none' : 'block';
+    document.getElementById('movieManagerBox').style.display = isTotal ? 'block' : 'none';
+    document.getElementById('advancedSummary').style.display = isTotal ? 'block' : 'none';
+    document.getElementById('inputBox1').style.display = isTotal ? 'none' : 'block';
+    document.getElementById('inputBox2').style.display = isTotal ? 'none' : 'block';
 
-    // Render Table 1
-    let h1 = '', m1 = 0, s1 = 0, snd1 = {};
-    f1.forEach((d, i) => {
-        h1 += `<tr><td>${d.b}</td><td>${d.n}</td><td>${d.s}</td><td>${d.t}/${d.r}</td><td>${d.m.toLocaleString()}</td><td><button class="del-btn" onclick="deleteData('p1',${i})">✕</button></td></tr>`;
-        m1 += d.m; s1 += d.st;
-        snd1[d.s] = (snd1[d.s] || 0) + d.m;
+    let movieSplitData = {}; // { MovieName: { SystemName: TotalMoney } }
+
+    // Page 1 Calculation
+    let h1 = '', s1p = 0, s1r = 0;
+    f1.forEach((d) => {
+        const isReal = d.stt === 'REAL';
+        const realIdx = rawData1.findIndex(item => item === d);
+        
+        if(isTotal) {
+            if(!movieSplitData[d.n]) movieSplitData[d.n] = {};
+            movieSplitData[d.n][d.s] = (movieSplitData[d.n][d.s] || 0) + d.m;
+        }
+
+        h1 += `<tr class="${isReal ? 'row-real' : 'row-pre'}">
+            <td>${isReal ? 'จริง' : 'เบื้องต้น'}</td>
+            <td>${d.b}</td><td>${d.n}</td><td>${d.s}</td>
+            <td class="editable" onclick="makeEditable(this, 'p1', ${realIdx}, 'st')">${d.st}</td>
+            <td class="editable" onclick="makeEditable(this, 'p1', ${realIdx}, 'm')">${d.m.toLocaleString()}</td>
+            <td>
+                ${!isReal ? `<button class="btn-confirm" onclick="confirmEntry('p1', ${realIdx})">Confirm</button>` : ''}
+                <button class="del-btn" onclick="deleteEntry('p1', ${realIdx})">✕</button>
+            </td>
+        </tr>`;
+        if(isReal) s1r += d.m; else s1p += d.m;
     });
     document.getElementById('tbody1').innerHTML = h1;
-    document.getElementById('total1_money').innerText = m1.toLocaleString();
-    document.getElementById('total1_seat').innerText = s1.toLocaleString();
-    document.getElementById('sound_p1').innerHTML = Object.keys(snd1).map(k => `<div class="sound-item">${k}: ${snd1[k].toLocaleString()}</div>`).join('');
+    document.getElementById('sum1_pre').innerText = s1p.toLocaleString();
+    document.getElementById('sum1_real').innerText = s1r.toLocaleString();
 
-    // Render Table 2
-    let h2 = '', snd2 = {};
-    f2.forEach((d, i) => {
-        h2 += `<tr><td>${d.b}</td><td>${d.n}</td><td>${d.s}</td><td>${d.r}</td><td>${d.i.toLocaleString()}</td><td>${d.v.toLocaleString()}</td><td><button class="del-btn" onclick="deleteData('p2',${i})">✕</button></td></tr>`;
-        snd2[d.s] = (snd2[d.s] || 0) + d.i;
+    // Page 2 Calculation
+    let h2 = '', s2p = 0, s2r = 0;
+    f2.forEach((d) => {
+        const isReal = d.stt === 'REAL';
+        const realIdx = rawData2.findIndex(item => item === d);
+        
+        if(isTotal) {
+            if(!movieSplitData[d.n]) movieSplitData[d.n] = {};
+            movieSplitData[d.n][d.s] = (movieSplitData[d.n][d.s] || 0) + d.i;
+        }
+
+        h2 += `<tr class="${isReal ? 'row-real' : 'row-pre'}">
+            <td>${isReal ? 'จริง' : 'เบื้องต้น'}</td>
+            <td>${d.b}</td><td>${d.n}</td>
+            <td class="editable" onclick="makeEditable(this, 'p2', ${realIdx}, 'i')">${d.i.toLocaleString()}</td>
+            <td class="editable" onclick="makeEditable(this, 'p2', ${realIdx}, 'v')">${d.v.toLocaleString()}</td>
+            <td>
+                ${!isReal ? `<button class="btn-confirm" onclick="confirmEntry('p2', ${realIdx})">Confirm</button>` : ''}
+                <button class="del-btn" onclick="deleteEntry('p2', ${realIdx})">✕</button>
+            </td>
+        </tr>`;
+        if(isReal) s2r += d.i; else s2p += d.i;
     });
     document.getElementById('tbody2').innerHTML = h2;
-    document.getElementById('sound_p2').innerHTML = Object.keys(snd2).map(k => `<div class="sound-item">${k}: ${snd2[k].toLocaleString()}</div>`).join('');
+    document.getElementById('sum2_pre').innerText = s2p.toLocaleString();
+    document.getElementById('sum2_real').innerText = s2r.toLocaleString();
+
+    // Render Advanced Summary (Movie + System Split)
+    if(isTotal) {
+        let summaryHtml = '';
+        Object.keys(movieSplitData).sort().forEach(movieName => {
+            let systems = movieSplitData[movieName];
+            let movieSubTotal = 0;
+            let sysCount = Object.keys(systems).length;
+            
+            Object.keys(systems).sort().forEach((sysName, index) => {
+                movieSubTotal += systems[sysName];
+                summaryHtml += `<tr>
+                    ${index === 0 ? `<td rowspan="${sysCount + 1}" style="background:#1a1a1a; font-weight:bold; color:white; vertical-align:middle;">${movieName}</td>` : ''}
+                    <td>${sysName}</td>
+                    <td style="text-align:right">${systems[sysName].toLocaleString()}</td>
+                </tr>`;
+            });
+            // ยอดรวมต่อเรื่อง
+            summaryHtml += `<tr class="movie-total-row">
+                <td style="text-align:right">รวมรายได้ ${movieName}</td>
+                <td style="text-align:right">${movieSubTotal.toLocaleString()}</td>
+            </tr>`;
+        });
+        document.getElementById('summarySplitBody').innerHTML = summaryHtml || '<tr><td colspan="3" style="text-align:center">ไม่มีข้อมูล</td></tr>';
+    }
 }
 
-// บันทึกข้อมูล
+function makeEditable(el, page, idx, field) {
+    if (el.querySelector('input')) return;
+    const originalVal = (page === 'p1') ? rawData1[idx][field] : rawData2[idx][field];
+    const input = document.createElement('input');
+    input.type = 'number';
+    input.className = 'edit-input';
+    input.value = originalVal;
+    input.onblur = function() {
+        const newVal = parseFloat(this.value) || 0;
+        if(page === 'p1') rawData1[idx][field] = newVal;
+        else rawData2[idx][field] = newVal;
+        sync();
+    };
+    input.onkeydown = function(e) { if(e.key === 'Enter') this.blur(); };
+    el.innerHTML = ''; el.appendChild(input); input.focus();
+}
+
+function confirmEntry(page, idx) {
+    if(page === 'p1') rawData1[idx].stt = 'REAL'; else rawData2[idx].stt = 'REAL';
+    sync();
+}
+
+function deleteEntry(page, idx) {
+    if(!confirm("ลบรายการนี้?")) return;
+    if(page === 'p1') rawData1.splice(idx, 1); else rawData2.splice(idx, 1);
+    sync();
+}
+
 function saveData1() {
     const branch = document.getElementById('branchSelector').value;
-    const item = {
-        b: branch, n: document.getElementById('m_name').value, s: document.getElementById('m_sys').value,
+    if(branch === "TOTAL") return;
+    rawData1.push({
+        b: branch, n: document.getElementById('m_name_sel').value, s: document.getElementById('m_sys').value,
         t: document.getElementById('m_the').value, r: document.getElementById('m_round').value,
         st: parseInt(document.getElementById('m_seat').value) || 0,
-        m: parseFloat(document.getElementById('m_money').value) || 0
-    };
-    rawData1.push(item);
+        m: parseFloat(document.getElementById('m_money').value) || 0,
+        stt: currentStatus1
+    });
     sync();
 }
 
 function saveData2() {
     const branch = document.getElementById('branchSelector').value;
-    const item = {
+    if(branch === "TOTAL") return;
+    rawData2.push({
         b: branch, n: document.getElementById('c_movie').value, s: document.getElementById('c_sys').value,
         r: parseInt(document.getElementById('c_rounds').value) || 0,
         i: parseFloat(document.getElementById('c_income').value) || 0,
-        v: parseInt(document.getElementById('c_view').value) || 0
-    };
-    rawData2.push(item);
+        v: parseInt(document.getElementById('c_view').value) || 0,
+        stt: currentStatus2
+    });
     sync();
 }
 
@@ -292,42 +374,40 @@ function sync() {
     db.ref('data/' + date).set({ p1: rawData1, p2: rawData2 });
 }
 
-function deleteData(page, idx) {
-    if(!confirm("ลบข้อมูลรายการนี้?")) return;
-    if(page === 'p1') rawData1.splice(idx, 1);
-    else rawData2.splice(idx, 1);
-    sync();
-}
-
-// จัดการชื่อหนัง
 function renderMovieSettings() {
-    const container = document.getElementById('movie_list_tags');
-    container.innerHTML = customMovies.map((m, i) => `
-        <div class="movie-tag">${m} <span onclick="removeMovieName(${i})">✕</span></div>
-    `).join('');
-    
-    document.getElementById('c_movie').innerHTML = customMovies.map(m => `<option value="${m}">${m}</option>`).join('');
+    const branch = document.getElementById('branchSelector').value;
+    const tags = customMovies.map((m, i) => `<div class="movie-tag">${m} ${branch === "TOTAL" ? `<span onclick="removeMovie(${i})" style="color:red;cursor:pointer;font-weight:bold;margin-left:5px;">✕</span>` : ''}</div>`).join('');
+    document.getElementById('movie_list_tags').innerHTML = tags;
+    const opts = customMovies.map(m => `<option value="${m}">${m}</option>`).join('');
+    document.getElementById('m_name_sel').innerHTML = opts;
+    document.getElementById('c_movie').innerHTML = opts;
 }
 
 function addMovieName() {
-    const name = document.getElementById('new_movie_name').value.trim();
+    const name = document.getElementById('global_new_movie').value.trim();
     if(name) {
         customMovies.push(name);
         db.ref('settings/movies').set(customMovies);
-        document.getElementById('new_movie_name').value = '';
+        document.getElementById('global_new_movie').value = '';
     }
 }
 
-function removeMovieName(idx) {
+function removeMovie(idx) {
+    if(!confirm("ลบชื่อหนังนี้ออกจากรายการ?")) return;
     customMovies.splice(idx, 1);
     db.ref('settings/movies').set(customMovies);
 }
 
+function setEntryStatus(p, s) {
+    if(p===1) { currentStatus1 = s; document.getElementById('status-pre-1').classList.toggle('active', s==='PRE'); document.getElementById('status-real-1').classList.toggle('active', s==='REAL'); }
+    else { currentStatus2 = s; document.getElementById('status-pre-2').classList.toggle('active', s==='PRE'); document.getElementById('status-real-2').classList.toggle('active', s==='REAL'); }
+}
+
 function switchPage(p) {
-    document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
-    document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
-    document.getElementById('p'+p).classList.add('active');
-    document.getElementById('tab'+p).classList.add('active');
+    document.getElementById('p1').classList.toggle('active', p===1);
+    document.getElementById('p2').classList.toggle('active', p===2);
+    document.getElementById('tab1').classList.toggle('active', p===1);
+    document.getElementById('tab2').classList.toggle('active', p===2);
 }
 
 init();
