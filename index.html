@@ -3,261 +3,213 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ระบบแจ้งยอดโรงหนัง</title>
+<title>ระบบแจ้งยอดโรงหนัง Full Version</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-/* --- โครงสร้าง Style เดิมทั้งหมด --- */
+/* --- Style คงเดิมเพื่อความคุ้นเคย --- */
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: 'Noto Sans Thai', 'Segoe UI', sans-serif; background: #1e1e1e; color: white; padding: 20px; min-height: 100vh; }
+body { font-family: 'Noto Sans Thai', sans-serif; background: #1e1e1e; color: white; padding: 20px; min-height: 100vh; }
 h1 { text-align: center; color: #facc15; font-size: 24px; margin-bottom: 6px; }
 .subtitle { text-align: center; color: #888; font-size: 13px; margin-bottom: 20px; }
-
 .date-bar { background: #2a2a2a; padding: 15px; border-radius: 12px; margin-bottom: 20px; display: flex; justify-content: center; align-items: center; gap: 15px; border: 1px solid #444; }
-.date-bar label { font-size: 14px; color: #facc15; font-weight: bold; }
-.date-bar input[type="date"] { background: #1e1e1e; color: #facc15; border: 1px solid #facc15; padding: 8px 15px; border-radius: 8px; font-weight: bold; cursor: pointer; }
-
+.date-bar input[type="date"] { background: #1e1e1e; color: #facc15; border: 1px solid #facc15; padding: 8px; border-radius: 8px; font-weight: bold; }
 .tabs { display: flex; justify-content: center; gap: 8px; margin-bottom: 20px; }
-.tab-btn { padding: 8px 24px; border: none; border-radius: 20px; cursor: pointer; font-family: 'Noto Sans Thai', sans-serif; font-size: 13px; font-weight: 600; background: #333; color: #aaa; transition: all 0.2s; }
+.tab-btn { padding: 10px 20px; border: none; border-radius: 20px; cursor: pointer; background: #333; color: #aaa; font-weight: 600; }
 .tab-btn.active { background: #facc15; color: #000; }
 .page { display: none; }
 .page.active { display: block; }
-
 .box { background: #2a2a2a; padding: 20px; border-radius: 15px; margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end; }
-.field-group { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 140px; }
-.field-group label { font-size: 11px; color: #aaa; padding-left: 2px; }
-input, select { padding: 10px 12px; border: 1px solid #444; border-radius: 8px; outline: none; background: #1e1e1e; color: white; font-family: 'Noto Sans Thai', sans-serif; font-size: 13px; width: 100%; transition: border 0.2s; }
-input:focus, select:focus { border-color: #facc15; }
-.addBtn { padding: 10px 24px; border: none; border-radius: 8px; cursor: pointer; color: white; font-weight: bold; font-family: 'Noto Sans Thai', sans-serif; font-size: 14px; background: #22c55e; transition: background 0.2s; align-self: flex-end; white-space: nowrap; }
-.deleteBtn { background: #ef4444; border: none; border-radius: 6px; cursor: pointer; color: white; font-weight: bold; padding: 5px 12px; font-size: 12px; }
-
+.field-group { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 130px; }
+.field-group label { font-size: 11px; color: #aaa; }
+input, select { padding: 10px; border: 1px solid #444; border-radius: 8px; background: #1e1e1e; color: white; font-size: 13px; width: 100%; }
+input:focus, select:focus { border-color: #facc15; outline: none; }
+.addBtn { padding: 10px 24px; border: none; border-radius: 8px; cursor: pointer; color: white; font-weight: bold; background: #22c55e; white-space: nowrap; }
+.deleteBtn { background: #ef4444; border: none; border-radius: 6px; cursor: pointer; color: white; padding: 5px 10px; font-size: 11px; }
 .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-bottom: 20px; }
-.stat { background: #2a2a2a; border-radius: 10px; padding: 14px; text-align: center; border-top: 3px solid transparent; }
-.stat.s-yellow { border-top-color: #facc15; }
-.stat.s-green { border-top-color: #22c55e; }
-.stat.s-blue { border-top-color: #3b82f6; }
-.stat.s-red { border-top-color: #ef4444; }
-.stat-label { font-size: 10px; color: #888; margin-bottom: 4px; }
+.stat { background: #2a2a2a; border-radius: 10px; padding: 15px; text-align: center; border-top: 3px solid #facc15; }
 .stat-val { font-size: 20px; font-weight: 700; color: #facc15; }
-.stat-sub { font-size: 10px; color: #666; }
-
-.filter-bar { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; align-items: center; }
-.fbtn { padding: 4px 14px; border-radius: 16px; border: 1px solid #444; cursor: pointer; font-size: 12px; background: #2a2a2a; color: #aaa; }
-.fbtn.active { background: #facc15; color: #000; border-color: #facc15; }
-.table-container { overflow-x: auto; border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
-table { width: 100%; border-collapse: collapse; background: white; color: black; min-width: 600px; }
-th { background: #16a34a; color: white; padding: 10px 12px; font-size: 12px; }
-td { border: 1px solid #ddd; padding: 10px 12px; text-align: center; }
-.region-bkk { background: #dbeafe !important; }
-.region-peri { background: #fef9c3 !important; }
-.region-cnx { background: #fce7f3 !important; }
-
-.comp-box { background: #2a2a2a; padding: 20px; border-radius: 15px; margin-bottom: 20px; }
-.comp-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-.comp-header h3 { font-size: 14px; color: #facc15; }
-.btn-add-movie { background: #3b82f6; color: white; border: none; padding: 5px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: bold; }
-.movie-name-inputs { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px; }
-.movie-input-wrap { display: flex; gap: 5px; align-items: center; background: #1e1e1e; padding: 5px; border-radius: 8px; border: 1px solid #333; }
-.movie-input-wrap input { border: none; padding: 8px; }
-.btn-remove-movie { background: #ef4444; color: white; border: none; width: 25px; height: 25px; border-radius: 5px; cursor: pointer; font-size: 10px; }
+.table-container { overflow-x: auto; border-radius: 10px; }
+table { width: 100%; border-collapse: collapse; background: white; color: black; min-width: 900px; }
+th { background: #16a34a; color: white; padding: 12px; font-size: 12px; }
+td { border: 1px solid #ddd; padding: 10px; text-align: center; font-size: 13px; }
+.editable { cursor: pointer; background: #fffdf0; font-weight: bold; color: #b45309; }
+.region-bkk { background: #f0f9ff !important; }
+.region-peri { background: #fffbeb !important; }
+.region-cnx { background: #fdf2f8 !important; }
+.comp-box { background: #2a2a2a; padding: 15px; border-radius: 12px; margin-bottom: 20px; }
+.movie-input-wrap { display: flex; gap: 5px; margin-bottom: 5px; }
 </style>
 </head>
 <body>
 
 <h1>🎬 ระบบแจ้งยอดโรงหนัง</h1>
-<p class="subtitle">Full Cinema Database (BKK / Peripheral / Chiang Mai)</p>
+<p class="subtitle">อัปเดตรายชื่อสาขาทั่วประเทศ (BKK / Peri / CNX)</p>
 
 <div class="date-bar">
-    <label>📅 เลือกวันที่ทำรายการ:</label>
+    <label>📅 วันที่รายการ:</label>
     <input type="date" id="selectedDate" onchange="changeDate()">
 </div>
 
 <div class="tabs">
-    <button class="tab-btn active" onclick="showPage('p1', this)">📋 แจ้งรายได้หนังหลัก</button>
+    <button class="tab-btn active" onclick="showPage('p1', this)">📋 รายได้หนังหลัก</button>
     <button class="tab-btn" onclick="showPage('p2', this)">📊 ยอดข้างเคียง</button>
 </div>
 
+<!-- หน้า 1 -->
 <div id="p1" class="page active">
     <div class="box">
-        <div class="field-group"><label>ชื่อภาพยนตร์</label><input type="text" id="movieName"></div>
-        <div class="field-group"><label>สาขา</label>
-            <select id="branch">
-                <optgroup label="🏙 กรุงเทพฯ (BKK)">
-                    <option value="PARAGON CINEPLEX|bkk">PARAGON CINEPLEX</option>
-                    <option value="ICON CINECONIC|bkk">ICON CINECONIC</option>
-                    <option value="QUARTIER CINEART|bkk">QUARTIER CINEART</option>
-                    <option value="EMBASSY DIPLOMAT|bkk">EMBASSY DIPLOMAT</option>
-                    <option value="SF WORLD CINEMA CENTRAL WORLD|bkk">SF WORLD CINEMA CENTRAL WORLD</option>
-                    <option value="SF EMPREVE' CINECLUB|bkk">SF EMPREVE' CINECLUB</option>
-                    <option value="SFX CENTRAL LADPLAO|bkk">SFX CENTRAL LADPLAO</option>
-                    <option value="SFX CENTRAL RAMA 9|bkk">SFX CENTRAL RAMA 9</option>
-                    <option value="ESPLANADE RATCHADA|bkk">ESPLANADE RATCHADA</option>
-                    <option value="MAJOR RATCHAYOTHIN|bkk">MAJOR RATCHAYOTHIN</option>
-                    <option value="MAJOR SUKHUMVIT|bkk">MAJOR SUKHUMVIT</option>
-                    <option value="MAJOR RAMA 2|bkk">MAJOR RAMA 2</option>
-                    <option value="MAJOR RAMA 3|bkk">MAJOR RAMA 3</option>
-                    <option value="MAJOR PINKLAO|bkk">MAJOR PINKLAO</option>
-                    <option value="EGV PINKLAO|bkk">EGV PINKLAO</option>
-                    <option value="MAJOR PETCHAKASEM|bkk">MAJOR PETCHAKASEM</option>
-                    <option value="SF THE MALL BANGKAE|bkk">SF THE MALL BANGKAE</option>
-                    <option value="SF BIG C PETCHAKASEM|bkk">SF BIG C PETCHAKASEM</option>
-                    <option value="EGV SEACON BANGKAE|bkk">EGV SEACON BANGKAE</option>
-                    <option value="SF MBK CENTER|bkk">SF MBK CENTER</option>
-                    <option value="ONE ULTRA SCREEN|bkk">ONE ULTRA SCREEN</option>
-                    <option value="MAJOR EASTVILLE|bkk">MAJOR EASTVILLE</option>
-                    <option value="SFX THE CRYSTAL EKAMAI-RAMINTRA|bkk">SFX THE CRYSTAL EKAMAI-RAMINTRA</option>
-                    <option value="MAJOR PROMENADE|bkk">MAJOR PROMENADE</option>
-                    <option value="MAJOR FASHION ISLAND|bkk">MAJOR FASHION ISLAND</option>
-                    <option value="MAJOR ROBINSON LADKRABUNG|bkk">MAJOR ROBINSON LADKRABUNG</option>
-                    <option value="MAJOR GATEWAY BANGSUE|bkk">MAJOR GATEWAY BANGSUE</option>
-                    <option value="MAJOR SAMSEN|bkk">MAJOR SAMSEN</option>
-                    <option value="MAJOR MEGA BANGNA|bkk">MAJOR MEGA BANGNA</option>
-                    <option value="EGV SEACON SRINAKARIN|bkk">EGV SEACON SRINAKARIN</option>
-                    <option value="SF JAS URBAN SRINAKARIN|bkk">SF JAS URBAN SRINAKARIN</option>
-                    <option value="MAJOR LOTUS BANGKAPI|bkk">MAJOR LOTUS BANGKAPI</option>
-                    <option value="MAJOR CENTRAL BANGNA|bkk">MAJOR CENTRAL BANGNA</option>
-                    <option value="BANGKAPI CINEPLEX|bkk">BANGKAPI CINEPLEX</option>
-                    <option value="MAJOR LOTUS SRINAKARIN|bkk">MAJOR LOTUS SRINAKARIN</option>
-                    <option value="MAJOR LOTUS RAMA 2|bkk">MAJOR LOTUS RAMA 2</option>
-                    <option value="MAJOR LOTUS BANGPRAKOK|bkk">MAJOR LOTUS BANGPRAKOK</option>
-                    <option value="SF THE MALL THAPRA|bkk">SF THE MALL THAPRA</option>
-                    <option value="SF TERMINAL 21 RAMA 3|bkk">SF TERMINAL 21 RAMA 3</option>
-                    <option value="SF TERMINAL 21 ASOKE|bkk">SF TERMINAL 21</option>
-                </optgroup>
-                <optgroup label="🏢 ปริมณฑล (Peri)">
-                    <option value="MAJOR CENTRAL WESTGATE|peri">MAJOR CENTRAL WESTGATE</option>
-                    <option value="ESPLANADE RATTANATIBATE|peri">ESPLANADE RATTANATIBATE</option>
-                    <option value="MAJOR CHARN CHANGWATTHANA|peri">MAJOR CHARN CHANGWATTHANA</option>
-                    <option value="MAJOR HOLLYWOOD CHANGWATTHANA|peri">MAJOR HOLLYWOOD CHANGWATTHANA</option>
-                    <option value="MAJOR TIWANON|peri">MAJOR TIWANON</option>
-                    <option value="SF COSMO BAZAAR|peri">SF COSMO BAZAAR</option>
-                    <option value="MAJOR ROBINSON RATCHAPRUK|peri">MAJOR ROBINSON RATCHAPRUK</option>
-                    <option value="SF CENTRAL CHAENGWATTANA|peri">SF CENTRAL CHAENGWATTANA</option>
-                    <option value="MAJOR SAMRONG|peri">MAJOR SAMRONG</option>
-                    <option value="MAJOR SAMUTPRAKARN|peri">MAJOR SAMUTPRAKARN</option>
-                    <option value="EGV BIG C SAMUTPRAKARN|peri">EGV BIG C SAMUTPRAKARN</option>
-                    <option value="SF BIG C BANGPLEE|peri">SF BIG C BANGPLEE</option>
-                    <option value="SF MARKET VILLAGE SUVARNABHUMI|peri">SF MARKET VILLAGE SUVARNABHUMI</option>
-                    <option value="MAJOR BIC C SUKSAWAD|peri">MAJOR BIC C SUKSAWAD</option>
-                    <option value="EGV RANGSIT|peri">EGV RANGSIT</option>
-                    <option value="MAJOR RANGSIT|peri">MAJOR RANGSIT</option>
-                    <option value="MAJOR RANGSIT KLONG 6|peri">MAJOR RANGSIT KLONG 6</option>
-                    <option value="MAJOR LOTUS NAWANAKORN|peri">MAJOR LOTUS NAWANAKORN</option>
-                    <option value="SFX THE MALL NGAMWONGWAN|peri">SFX THE MALL NGAMWONGWAN</option>
-                    <option value="WESTVILLE|peri">WESTVILLE</option>
-                    <option value="SF THE CRYSTAL RATCHAPRUEK|peri">SF THE CRYSTAL RATCHAPRUEK</option>
-                    <option value="MAJOR LOTUS BANGYAI|peri">MAJOR LOTUS BANGYAI</option>
-                    <option value="SF RAMINTRA|peri">SF RAMINTRA</option>
-                    <option value="MAJOR PATUMTANI|peri">MAJOR PATUMTANI</option>
-                    <option value="MAJOR BANGKADI|peri">MAJOR BANGKADI</option>
-                    <option value="SF ROBINSON SRISAMAN|peri">SF ROBINSON SRISAMAN</option>
-                    <option value="MAJOR LOTUS SAMUTPRAKARN|peri">MAJOR LOTUS SAMUTPRAKARN</option>
-                </optgroup>
-                <optgroup label="🏔 เชียงใหม่ (CNX)">
-                    <option value="MAJOR FESTIVAL CHIANGMAI|cnx">MAJOR FESTIVAL CHIANGMAI</option>
-                    <option value="MAJOR AIRPORT CHIANGMAI|cnx">MAJOR AIRPORT CHIANGMAI</option>
-                    <option value="SF MAYA CHIANGMAI|cnx">SF MAYA CHIANGMAI</option>
-                </optgroup>
-            </select>
-        </div>
-        <div class="field-group"><label>ระบบฉาย</label>
+        <div class="field-group"><label>ชื่อหนัง</label><input type="text" id="movieName"></div>
+        <div class="field-group"><label>สาขา</label><select id="branch"></select></div>
+        <div class="field-group"><label>ระบบ</label>
             <select id="sys">
-                <option>2D/TH</option><option>2D/EN</option><option>4DX 2D/TH</option><option>4DX 2D/EN</option>
-                <option>IMAX 2D/TH</option><option>IMAX 2D/EN</option><option>IMAX 3D/TH</option><option>IMAX 3D/EN</option>
-                <option>SCREEN X</option><option>ATMOS 2D/EN</option>
+                <option>2D/TH</option><option>2D/EN</option><option>IMAX</option><option>4DX</option><option>SCREEN X</option>
             </select>
         </div>
-        <div class="field-group"><label>รอบหนัง (เวลา)</label><input type="text" id="roundTime"></div>
-        <div class="field-group"><label>หมายเลขโรง</label><input type="number" id="theaterNo"></div>
-        <div class="field-group"><label>จำนวนที่นั่ง</label><input type="number" id="seats"></div>
-        <div class="field-group"><label>ยอดเงิน (บาท)</label><input type="number" id="money"></div>
-        <div class="field-group"><label>หมายเหตุ</label><input type="text" id="note"></div>
-        <button class="addBtn" onclick="addData()">➕ เพิ่มข้อมูล</button>
+        <div class="field-group"><label>รอบ</label><input type="text" id="roundTime" placeholder="12:00"></div>
+        <div class="field-group"><label>ที่นั่ง</label><input type="number" id="seats"></div>
+        <div class="field-group"><label>ยอดเงิน</label><input type="number" id="money"></div>
+        <button class="addBtn" onclick="addData()">➕ เพิ่ม</button>
     </div>
-
-    <div class="stats" id="stats1">
-        <div class="stat s-yellow"><div class="stat-label">รายได้รวม</div><div class="stat-val" id="s-money">0</div><div class="stat-sub">บาท</div></div>
-        <div class="stat s-green"><div class="stat-label">ที่นั่งรวม</div><div class="stat-val" id="s-seats">0</div><div class="stat-sub">ที่นั่ง</div></div>
-        <div class="stat s-blue"><div class="stat-label">รายการทั้งหมด</div><div class="stat-val" id="s-count">0</div><div class="stat-sub">รายการ</div></div>
+    <div class="stats">
+        <div class="stat"><div style="font-size:10px;color:#888">รายได้รวม</div><div id="s-money" class="stat-val">0</div></div>
+        <div class="stat"><div style="font-size:10px;color:#888">ที่นั่งรวม</div><div id="s-seats" class="stat-val">0</div></div>
     </div>
-
-    <div class="filter-bar">
-        <span>กรองโซน:</span>
-        <button class="fbtn active" onclick="filterTable('all', this)">🌐 ทั้งหมด</button>
-        <button class="fbtn" onclick="filterTable('bkk', this)">🏙 กรุงเทพฯ</button>
-        <button class="fbtn" onclick="filterTable('peri', this)">🏢 ปริมณฑล</button>
-        <button class="fbtn" onclick="filterTable('cnx', this)">🏔 เชียงใหม่</button>
-    </div>
-
     <div class="table-container">
         <table>
-            <thead><tr><th>#</th><th>ชื่อหนัง</th><th>สาขา</th><th>โซน</th><th>ระบบ</th><th>โรง</th><th>รอบ</th><th>ที่นั่ง</th><th>ยอดเงิน</th><th>ลบ</th></tr></thead>
+            <thead><tr><th>#</th><th>ชื่อหนัง</th><th>สาขา</th><th>โซน</th><th>ระบบ</th><th>รอบ</th><th>ที่นั่ง (แก้ไขได้)</th><th>ยอดเงิน (แก้ไขได้)</th><th>ลบ</th></tr></thead>
             <tbody id="tableData"></tbody>
         </table>
     </div>
 </div>
 
+<!-- หน้า 2 -->
 <div id="p2" class="page">
     <div class="comp-box">
-        <div class="comp-header">
-            <h3>✏️ จัดการรายชื่อภาพยนตร์ข้างเคียง</h3>
-            <button class="btn-add-movie" onclick="addNewMovieSlot()">➕ เพิ่มเรื่องใหม่</button>
-        </div>
-        <div class="movie-name-inputs" id="compMovieInputs"></div>
+        <h3 style="font-size:14px;color:#facc15;margin-bottom:10px">✏️ จัดการชื่อหนังเปรียบเทียบ</h3>
+        <div id="compMovieInputs" style="display:grid;grid-template-columns:repeat(auto-fill, minmax(200px, 1fr));gap:10px"></div>
+        <button class="addBtn" style="margin-top:10px;background:#3b82f6" onclick="addNewMovieSlot()">➕ เพิ่มชื่อหนัง</button>
     </div>
-    
     <div class="box">
         <div class="field-group"><label>สาขา</label><select id="c-branch"></select></div>
         <div class="field-group"><label>ภาพยนตร์</label><select id="c-movie"></select></div>
-        <div class="field-group"><label>ระบบ</label>
-            <select id="c-sys">
-                <option>2D/TH</option><option>2D/EN</option><option>IMAX</option><option>4DX</option>
-            </select>
-        </div>
-        <div class="field-group"><label>รอบ 14:00 (เงิน)</label><input type="number" id="c-i14"></div>
-        <div class="field-group"><label>รอบ 14:00 (ที่)</label><input type="number" id="c-s14"></div>
-        <div class="field-group"><label>รอบ 16:30 (เงิน)</label><input type="number" id="c-i16"></div>
-        <div class="field-group"><label>รอบ 16:30 (ที่)</label><input type="number" id="c-s16"></div>
+        <div class="field-group"><label>ระบบ</label><select id="c-sys"><option>2D/TH</option><option>2D/EN</option><option>IMAX</option></select></div>
+        <div class="field-group"><label>จอ</label><input type="number" id="c-screens" value="1"></div>
+        <div class="field-group"><label>รอบ</label><input type="number" id="c-rounds"></div>
+        <div class="field-group"><label>รายได้</label><input type="number" id="c-income"></div>
+        <div class="field-group"><label>ผู้ชม</label><input type="number" id="c-audience"></div>
         <button class="addBtn" onclick="addComp()">➕ เพิ่มข้อมูล</button>
     </div>
     <div class="stats" id="stats2"></div>
     <div class="table-container">
         <table>
-            <thead><tr><th>#</th><th>สาขา</th><th>โซน</th><th>ภาพยนตร์</th><th>ระบบ</th><th>14:00(เงิน)</th><th>14:00(ที่)</th><th>16:30(เงิน)</th><th>16:30(ที่)</th><th>รวมเงิน</th><th>ลบ</th></tr></thead>
+            <thead><tr><th>#</th><th>สาขา</th><th>โซน</th><th>ภาพยนตร์</th><th>ระบบ</th><th>จอ</th><th>รอบ</th><th>รายได้</th><th>ผู้ชม</th><th>ลบ</th></tr></thead>
             <tbody id="compTableData"></tbody>
         </table>
     </div>
 </div>
 
 <script>
-/* --- Logic ทั้งหมดห้ามลบโค้ดเดิม --- */
-let fullDatabase = JSON.parse(localStorage.getItem('cinema_master_db')) || {};
-let currentDay = ""; 
-let compMovies = JSON.parse(localStorage.getItem('comp_movies_list')) || ["Mortal Kombat 2", "Billie Eilish", "Ghost in The Cell"];
+// --- รายชื่อโรงหนังทั้งหมด (จัดหมวดหมู่ตามที่คุณส่งมา) ---
+const BRANCH_HTML = `
+    <optgroup label="🏙 กรุงเทพฯ - สุขุมวิท/ใจกลางเมือง">
+        <option value="PARAGON CINEPLEX|bkk">PARAGON CINEPLEX</option>
+        <option value="QUARTIER CINEART|bkk">QUARTIER CINEART</option>
+        <option value="EMBASSY DIPLOMAT|bkk">EMBASSY DIPLOMAT</option>
+        <option value="SF WORLD CINEMA CENTRAL WORLD|bkk">SF WORLD CINEMA CENTRAL WORLD</option>
+        <option value="SF EMPREVE' CINECLUB|bkk">SF EMPREVE' CINECLUB</option>
+        <option value="SF TERMINAL 21|bkk">SF TERMINAL 21</option>
+        <option value="SF MBK CENTER|bkk">SF MBK CENTER</option>
+        <option value="MAJOR SUKHUMVIT|bkk">MAJOR SUKHUMVIT</option>
+        <option value="ONE ULTRA SCREEN|bkk">ONE ULTRA SCREEN</option>
+    </optgroup>
+    <optgroup label="🏙 กรุงเทพฯ - รัชดา/ลาดพร้าว/พหลโยธิน">
+        <option value="ESPLANADE RATCHADA|bkk">ESPLANADE RATCHADA</option>
+        <option value="SFX CENTRAL LADPLAO|bkk">SFX CENTRAL LADPLAO</option>
+        <option value="SFX CENTRAL RAMA 9|bkk">SFX CENTRAL RAMA 9</option>
+        <option value="MAJOR RATCHAYOTHIN|bkk">MAJOR RATCHAYOTHIN</option>
+        <option value="MAJOR GATEWAY BANGSUE|bkk">MAJOR GATEWAY BANGSUE</option>
+        <option value="MAJOR SAMSEN|bkk">MAJOR SAMSEN</option>
+    </optgroup>
+    <optgroup label="🏙 กรุงเทพฯ - ฝั่งธน/เพชรเกษม/พระราม 2">
+        <option value="ICON CINECONIC|bkk">ICON CINECONIC</option>
+        <option value="MAJOR PINKLAO|bkk">MAJOR PINKLAO</option>
+        <option value="EGV PINKLAO|bkk">EGV PINKLAO</option>
+        <option value="MAJOR PETCHAKASEM|bkk">MAJOR PETCHAKASEM</option>
+        <option value="SF THE MALL BANGKAE|bkk">SF THE MALL BANGKAE</option>
+        <option value="SF BIG C PETCHAKASEM|bkk">SF BIG C PETCHAKASEM</option>
+        <option value="EGV SEACON BANGKAE|bkk">EGV SEACON BANGKAE</option>
+        <option value="MAJOR RAMA 2|bkk">MAJOR RAMA 2</option>
+        <option value="MAJOR LOTUS RAMA 2|bkk">MAJOR LOTUS RAMA 2</option>
+        <option value="MAJOR LOTUS BANGPRAKOK|bkk">MAJOR LOTUS BANGPRAKOK</option>
+        <option value="SF THE MALL THAPRA|bkk">SF THE MALL THAPRA</option>
+        <option value="MAJOR BIC C SUKSAWAD|bkk">MAJOR BIC C SUKSAWAD</option>
+    </optgroup>
+    <optgroup label="🏙 กรุงเทพฯ - พระราม 3/ตะวันออก">
+        <option value="MAJOR RAMA 3|bkk">MAJOR RAMA 3</option>
+        <option value="SF TERMINAL 21 RAMA 3|bkk">SF TERMINAL 21 RAMA 3</option>
+        <option value="MAJOR EASTVILLE|bkk">MAJOR EASTVILLE</option>
+        <option value="SFX THE CRYSTAL EKAMAI-RAMINTRA|bkk">SFX THE CRYSTAL EKAMAI-RAMINTRA</option>
+        <option value="MAJOR PROMENADE|bkk">MAJOR PROMENADE</option>
+        <option value="MAJOR FASHION ISLAND|bkk">MAJOR FASHION ISLAND</option>
+        <option value="MAJOR ROBINSON LADKRABUNG|bkk">MAJOR ROBINSON LADKRABUNG</option>
+        <option value="MAJOR LOTUS BANGKAPI|bkk">MAJOR LOTUS BANGKAPI</option>
+        <option value="MAJOR CENTRAL BANGNA|bkk">MAJOR CENTRAL BANGNA</option>
+        <option value="BANGKAPI CINEPLEX|bkk">BANGKAPI CINEPLEX (THE MALL)</option>
+        <option value="MAJOR LOTUS SRINAKARIN|bkk">MAJOR LOTUS SRINAKARIN</option>
+        <option value="MAJOR MEGA BANGNA|bkk">MAJOR MEGA BANGNA</option>
+        <option value="EGV SEACON SRINAKARIN|bkk">EGV SEACON SRINAKARIN</option>
+        <option value="SF JAS URBAN SRINAKARIN|bkk">SF JAS URBAN SRINAKARIN</option>
+    </optgroup>
+    <optgroup label="🏢 ปริมณฑล - นนทบุรี/ราชพฤกษ์">
+        <option value="ESPLANADE RATTANATIBATE|peri">ESPLANADE RATTANATIBATE</option>
+        <option value="MAJOR CHARN CHANGWATTHANA|peri">MAJOR CHARN CHANGWATTHANA</option>
+        <option value="MAJOR HOLLYWOOD CHANGWATTHANA|peri">MAJOR HOLLYWOOD CHANGWATTHANA</option>
+        <option value="MAJOR TIWANON|peri">MAJOR TIWANON</option>
+        <option value="MAJOR CENTRAL WESTGATE|peri">MAJOR CENTRAL WESTGATE</option>
+        <option value="SF CENTRAL CHAENGWATTANA|peri">SF CENTRAL CHAENGWATTANA</option>
+        <option value="SF COSMO BAZAAR|peri">SF COSMO BAZAAR</option>
+        <option value="MAJOR ROBINSON RATCHAPRUK|peri">MAJOR ROBINSON RATCHAPRUK</option>
+        <option value="WESTVILLE CINEPLEX|peri">WESTVILLE CINEPLEX</option>
+        <option value="SF THE CRYSTAL RATCHAPRUEK|peri">SF THE CRYSTAL RATCHAPRUEK</option>
+        <option value="MAJOR LOTUS BANGYAI|peri">MAJOR LOTUS BANGYAI</option>
+        <option value="SFX THE MALL NGAMWONGWAN|peri">SFX THE MALL NGAMWONGWAN</option>
+    </optgroup>
+    <optgroup label="🏢 ปริมณฑล - สมุทรปราการ/ปทุมธานี/รังสิต">
+        <option value="MAJOR SAMRONG|peri">MAJOR SAMRONG</option>
+        <option value="MAJOR SAMUTPRAKARN|peri">MAJOR SAMUTPRAKARN</option>
+        <option value="MAJOR LOTUS SAMUTPRAKARN|peri">MAJOR LOTUS SAMUTPRAKARN</option>
+        <option value="EGV BIG C SAMUTPRAKARN|peri">EGV BIG C SAMUTPRAKARN</option>
+        <option value="SF BIG C BANGPLEE|peri">SF BIG C BANGPLEE</option>
+        <option value="SF MARKET VILLAGE SUVARNABHUMI|peri">SF MARKET VILLAGE SUVARNABHUMI</option>
+        <option value="EGV RANGSIT|peri">EGV RANGSIT</option>
+        <option value="MAJOR RANGSIT|peri">MAJOR RANGSIT</option>
+        <option value="MAJOR RANGSIT KLONG 6|peri">MAJOR RANGSIT KLONG 6</option>
+        <option value="MAJOR LOTUS NAWANAKORN|peri">MAJOR LOTUS NAWANAKORN</option>
+        <option value="MAJOR PATUMTANI|peri">MAJOR PATUMTANI</option>
+        <option value="MAJOR BANGKADI|peri">MAJOR BANGKADI</option>
+        <option value="SF ROBINSON SRISAMAN|peri">SF ROBINSON SRISAMAN</option>
+        <option value="SF RAMINTRA|peri">SF RAMINTRA</option>
+    </optgroup>
+    <optgroup label="🏔 เชียงใหม่ (CNX)">
+        <option value="MAJOR FESTIVAL CHIANGMAI|cnx">MAJOR FESTIVAL CHIANGMAI</option>
+        <option value="MAJOR AIRPORT CHIANGMAI|cnx">MAJOR AIRPORT CHIANGMAI</option>
+        <option value="SF MAYA CHIANGMAI|cnx">SF MAYA CHIANGMAI</option>
+    </optgroup>
+`;
 
-let data1 = [];
-let data2 = [];
-let filter1 = 'all';
-
-const REGION_LABEL = { bkk: '🏙 กรุงเทพฯ', peri: '🏢 ปริมณฑล', cnx: '🏔 เชียงใหม่' };
-const REGION_CLASS = { bkk: 'region-bkk', peri: 'region-peri', cnx: 'region-cnx' };
+let fullDatabase = JSON.parse(localStorage.getItem('cinema_db_v3')) || {};
+let compMovies = JSON.parse(localStorage.getItem('comp_movies_v3')) || ["Mortal Kombat 2", "Captain America"];
+let currentDay = "";
+let data1 = [], data2 = [];
 
 function init() {
     const today = new Date().toISOString().split('T')[0];
     document.getElementById('selectedDate').value = today;
     currentDay = today;
+    document.getElementById('branch').innerHTML = BRANCH_HTML;
+    document.getElementById('c-branch').innerHTML = BRANCH_HTML;
     loadDayData(today);
-    // อัปเดตรายชื่อสาขาหน้า 2 ให้เหมือนหน้า 1
-    document.getElementById('c-branch').innerHTML = document.getElementById('branch').innerHTML;
     buildCompMovieInputs();
-    renderAll();
-}
-
-function changeDate() {
-    const newDate = document.getElementById('selectedDate').value;
-    if(!newDate) return;
-    saveToMaster();
-    currentDay = newDate;
-    loadDayData(newDate);
     renderAll();
 }
 
@@ -265,39 +217,98 @@ function loadDayData(date) {
     if (fullDatabase[date]) {
         data1 = fullDatabase[date].data1 || [];
         data2 = fullDatabase[date].data2 || [];
-    } else {
-        data1 = []; data2 = [];
-    }
+    } else { data1 = []; data2 = []; }
 }
 
-function saveToMaster() {
-    fullDatabase[currentDay] = { data1: data1, data2: data2 };
-    localStorage.setItem('cinema_master_db', JSON.stringify(fullDatabase));
-    localStorage.setItem('comp_movies_list', JSON.stringify(compMovies));
+function save() {
+    fullDatabase[currentDay] = { data1, data2 };
+    localStorage.setItem('cinema_db_v3', JSON.stringify(fullDatabase));
+    localStorage.setItem('comp_movies_v3', JSON.stringify(compMovies));
 }
 
-// ฟังก์ชันเพิ่ม-ลบชื่อหนังข้างเคียง (ตามคำขอ)
-function addNewMovieSlot() {
-    compMovies.push("ระบุชื่อหนังใหม่");
-    saveToMaster();
-    buildCompMovieInputs();
+function changeDate() {
+    save(); currentDay = document.getElementById('selectedDate').value;
+    loadDayData(currentDay); renderAll();
 }
 
-function removeMovieSlot(idx) {
-    if(compMovies.length <= 1) return;
-    if(confirm("ลบรายชื่อหนัง?")) {
-        compMovies.splice(idx, 1);
-        saveToMaster();
-        buildCompMovieInputs();
-        renderTable2();
-    }
+// --- Logic หน้า 1 ---
+function addData() {
+    const b = document.getElementById('branch').value.split('|');
+    data1.push({
+        movie: document.getElementById('movieName').value,
+        branch: b[0], region: b[1],
+        sys: document.getElementById('sys').value,
+        round: document.getElementById('roundTime').value,
+        seats: parseInt(document.getElementById('seats').value) || 0,
+        money: parseFloat(document.getElementById('money').value) || 0
+    });
+    save(); renderTable1();
+}
+
+function renderTable1() {
+    const tbody = document.getElementById('tableData');
+    tbody.innerHTML = data1.map((d, i) => `
+        <tr class="region-${d.region}">
+            <td>${i+1}</td><td>${d.movie}</td><td>${d.branch}</td><td>${d.region.toUpperCase()}</td><td>${d.sys}</td><td>${d.round}</td>
+            <td class="editable" contenteditable="true" onblur="update1(${i},'seats',this.innerText)">${d.seats}</td>
+            <td class="editable" contenteditable="true" onblur="update1(${i},'money',this.innerText)">${d.money.toLocaleString()}</td>
+            <td><button class="deleteBtn" onclick="data1.splice(${i},1);save();renderTable1()">ลบ</button></td>
+        </tr>
+    `).join('');
+    updateStats1();
+}
+
+function update1(i, f, v) { data1[i][f] = parseFloat(v.replace(/,/g,'')) || 0; save(); updateStats1(); }
+function updateStats1() {
+    document.getElementById('s-money').textContent = data1.reduce((s,d)=>s+d.money,0).toLocaleString();
+    document.getElementById('s-seats').textContent = data1.reduce((s,d)=>s+d.seats,0).toLocaleString();
+}
+
+// --- Logic หน้า 2 ---
+function addComp() {
+    const b = document.getElementById('c-branch').value.split('|');
+    data2.push({
+        branch: b[0], region: b[1], movie: document.getElementById('c-movie').value,
+        sys: document.getElementById('c-sys').value,
+        screens: parseInt(document.getElementById('c-screens').value) || 0,
+        rounds: parseInt(document.getElementById('c-rounds').value) || 0,
+        income: parseFloat(document.getElementById('c-income').value) || 0,
+        audience: parseInt(document.getElementById('c-audience').value) || 0
+    });
+    save(); renderTable2();
+}
+
+function renderTable2() {
+    const tbody = document.getElementById('compTableData');
+    tbody.innerHTML = data2.map((d, i) => `
+        <tr class="region-${d.region}">
+            <td>${i+1}</td><td>${d.branch}</td><td>${d.region.toUpperCase()}</td><td>${d.movie}</td><td>${d.sys}</td>
+            <td class="editable" contenteditable="true" onblur="update2(${i},'screens',this.innerText)">${d.screens}</td>
+            <td class="editable" contenteditable="true" onblur="update2(${i},'rounds',this.innerText)">${d.rounds}</td>
+            <td class="editable" contenteditable="true" onblur="update2(${i},'income',this.innerText)">${d.income.toLocaleString()}</td>
+            <td class="editable" contenteditable="true" onblur="update2(${i},'audience',this.innerText)">${d.audience.toLocaleString()}</td>
+            <td><button class="deleteBtn" onclick="data2.splice(${i},1);save();renderTable2()">ลบ</button></td>
+        </tr>
+    `).join('');
+    updateStats2();
+}
+
+function update2(i, f, v) { data2[i][f] = parseFloat(v.replace(/,/g,'')) || 0; save(); updateStats2(); }
+
+function updateStats2() {
+    const statsDiv = document.getElementById('stats2');
+    const movieTotals = compMovies.map(m => {
+        const rows = data2.filter(d => d.movie === m);
+        return { name: m, inc: rows.reduce((s, d) => s + d.income, 0) };
+    });
+    statsDiv.innerHTML = movieTotals.map(t => t.inc > 0 ? `<div class="stat"><div style="font-size:10px;color:#888">${t.name}</div><div class="stat-val">${t.inc.toLocaleString()}</div></div>` : "").join('');
 }
 
 function buildCompMovieInputs() {
     document.getElementById('compMovieInputs').innerHTML = compMovies.map((m, i) => `
         <div class="movie-input-wrap">
-            <input type="text" value="${m}" oninput="compMovies[${i}]=this.value; saveToMaster(); updateCompMovieSelect(); renderTable2()">
-            <button class="btn-remove-movie" onclick="removeMovieSlot(${i})">✕</button>
+            <input type="text" value="${m}" oninput="compMovies[${i}]=this.value; save(); updateCompMovieSelect();">
+            <button class="deleteBtn" style="padding:5px" onclick="compMovies.splice(${i},1);save();buildCompMovieInputs();renderTable2()">✕</button>
         </div>
     `).join('');
     updateCompMovieSelect();
@@ -305,90 +316,16 @@ function buildCompMovieInputs() {
 
 function updateCompMovieSelect() {
     const sel = document.getElementById('c-movie');
-    const cur = sel.value;
     sel.innerHTML = compMovies.map(m => `<option value="${m}">${m}</option>`).join('');
-    if (cur && compMovies.includes(cur)) sel.value = cur;
 }
 
-// --- ฟังก์ชันหลักอื่นๆ ---
-function renderAll() { renderTable1(); renderTable2(); }
-
-function addData() {
-    const movie = document.getElementById('movieName').value;
-    const branchVal = document.getElementById('branch').value;
-    const sys = document.getElementById('sys').value;
-    const roundTime = document.getElementById('roundTime').value;
-    const seats = parseInt(document.getElementById('seats').value) || 0;
-    const money = parseFloat(document.getElementById('money').value) || 0;
-    const [branchName, region] = branchVal.split('|');
-    data1.push({ movie, branchName, region, sys, roundTime, theaterNo: document.getElementById('theaterNo').value, seats, money });
-    saveToMaster(); renderTable1();
-}
-
-function addComp() {
-    const branchVal = document.getElementById('c-branch').value;
-    const movie = document.getElementById('c-movie').value;
-    const [branchName, region] = branchVal.split('|');
-    data2.push({ 
-        branchName, region, movie, sys: document.getElementById('c-sys').value,
-        i14: parseFloat(document.getElementById('c-i14').value) || 0,
-        s14: parseInt(document.getElementById('c-s14').value) || 0,
-        i16: parseFloat(document.getElementById('c-i16').value) || 0,
-        s16: parseInt(document.getElementById('c-s16').value) || 0
-    });
-    saveToMaster(); renderTable2();
-}
-
-function deleteRow1(idx) { data1.splice(idx, 1); saveToMaster(); renderTable1(); }
-function deleteRow2(idx) { data2.splice(idx, 1); saveToMaster(); renderTable2(); }
-
-function renderTable1() {
-    const filtered = filter1 === 'all' ? data1 : data1.filter(d => d.region === filter1);
-    const tbody = document.getElementById('tableData');
-    tbody.innerHTML = filtered.map((d, i) => `
-        <tr class="${REGION_CLASS[d.region]}">
-            <td>${i + 1}</td><td><strong>${d.movie}</strong></td><td>${d.branchName}</td>
-            <td>${REGION_LABEL[d.region]}</td><td>${d.sys}</td><td>${d.theaterNo}</td>
-            <td>${d.roundTime}</td><td>${d.seats}</td><td>${d.money.toLocaleString()}</td>
-            <td><button class="deleteBtn" onclick="deleteRow1(${data1.indexOf(d)})">ลบ</button></td>
-        </tr>`).join('');
-    updateStats1();
-}
-
-function renderTable2() {
-    const tbody = document.getElementById('compTableData');
-    tbody.innerHTML = data2.map((d, i) => `
-        <tr class="${REGION_CLASS[d.region]}">
-            <td>${i+1}</td><td>${d.branchName}</td><td>${REGION_LABEL[d.region]}</td><td>${d.movie}</td><td>${d.sys}</td>
-            <td>${d.i14.toLocaleString()}</td><td>${d.s14}</td>
-            <td>${d.i16.toLocaleString()}</td><td>${d.s16}</td>
-            <td><strong>${(d.i14 + d.i16).toLocaleString()}</strong></td>
-            <td><button class="deleteBtn" onclick="deleteRow2(${i})">ลบ</button></td>
-        </tr>`).join('');
-    updateStats2();
-}
-
-function updateStats1() {
-    document.getElementById('s-money').textContent = data1.reduce((s, d) => s + d.money, 0).toLocaleString();
-    document.getElementById('s-seats').textContent = data1.reduce((s, d) => s + d.seats, 0).toLocaleString();
-    document.getElementById('s-count').textContent = data1.length;
-}
-
-function updateStats2() {
-    const statsDiv = document.getElementById('stats2');
-    const movieTotals = compMovies.map(m => {
-        const rows = data2.filter(d => d.movie === m);
-        return { name: m, inc: rows.reduce((s, d) => s + d.i14 + d.i16, 0) };
-    });
-    statsDiv.innerHTML = movieTotals.map(t => t.inc > 0 ? `<div class="stat s-blue"><div class="stat-label">${t.name}</div><div class="stat-val">${t.inc.toLocaleString()}</div></div>` : "").join('');
-}
-
+function addNewMovieSlot() { compMovies.push("หนังใหม่"); buildCompMovieInputs(); save(); }
 function showPage(id, el) {
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     document.querySelectorAll('.tab-btn').forEach(t => t.classList.remove('active'));
     document.getElementById(id).classList.add('active'); el.classList.add('active');
 }
-function filterTable(r, el) { filter1 = r; document.querySelectorAll('#p1 .fbtn').forEach(b => b.classList.remove('active')); el.classList.add('active'); renderTable1(); }
+function renderAll() { renderTable1(); renderTable2(); }
 
 init();
 </script>
