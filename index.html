@@ -11,7 +11,7 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
 
 <style>
-    /* CSS พื้นฐานคงเดิม */
+    /* CSS ทั้งหมดคงเดิม */
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: 'Noto Sans Thai', sans-serif; background: #121212; color: #e0e0e0; padding: 15px; min-height: 100vh; }
     #login-page { display: flex; flex-direction: column; align-items: center; justify-content: center; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #121212; z-index: 9999; }
@@ -43,7 +43,7 @@
     .summary-table th { background: #333; color: #facc15; padding: 10px; text-align: left; border: 1px solid #444; }
     .summary-table td { padding: 8px 10px; border: 1px solid #444; background: #262626; }
     .table-container { overflow-x: auto; background: #fff; border-radius: 10px; margin-top: 10px; }
-    table { width: 100%; border-collapse: collapse; color: #333; font-size: 11px; min-width: 1000px; }
+    table { width: 100%; border-collapse: collapse; color: #333; font-size: 11px; min-width: 900px; }
     th { background: #333; color: white; padding: 10px; position: sticky; top: 0; }
     td { padding: 8px; border-bottom: 1px solid #eee; text-align: center; }
     .row-pre { color: #ef4444; font-weight: bold; }
@@ -76,7 +76,8 @@
 
     <div class="header-section">
         <h2 style="color:#facc15">Cinema Management</h2>
-        <input type="date" id="targetDate" onchange="loadData()" style="width: auto; margin-top: 10px; border-color: #facc15;">
+        <p style="font-size: 12px; color: #888;">เรียกดูข้อมูลวันที่:</p>
+        <input type="date" id="targetDate" onchange="loadData()" style="width: auto; margin-top: 5px; border-color: #facc15;">
     </div>
 
     <div class="filter-card">
@@ -104,36 +105,35 @@
         <button class="tab-btn" id="tab2" onclick="switchPage(2)">ยอดข้างเคียง</button>
     </div>
 
+    <!-- แผงควบคุม Admin -->
     <div id="adminPanel" class="box" style="display:none">
         <h4 style="color:#facc15; margin-bottom:10px;">🛠️ แผงควบคุม Admin</h4>
-        
-        <!-- ส่วนจัดการสาขา -->
+        <div style="background: #1a365d; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #3b82f6;">
+            <p style="font-size: 13px; color: #fff; margin-bottom: 10px; font-weight: bold;">📥 ส่งออกข้อมูล (CSV)</p>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+                <button onclick="exportToCSV(1)" style="background:#3b82f6; border:none; padding:10px; border-radius:8px; color:white; font-weight:bold; cursor:pointer;">โหลดรายได้หลัก</button>
+                <button onclick="exportToCSV(2)" style="background:#22c55e; border:none; padding:10px; border-radius:8px; color:white; font-weight:bold; cursor:pointer;">โหลดยอดข้างเคียง</button>
+            </div>
+        </div>
         <datalist id="emailSuggestions"></datalist>
         <div style="background: #2a2a2a; padding: 10px; border-radius: 8px; margin-bottom: 10px; border: 1px dashed #facc15;">
             <p style="font-size: 11px; color: #facc15; margin-bottom: 5px;">📧 กำหนด Email ผู้ดูแล:</p>
             <input type="email" id="emailQuickSelect" list="emailSuggestions" placeholder="พิมพ์ Email ผู้ดูแล...">
         </div>
-
         <div style="display:flex; gap:5px; margin-bottom:10px">
             <input type="text" id="new_branch_name" placeholder="เพิ่มสาขาใหม่...">
             <button onclick="addBranch()" style="background:#facc15; border:none; padding:10px; border-radius:8px; color:black; font-weight:bold;">เพิ่ม</button>
             <button onclick="importMasterBranches()" style="background:#444; border:none; padding:10px; border-radius:8px; color:white; font-size:10px;">โหลดสาขามาตรฐาน</button>
         </div>
         <div id="list_tags_branches" style="display: flex; flex-wrap: wrap; gap: 5px; max-height: 200px; overflow-y: auto; padding: 5px; background: #000; border-radius: 8px; margin-bottom:15px;"></div>
-        
         <hr style="border:0; border-top:1px solid #333; margin:15px 0">
-        
-        <!-- ส่วนจัดการระบบเสียง -->
         <h4 style="color:#facc15; margin-bottom:10px;">🔊 จัดการระบบ/เสียง</h4>
         <div style="display:flex; gap:5px; margin-bottom:5px">
             <input type="text" id="new_system_name" placeholder="เช่น 2D/TH, VIP, 3D...">
             <button onclick="addSystem()" style="background:#facc15; border:none; padding:10px; border-radius:8px; color:black;">เพิ่ม</button>
         </div>
         <div id="list_tags_systems" style="margin-bottom:15px"></div>
-
         <hr style="border:0; border-top:1px solid #333; margin:15px 0">
-
-        <!-- ส่วนจัดการหนัง -->
         <h4 style="color:#facc15; margin-bottom:10px;">🎬 รายชื่อหนัง</h4>
         <div style="display:flex; gap:5px; margin-bottom:5px">
             <input type="text" id="new_movie_main" placeholder="หนังหลัก...">
@@ -147,7 +147,7 @@
         <div id="list_tags_side"></div>
     </div>
 
-    <!-- Page 1 รายได้หลัก -->
+    <!-- หน้ากรอกข้อมูล P1 -->
     <div id="p1" class="page active">
         <div class="box" id="inputBox1" style="display:none;">
             <div class="status-selector">
@@ -155,6 +155,7 @@
                 <div id="st-real-1" class="status-btn real" onclick="setStatus(1,'REAL')">ปิดยอดจริง</div>
             </div>
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px">
+                <div style="grid-column: span 2;"><label style="font-size:11px; color:#facc15;">วันที่:</label><input type="date" id="m_date"></div>
                 <select id="m_name_sel"></select>
                 <select id="m_sys_sel"></select>
                 <input type="number" id="m_the" placeholder="โรง">
@@ -165,10 +166,10 @@
             <button class="btn-add" id="btn_save1" onclick="saveData(1)">บันทึกรายได้หลัก</button>
             <button id="btn_cancel1" onclick="cancelEdit()" style="display:none; background:#666; color:white; border:none; padding:10px; border-radius:8px; width:100%; margin-top:5px;">ยกเลิก</button>
         </div>
-        <div class="table-container"><table><thead><tr><th>สถานะ</th><th>สาขา</th><th>ชื่อหนัง</th><th>ระบบ</th><th>โรง</th><th>เวลา</th><th>เงิน</th><th>แก้ไข</th></tr></thead><tbody id="tbody1"></tbody></table></div>
+        <div class="table-container"><table><thead><tr><th>สถานะ</th><th>วัน-เวลา</th><th>สาขา</th><th>ชื่อหนัง</th><th>ระบบ</th><th>โรง</th><th>เงิน</th><th>ที่นั่ง</th><th>แก้ไข</th></tr></thead><tbody id="tbody1"></tbody></table></div>
     </div>
 
-    <!-- Page 2 ยอดข้างเคียง -->
+    <!-- หน้ากรอกข้อมูล P2 -->
     <div id="p2" class="page">
         <div class="box" id="inputBox2" style="display:none;">
             <div class="status-selector">
@@ -176,23 +177,24 @@
                 <div id="st-real-2" class="status-btn real" onclick="setStatus(2,'REAL')">ปิดยอดจริง</div>
             </div>
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px">
+                <div style="grid-column: span 2;"><label style="font-size:11px; color:#facc15;">วันที่:</label><input type="date" id="c_date"></div>
                 <select id="c_movie_sel"></select>
                 <select id="c_sys_sel"></select>
                 <input type="number" id="c_the" placeholder="โรง">
-                <input type="number" id="c_rounds" placeholder="รอบ">
+                <input type="text" id="c_time" placeholder="เวลา/รอบ (เช่น 19:00)">
                 <input type="number" id="c_income" placeholder="รายได้">
                 <input type="number" id="c_view" placeholder="ผู้ชม">
             </div>
             <button class="btn-add" id="btn_save2" onclick="saveData(2)" style="background:#22c55e">บันทึกยอดข้างเคียง</button>
             <button id="btn_cancel2" onclick="cancelEdit()" style="display:none; background:#666; color:white; border:none; padding:10px; border-radius:8px; width:100%; margin-top:5px;">ยกเลิก</button>
         </div>
-        <div class="table-container"><table><thead><tr><th>สถานะ</th><th>สาขา</th><th>ชื่อหนัง</th><th>ระบบ</th><th>โรง</th><th>รอบ</th><th>รายได้</th><th>ผู้ชม</th><th>แก้ไข</th></tr></thead><tbody id="tbody2"></tbody></table></div>
+        <div class="table-container"><table><thead><tr><th>สถานะ</th><th>วัน-เวลา</th><th>สาขา</th><th>ชื่อหนัง</th><th>ระบบ</th><th>โรง</th><th>รายได้</th><th>ผู้ชม</th><th>แก้ไข</th></tr></thead><tbody id="tbody2"></tbody></table></div>
     </div>
 </div>
 
 <script>
+// --- Config ---
 const ADMIN_EMAILS = ["admin@gmail.com"]; 
-
 const firebaseConfig = {
     apiKey: "AIzaSyAWew6J4gcIdNpF9iMWYUj0GztWrrOrZeM",
     authDomain: "newname-2e9f9.firebaseapp.com",
@@ -202,7 +204,6 @@ const firebaseConfig = {
     messagingSenderId: "784301554225",
     appId: "1:784301554225:web:fcca1d2286f60ea5e0b310"
 };
-
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 const auth = firebase.auth();
@@ -210,8 +211,6 @@ const auth = firebase.auth();
 let rawP1 = [], rawP2 = [], moviesM = [], moviesS = [], branches = [], permissions = {}, movieSystems = [];
 let stt1 = 'PRE', stt2 = 'PRE', currentEmail = "", isAdmin = false, myBranches = [];
 let currentEditIndex = null;
-
-// ข้อมูลสาขามาตรฐาน
 const masterBranchList = ["ESPLANADE", "MAJOR RATCHAYOTHIN", "PARAGON CINEPLEX", "ICON CINECONIC", "QUARTIER CINEART", "SF WORLD CINEMA", "SFX CENTRAL LADPLAO"];
 
 function login() {
@@ -240,17 +239,137 @@ auth.onAuthStateChanged(user => {
 });
 
 function init() {
-    if(!document.getElementById('targetDate').value) document.getElementById('targetDate').value = new Date().toISOString().split('T')[0];
+    const today = new Date().toISOString().split('T')[0];
+    if(!document.getElementById('targetDate').value) document.getElementById('targetDate').value = today;
+    document.getElementById('m_date').value = today;
+    document.getElementById('c_date').value = today;
+
     db.ref('settings/permissions').on('value', s => { permissions = s.val() || {}; checkAccess(); loadData(); });
     db.ref('settings/branches').on('value', s => { branches = s.val() || []; updateBranchDropdowns(); });
     db.ref('settings/movies_main').on('value', s => { moviesM = s.val()||[]; updateMovieLists(); });
     db.ref('settings/movies_side').on('value', s => { moviesS = s.val()||[]; updateMovieLists(); });
     db.ref('settings/movie_systems').on('value', s => { 
-        movieSystems = s.val() || ["2D/TH", "2D/EN", "IMAX", "4DX"]; // ค่าเริ่มต้นถ้ายังไม่มีใน DB
+        movieSystems = s.val() || ["2D/TH", "2D/EN", "IMAX", "4DX"];
         updateSystemLists(); 
     });
 }
 
+function loadData() {
+    const d = document.getElementById('targetDate').value;
+    db.ref('data/'+d).on('value', s => {
+        const v = s.val()||{};
+        rawP1 = v.p1 || []; 
+        rawP2 = v.p2 || [];
+        renderAll();
+    });
+}
+
+function renderAll() {
+    let search = document.getElementById('branchInput').value.trim().toUpperCase();
+    if(!isAdmin) search = (myBranches.length > 1) ? document.getElementById('branchDropdown').value.toUpperCase() : (myBranches[0] || "").toUpperCase();
+    const isTotal = (search === "");
+    const tab = document.getElementById('tab1').classList.contains('active') ? 1 : 2;
+    
+    document.getElementById('advancedSummary').style.display = (isAdmin && isTotal) ? 'block' : 'none';
+    document.getElementById('inputBox1').style.display = search !== "" ? 'block' : 'none';
+    document.getElementById('inputBox2').style.display = search !== "" ? 'block' : 'none';
+
+    let h1 = '', h2 = '', summaryData = {};
+
+    rawP1.forEach((d, i) => {
+        if(tab === 1) {
+            if(!summaryData[d.n]) summaryData[d.n] = {};
+            summaryData[d.n][d.s] = (summaryData[d.n][d.s] || 0) + (d.m || 0);
+        }
+        if((isAdmin && isTotal) || d.b === search) {
+            const dateTimeDisplay = `${d.dt || ''} ${d.tm || ''}`.trim();
+            h1 += `<tr class="${d.stt==='REAL'?'row-real':'row-pre'}">
+                <td><button onclick="toggleStatus('p1',${i})" style="border:none;background:none;cursor:pointer;font-weight:bold;color:inherit;">${d.stt==='REAL'?'✅ จริง':'⏳ เบื้องต้น'}</button></td>
+                <td>${dateTimeDisplay || '-'}</td>
+                <td>${d.b}</td><td>${d.n}</td><td>${d.s}</td><td>${d.the}</td><td>${(d.m||0).toLocaleString()}</td><td>${(d.seat||0).toLocaleString()}</td>
+                <td><button class="btn-edit" onclick="editRow('p1',${i})">✏️</button> <button class="btn-del" onclick="delItem('p1',${i})">✕</button></td>
+            </tr>`;
+        }
+    });
+
+    rawP2.forEach((d, i) => {
+        if(tab === 2) { 
+            if(!summaryData[d.n]) summaryData[d.n] = {};
+            summaryData[d.n][d.s || 'N/A'] = (summaryData[d.n][d.s || 'N/A'] || 0) + (d.i || 0);
+        }
+        if((isAdmin && isTotal) || d.b === search) {
+            const dateTimeDisplay = `${d.dt || ''} ${d.tm || ''}`.trim();
+            h2 += `<tr class="${d.stt==='REAL'?'row-real':'row-pre'}">
+                <td><button onclick="toggleStatus('p2',${i})" style="border:none;background:none;cursor:pointer;font-weight:bold;color:inherit;">${d.stt==='REAL'?'✅ จริง':'⏳ เบื้องต้น'}</button></td>
+                <td>${dateTimeDisplay || '-'}</td>
+                <td>${d.b}</td><td>${d.n}</td><td>${d.s || '-'}</td><td>${d.the}</td><td>${(d.i||0).toLocaleString()}</td><td>${(d.v||0).toLocaleString()}</td>
+                <td><button class="btn-edit" onclick="editRow('p2',${i})">✏️</button> <button class="btn-del" onclick="delItem('p2',${i})">✕</button></td>
+            </tr>`;
+        }
+    });
+
+    document.getElementById('tbody1').innerHTML = h1;
+    document.getElementById('tbody2').innerHTML = h2;
+    if(isAdmin) renderSummary(summaryData, tab);
+}
+
+function saveData(p) {
+    let b = document.getElementById('branchInput').value.trim().toUpperCase();
+    if(!isAdmin && myBranches.length > 1) b = document.getElementById('branchDropdown').value.toUpperCase();
+    if(!b) return alert("กรุณาเลือกสาขาก่อนบันทึก");
+
+    if(p === 1) {
+        const d = { 
+            dt: document.getElementById('m_date').value,
+            b, n: document.getElementById('m_name_sel').value, 
+            s: document.getElementById('m_sys_sel').value, 
+            the: document.getElementById('m_the').value, 
+            tm: document.getElementById('m_time').value.trim(), 
+            m: parseFloat(document.getElementById('m_money').value)||0, 
+            seat: parseInt(document.getElementById('m_seat').value)||0, 
+            stt: stt1
+        };
+        if(currentEditIndex !== null) rawP1[currentEditIndex] = d; else rawP1.push(d);
+    } else {
+        const d = { 
+            dt: document.getElementById('c_date').value,
+            b, n: document.getElementById('c_movie_sel').value, 
+            s: document.getElementById('c_sys_sel').value, 
+            the: document.getElementById('c_the').value, 
+            tm: document.getElementById('c_time').value.trim(), 
+            i: parseFloat(document.getElementById('c_income').value)||0, 
+            v: parseInt(document.getElementById('c_view').value)||0, 
+            stt: stt2
+        };
+        if(currentEditIndex !== null) rawP2[currentEditIndex] = d; else rawP2.push(d);
+    }
+    cancelEdit(); sync();
+}
+
+function editRow(p, i) {
+    currentEditIndex = i; const d = (p==='p1' ? rawP1[i] : rawP2[i]);
+    if(p==='p1') {
+        document.getElementById('m_date').value = d.dt || document.getElementById('targetDate').value;
+        document.getElementById('m_name_sel').value = d.n; 
+        document.getElementById('m_sys_sel').value = d.s;
+        document.getElementById('m_the').value = d.the; 
+        document.getElementById('m_time').value = d.tm;
+        document.getElementById('m_money').value = d.m; 
+        document.getElementById('m_seat').value = d.seat;
+        setStatus(1, d.stt); document.getElementById('btn_cancel1').style.display = 'block';
+    } else {
+        document.getElementById('c_date').value = d.dt || document.getElementById('targetDate').value;
+        document.getElementById('c_movie_sel').value = d.n; 
+        document.getElementById('c_sys_sel').value = d.s || movieSystems[0];
+        document.getElementById('c_the').value = d.the;
+        document.getElementById('c_time').value = d.tm || ""; 
+        document.getElementById('c_income').value = d.i;
+        document.getElementById('c_view').value = d.v; 
+        setStatus(2, d.stt); document.getElementById('btn_cancel2').style.display = 'block';
+    }
+}
+
+// --- ฟังก์ชันเสริม Admin/Auth (เหมือนเดิม) ---
 function checkAccess() {
     myBranches = []; 
     if(!isAdmin) {
@@ -272,187 +391,19 @@ function checkAccess() {
         } else { alert("บัญชีนี้ยังไม่ได้รับสิทธิ์"); logout(); }
     }
 }
-
-function loadData() {
-    const d = document.getElementById('targetDate').value;
-    db.ref('data/'+d).on('value', s => {
-        const v = s.val()||{};
-        rawP1 = v.p1 || []; 
-        rawP2 = v.p2 || [];
-        renderAll();
-    });
-}
-
-function renderAll() {
-    let search = document.getElementById('branchInput').value.trim().toUpperCase();
-    if(!isAdmin) search = (myBranches.length > 1) ? document.getElementById('branchDropdown').value.toUpperCase() : (myBranches[0] || "").toUpperCase();
-    const isTotal = (search === "");
-    const tab = document.getElementById('tab1').classList.contains('active') ? 1 : 2;
-    document.getElementById('advancedSummary').style.display = (isAdmin && isTotal) ? 'block' : 'none';
-    document.getElementById('inputBox1').style.display = search !== "" ? 'block' : 'none';
-    document.getElementById('inputBox2').style.display = search !== "" ? 'block' : 'none';
-
-    let h1 = '', h2 = '', summaryData = {};
-
-    rawP1.forEach((d, i) => {
-        if(tab === 1) {
-            if(!summaryData[d.n]) summaryData[d.n] = {};
-            summaryData[d.n][d.s] = (summaryData[d.n][d.s] || 0) + (d.m || 0);
-        }
-        if((isAdmin && isTotal) || d.b === search) {
-            h1 += `<tr class="${d.stt==='REAL'?'row-real':'row-pre'}">
-                <td><button onclick="toggleStatus('p1',${i})" style="border:none;background:none;cursor:pointer;font-weight:bold;color:inherit;">${d.stt==='REAL'?'✅ จริง':'⏳ เบื้องต้น'}</button></td>
-                <td>${d.b}</td><td>${d.n}</td><td>${d.s}</td><td>${d.the}</td><td>${d.tm}</td><td>${(d.m||0).toLocaleString()}</td>
-                <td><button class="btn-edit" onclick="editRow('p1',${i})">✏️</button> <button class="btn-del" onclick="delItem('p1',${i})">✕</button></td>
-            </tr>`;
-        }
-    });
-
-    rawP2.forEach((d, i) => {
-        if(tab === 2) { 
-            if(!summaryData[d.n]) summaryData[d.n] = {};
-            summaryData[d.n][d.s || 'N/A'] = (summaryData[d.n][d.s || 'N/A'] || 0) + (d.i || 0);
-        }
-        if((isAdmin && isTotal) || d.b === search) {
-            h2 += `<tr class="${d.stt==='REAL'?'row-real':'row-pre'}">
-                <td><button onclick="toggleStatus('p2',${i})" style="border:none;background:none;cursor:pointer;font-weight:bold;color:inherit;">${d.stt==='REAL'?'✅ จริง':'⏳ เบื้องต้น'}</button></td>
-                <td>${d.b}</td><td>${d.n}</td><td>${d.s || '-'}</td><td>${d.the}</td><td>${d.r}</td><td>${(d.i||0).toLocaleString()}</td><td>${d.v}</td>
-                <td><button class="btn-edit" onclick="editRow('p2',${i})">✏️</button> <button class="btn-del" onclick="delItem('p2',${i})">✕</button></td>
-            </tr>`;
-        }
-    });
-
-    document.getElementById('tbody1').innerHTML = h1;
-    document.getElementById('tbody2').innerHTML = h2;
-    if(isAdmin) renderSummary(summaryData, tab);
-}
-
-// --- ADMIN SYSTEM MANAGEMENT ---
-function updateSystemLists() {
-    const options = movieSystems.map(s => `<option value="${s}">${s}</option>`).join('');
-    document.getElementById('m_sys_sel').innerHTML = options;
-    document.getElementById('c_sys_sel').innerHTML = options;
-    document.getElementById('list_tags_systems').innerHTML = movieSystems.map((s, i) => 
-        `<span class="movie-tag">${s} <b onclick="delSystem(${i})" style="color:red;cursor:pointer">✕</b></span>`
-    ).join('');
-}
-
-function addSystem() {
-    const val = document.getElementById('new_system_name').value.trim();
-    if(val && !movieSystems.includes(val)) {
-        movieSystems.push(val);
-        db.ref('settings/movie_systems').set(movieSystems);
-        document.getElementById('new_system_name').value = '';
-    }
-}
-
-function delSystem(i) {
-    if(confirm("ลบระบบเสียงนี้?")) {
-        movieSystems.splice(i, 1);
-        db.ref('settings/movie_systems').set(movieSystems);
-    }
-}
-
-// --- CORE FUNCTIONS (SAVE/SYNC/UI) ---
-function saveData(p) {
-    let b = document.getElementById('branchInput').value.trim().toUpperCase();
-    if(!isAdmin && myBranches.length > 1) b = document.getElementById('branchDropdown').value.toUpperCase();
-    if(!b) return alert("กรุณาเลือกสาขาก่อนบันทึก");
-
-    const now = new Date().toLocaleTimeString('th-TH', {hour: '2-digit', minute:'2-digit'});
-
-    if(p === 1) {
-        const d = { 
-            b, n: document.getElementById('m_name_sel').value, 
-            s: document.getElementById('m_sys_sel').value, 
-            the: document.getElementById('m_the').value, 
-            tm: document.getElementById('m_time').value.trim(), 
-            m: parseFloat(document.getElementById('m_money').value)||0, 
-            seat: parseInt(document.getElementById('m_seat').value)||0, 
-            stt: stt1, ts: now 
-        };
-        if(currentEditIndex !== null) rawP1[currentEditIndex] = d; else rawP1.push(d);
-    } else {
-        const d = { 
-            b, n: document.getElementById('c_movie_sel').value, 
-            s: document.getElementById('c_sys_sel').value, 
-            the: document.getElementById('c_the').value, 
-            r: document.getElementById('c_rounds').value, 
-            i: parseFloat(document.getElementById('c_income').value)||0, 
-            v: parseInt(document.getElementById('c_view').value)||0, 
-            stt: stt2, ts: now 
-        };
-        if(currentEditIndex !== null) rawP2[currentEditIndex] = d; else rawP2.push(d);
-    }
-    cancelEdit(); sync();
-}
-
 function sync() { db.ref('data/'+document.getElementById('targetDate').value).set({ p1: rawP1, p2: rawP2 }); }
-
-function toggleStatus(p, i) {
-    const now = new Date().toLocaleTimeString('th-TH', {hour: '2-digit', minute:'2-digit'});
-    if(p === 'p1') rawP1[i].stt = (rawP1[i].stt === 'REAL' ? 'PRE' : 'REAL');
-    else rawP2[i].stt = (rawP2[i].stt === 'REAL' ? 'PRE' : 'REAL');
-    sync();
-}
-
-function editRow(p, i) {
-    currentEditIndex = i; const d = (p==='p1' ? rawP1[i] : rawP2[i]);
-    if(p==='p1') {
-        document.getElementById('m_name_sel').value = d.n; 
-        document.getElementById('m_sys_sel').value = d.s;
-        document.getElementById('m_the').value = d.the; 
-        document.getElementById('m_time').value = d.tm;
-        document.getElementById('m_money').value = d.m; 
-        document.getElementById('m_seat').value = d.seat;
-        setStatus(1, d.stt); document.getElementById('btn_cancel1').style.display = 'block';
-    } else {
-        document.getElementById('c_movie_sel').value = d.n; 
-        document.getElementById('c_sys_sel').value = d.s || movieSystems[0];
-        document.getElementById('c_the').value = d.the;
-        document.getElementById('c_rounds').value = d.r; 
-        document.getElementById('c_income').value = d.i;
-        document.getElementById('c_view').value = d.v; 
-        setStatus(2, d.stt); document.getElementById('btn_cancel2').style.display = 'block';
-    }
-}
-
-function updateMovieLists() {
-    document.getElementById('m_name_sel').innerHTML = moviesM.map(m => `<option>${m}</option>`).join('');
-    document.getElementById('c_movie_sel').innerHTML = moviesS.map(m => `<option>${m}</option>`).join('');
-    document.getElementById('list_tags_main').innerHTML = moviesM.map((m, i) => `<span class="movie-tag">${m} <b onclick="delMovie('main',${i})" style="color:red;cursor:pointer">✕</b></span>`).join('');
-    document.getElementById('list_tags_side').innerHTML = moviesS.map((m, i) => `<span class="movie-tag">${m} <b onclick="delMovie('side',${i})" style="color:red;cursor:pointer">✕</b></span>`).join('');
-}
-
-function addMovie(t) { 
-    const inp = document.getElementById('new_movie_'+t); 
-    if(inp.value) { 
-        if(t==='main') moviesM.push(inp.value); else moviesS.push(inp.value); 
-        db.ref('settings/movies_'+t).set(t==='main'?moviesM:moviesS); 
-        inp.value = ''; 
-    } 
-}
-
-function delMovie(t, i) { 
-    if(confirm("ลบหนังเรื่องนี้?")) {
-        if(t==='main') moviesM.splice(i,1); else moviesS.splice(i,1); 
-        db.ref('settings/movies_'+t).set(t==='main'?moviesM:moviesS); 
-    }
-}
-
-// ฟังก์ชันอื่นๆ คงเดิมตามต้นฉบับ
-function cancelEdit() { currentEditIndex = null; ['m_the','m_time','m_money','m_seat','c_the','c_rounds','c_income','c_view'].forEach(id => { if(document.getElementById(id)) document.getElementById(id).value = ''; }); document.getElementById('btn_cancel1').style.display = 'none'; document.getElementById('btn_cancel2').style.display = 'none'; }
+function toggleStatus(p, i) { if(p === 'p1') rawP1[i].stt = (rawP1[i].stt === 'REAL' ? 'PRE' : 'REAL'); else rawP2[i].stt = (rawP2[i].stt === 'REAL' ? 'PRE' : 'REAL'); sync(); }
+function updateSystemLists() { const options = movieSystems.map(s => `<option value="${s}">${s}</option>`).join(''); document.getElementById('m_sys_sel').innerHTML = options; document.getElementById('c_sys_sel').innerHTML = options; document.getElementById('list_tags_systems').innerHTML = movieSystems.map((s, i) => `<span class="movie-tag">${s} <b onclick="delSystem(${i})" style="color:red;cursor:pointer">✕</b></span>`).join(''); }
+function addSystem() { const val = document.getElementById('new_system_name').value.trim(); if(val && !movieSystems.includes(val)) { movieSystems.push(val); db.ref('settings/movie_systems').set(movieSystems); document.getElementById('new_system_name').value = ''; } }
+function delSystem(i) { if(confirm("ลบระบบเสียงนี้?")) { movieSystems.splice(i, 1); db.ref('settings/movie_systems').set(movieSystems); } }
+function updateMovieLists() { document.getElementById('m_name_sel').innerHTML = moviesM.map(m => `<option>${m}</option>`).join(''); document.getElementById('c_movie_sel').innerHTML = moviesS.map(m => `<option>${m}</option>`).join(''); document.getElementById('list_tags_main').innerHTML = moviesM.map((m, i) => `<span class="movie-tag">${m} <b onclick="delMovie('main',${i})" style="color:red;cursor:pointer">✕</b></span>`).join(''); document.getElementById('list_tags_side').innerHTML = moviesS.map((m, i) => `<span class="movie-tag">${m} <b onclick="delMovie('side',${i})" style="color:red;cursor:pointer">✕</b></span>`).join(''); }
+function addMovie(t) { const inp = document.getElementById('new_movie_'+t); if(inp.value) { if(t==='main') moviesM.push(inp.value); else moviesS.push(inp.value); db.ref('settings/movies_'+t).set(t==='main'?moviesM:moviesS); inp.value = ''; } }
+function delMovie(t, i) { if(confirm("ลบหนังเรื่องนี้?")) { if(t==='main') moviesM.splice(i,1); else moviesS.splice(i,1); db.ref('settings/movies_'+t).set(t==='main'?moviesM:moviesS); } }
+function cancelEdit() { currentEditIndex = null; ['m_the','m_time','m_money','m_seat','c_the','c_time','c_income','c_view'].forEach(id => { if(document.getElementById(id)) document.getElementById(id).value = ''; }); document.getElementById('btn_cancel1').style.display = 'none'; document.getElementById('btn_cancel2').style.display = 'none'; document.getElementById('m_date').value = document.getElementById('targetDate').value; document.getElementById('c_date').value = document.getElementById('targetDate').value; }
 function delItem(p, i) { if(confirm("ลบข้อมูล?")) { if(p==='p1') rawP1.splice(i,1); else rawP2.splice(i,1); sync(); } }
 function importMasterBranches() { if(confirm("โหลดสาขามาตรฐาน?")) { let updated = [...new Set([...branches, ...masterBranchList])]; branches = updated; db.ref('settings/branches').set(branches); } }
 function addBranch() { const name = document.getElementById('new_branch_name').value.trim().toUpperCase(); if(name && !branches.includes(name)) { branches.push(name); db.ref('settings/branches').set(branches); document.getElementById('new_branch_name').value = ''; } }
-function updateBranchDropdowns() {
-    const list = document.getElementById('branchList'); const dd = document.getElementById('branchDropdown'); const tags = document.getElementById('list_tags_branches');
-    list.innerHTML = branches.map(b => `<option value="${b}">`).join('');
-    if(isAdmin) {
-        dd.innerHTML = '<option value="">-- เลือกสาขา (Admin) --</option>' + branches.map(b => `<option value="${b}">${b}</option>`).join('');
-        tags.innerHTML = branches.map((b, i) => `<div class="branch-tag" onclick="setBranchPerm('${b}')"><b>${b}</b><br><span class="assigned-email">${permissions[b] || 'ไม่มีผู้ดูแล'}</span><span onclick="delBranch(${i}); event.stopPropagation();" style="position:absolute; top:5px; right:8px; color:#ff4444;">✕</span></div>`).join('');
-    }
-}
+function updateBranchDropdowns() { const list = document.getElementById('branchList'); const dd = document.getElementById('branchDropdown'); const tags = document.getElementById('list_tags_branches'); list.innerHTML = branches.map(b => `<option value="${b}">`).join(''); if(isAdmin) { dd.innerHTML = '<option value="">-- เลือกสาขา (Admin) --</option>' + branches.map(b => `<option value="${b}">${b}</option>`).join(''); tags.innerHTML = branches.map((b, i) => `<div class="branch-tag" onclick="setBranchPerm('${b}')"><b>${b}</b><br><span class="assigned-email">${permissions[b] || 'ไม่มีผู้ดูแล'}</span><span onclick="delBranch(${i}); event.stopPropagation();" style="position:absolute; top:5px; right:8px; color:#ff4444;">✕</span></div>`).join(''); } }
 function setBranchPerm(bName) { const quickEmail = document.getElementById('emailQuickSelect').value.trim().toLowerCase(); let email = quickEmail || prompt(`ระบุ Email:`, permissions[bName] || ""); if(email !== null) { db.ref('settings/permissions/' + bName).set(email.trim().toLowerCase()); } }
 function delBranch(i) { if(confirm("ลบสาขา?")) { const bName = branches[i]; db.ref('settings/permissions/' + bName).remove(); branches.splice(i, 1); db.ref('settings/branches').set(branches); } }
 function resetBranch() { document.getElementById('branchInput').value = ""; document.getElementById('branchDropdown').value = ""; renderAll(); }
@@ -460,17 +411,30 @@ function syncSearch() { renderAll(); }
 function syncDropdown() { renderAll(); }
 function switchPage(p) { document.getElementById('tab1').classList.toggle('active', p===1); document.getElementById('tab2').classList.toggle('active', p===2); document.getElementById('p1').classList.toggle('active', p===1); document.getElementById('p2').classList.toggle('active', p===2); renderAll(); }
 function setStatus(p, s) { if(p===1) stt1=s; else stt2=s; document.getElementById('st-pre-'+p).classList.toggle('active', s==='PRE'); document.getElementById('st-real-'+p).classList.toggle('active', s==='REAL'); }
-function renderSummary(summaryData, tab) {
-    let sHtml = '';
-    for(let movie in summaryData) {
-        let movieTotal = 0;
-        for(let sys in summaryData[movie]) {
-            movieTotal += summaryData[movie][sys];
-            sHtml += `<tr><td>${movie}</td><td>${sys}</td><td style="text-align:right">${summaryData[movie][sys].toLocaleString()}</td></tr>`;
-        }
-        sHtml += `<tr style="background:#222; font-weight:bold"><td colspan="2">รวม ${movie}</td><td style="text-align:right; color:#facc15">${movieTotal.toLocaleString()}</td></tr>`;
-    }
-    document.getElementById('summarySplitBody').innerHTML = sHtml || '<tr><td colspan="3">ไม่มีข้อมูล</td></tr>';
+function renderSummary(summaryData, tab) { let sHtml = ''; for(let movie in summaryData) { let movieTotal = 0; for(let sys in summaryData[movie]) { movieTotal += summaryData[movie][sys]; sHtml += `<tr><td>${movie}</td><td>${sys}</td><td style="text-align:right">${summaryData[movie][sys].toLocaleString()}</td></tr>`; } sHtml += `<tr style="background:#222; font-weight:bold"><td colspan="2">รวม ${movie}</td><td style="text-align:right; color:#facc15">${movieTotal.toLocaleString()}</td></tr>`; } document.getElementById('summarySplitBody').innerHTML = sHtml || '<tr><td colspan="3">ไม่มีข้อมูล</td></tr>'; }
+
+function exportToCSV(tab) {
+    const dateInput = document.getElementById('targetDate');
+    const date = dateInput ? dateInput.value : "Unknown_Date";
+    let dataToExport = (tab === 1) ? rawP1 : rawP2;
+    if (!dataToExport || dataToExport.length === 0) { return alert("⚠️ ไม่พบข้อมูล"); }
+    let csvContent = "\uFEFF"; 
+    let fileName = (tab === 1) ? `Income_Main_${date}.csv` : `Income_Side_${date}.csv`;
+    if (tab === 1) csvContent += "สถานะ,วัน-เวลา,สาขา,ชื่อหนัง,ระบบ,โรง,ยอดเงิน,ที่นั่ง\n";
+    else csvContent += "สถานะ,วัน-เวลา,สาขา,ชื่อหนัง,ระบบ,โรง,รายได้,ผู้ชม\n";
+    dataToExport.forEach(row => {
+        let statusText = row.stt === 'REAL' ? 'จริง' : 'เบื้องต้น';
+        let dtStr = `${row.dt || ''} ${row.tm || ''}`.trim();
+        let line = "";
+        if (tab === 1) line = `"${statusText}","${dtStr}","${row.b}","${row.n}","${row.s}","${row.the}","${row.m}","${row.seat}"`;
+        else line = `"${statusText}","${dtStr}","${row.b}","${row.n}","${row.s || '-'}","${row.the}","${row.i}","${row.v}"`;
+        csvContent += line + "\n";
+    });
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url); link.setAttribute("download", fileName);
+    document.body.appendChild(link); link.click(); document.body.removeChild(link);
 }
 </script>
 </body>
