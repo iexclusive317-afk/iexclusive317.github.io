@@ -10,37 +10,30 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
 <style>
+    /* CSS ทั้งหมดคงเดิมตามที่คุณส่งมา */
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: 'Noto Sans Thai', sans-serif; background: #121212; color: #e0e0e0; padding: 15px; min-height: 100vh; }
     .header-section { text-align: center; margin-bottom: 20px; }
-    
     .filter-card { background: #1e1e1e; padding: 15px; border-radius: 12px; border: 1px solid #333; margin-bottom: 15px; }
     .filter-card label { display: block; margin-bottom: 8px; color: #facc15; font-weight: bold; font-size: 14px; }
-    
     .branch-selector-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
     select, input { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #444; background: #2a2a2a; color: white; font-size: 14px; outline: none; }
     input:focus, select:focus { border-color: #facc15; }
-    
     .btn-reset { background: #444; color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-size: 12px; width: 100%; margin-top: 8px; font-weight: bold; }
-
     .status-selector { display: flex; gap: 5px; margin-bottom: 10px; }
     .status-btn { flex: 1; padding: 10px; border-radius: 6px; border: 1px solid #444; cursor: pointer; text-align: center; font-weight: bold; font-size: 12px; background: #333; color: #888; }
     .status-btn.active.pre { background: #ef4444; color: white; border-color: #ef4444; }
     .status-btn.active.real { background: #22c55e; color: white; border-color: #22c55e; }
-    
     .tabs { display: flex; gap: 5px; margin-bottom: 15px; }
     .tab-btn { flex: 1; padding: 12px; border: none; border-radius: 8px; background: #333; color: #888; cursor: pointer; font-weight: bold; }
     .tab-btn.active { background: #facc15; color: #000; }
-    
     .page { display: none; }
     .page.active { display: block; }
     .box { background: #1e1e1e; padding: 15px; border-radius: 12px; margin-bottom: 15px; border: 1px solid #333; }
-    
     .total-summary-box { background: #1e1e1e; border: 1px solid #facc15; border-radius: 12px; padding: 15px; margin-bottom: 15px; overflow-x: auto; }
     .summary-table { width: 100%; border-collapse: collapse; font-size: 12px; color: #eee; min-width: 500px; }
     .summary-table th { background: #333; color: #facc15; padding: 10px; text-align: left; border: 1px solid #444; }
     .summary-table td { padding: 8px 10px; border: 1px solid #444; background: #262626; }
-
     .table-container { overflow-x: auto; background: #fff; border-radius: 10px; }
     table { width: 100%; border-collapse: collapse; color: #333; font-size: 12px; min-width: 950px; }
     th { background: #333; color: white; padding: 12px; }
@@ -329,11 +322,67 @@ function delItem(p, i) { if(confirm("ลบ?")) { if(p==='p1') rawP1.splice(i,1)
 function addMovie(t) { const i = document.getElementById('new_movie_'+t); if(i.value) { if(t==='main') moviesM.push(i.value); else moviesS.push(i.value); db.ref('settings/movies_'+t).set(t==='main'?moviesM:moviesS); i.value=''; } }
 function removeMovie(t, i) { if(t==='main') moviesM.splice(i,1); else moviesS.splice(i,1); db.ref('settings/movies_'+t).set(t==='main'?moviesM:moviesS); }
 
+// --- ส่วนที่แก้ไข: เพิ่มระบบเช็คซ้ำและล้างข้อมูลหลังบันทึก ---
 function saveData(p) {
     const b = document.getElementById('branchInput').value.trim();
     if(!b) return alert("เลือกสาขาก่อน");
-    if(p===1) rawP1.push({ b, n: document.getElementById('m_name_sel').value, s: document.getElementById('m_sys').value, the: document.getElementById('m_the').value, tm: document.getElementById('m_time').value, m: parseFloat(document.getElementById('m_money').value)||0, stt: stt1 });
-    else rawP2.push({ b, n: document.getElementById('c_movie_sel').value, the: document.getElementById('c_the').value, r: document.getElementById('c_rounds').value, i: parseFloat(document.getElementById('c_income').value)||0, v: parseInt(document.getElementById('c_view').value)||0, stt: stt2 });
+
+    if(p === 1) {
+        const movie = document.getElementById('m_name_sel').value;
+        const system = document.getElementById('m_sys').value;
+        const theater = document.getElementById('m_the').value;
+        const time = document.getElementById('m_time').value.trim();
+        const money = parseFloat(document.getElementById('m_money').value) || 0;
+        const seat = parseFloat(document.getElementById('m_seat').value) || 0;
+
+        // 1. ตรวจสอบเวลาซ้ำ (ในสาขาเดียวกัน โรงเดียวกัน เวลาเดียวกัน)
+        const isDuplicate = rawP1.some(item => 
+            item.b.toUpperCase() === b.toUpperCase() && 
+            item.the === theater && 
+            item.tm === time
+        );
+
+        if(isDuplicate) {
+            alert(`⚠️ บันทึกไม่ได้: สาขานี้มีเวลา ${time} ในโรง ${theater} อยู่แล้ว`);
+            return;
+        }
+
+        // 2. เพิ่มข้อมูล
+        rawP1.push({ b, n: movie, s: system, the: theater, tm: time, m: money, seat: seat, stt: stt1 });
+
+        // 3. ล้างข้อมูลในช่องกรอก (ยกเว้นสาขาและชื่อหนัง)
+        document.getElementById('m_the').value = '';
+        document.getElementById('m_time').value = '';
+        document.getElementById('m_money').value = '';
+        document.getElementById('m_seat').value = '';
+
+    } else {
+        const movie = document.getElementById('c_movie_sel').value;
+        const theater = document.getElementById('c_the').value;
+        const rounds = document.getElementById('c_rounds').value;
+        const income = parseFloat(document.getElementById('c_income').value) || 0;
+        const view = parseInt(document.getElementById('c_view').value) || 0;
+
+        // ตรวจสอบรอบซ้ำสำหรับยอดข้างเคียง
+        const isDuplicateSide = rawP2.some(item => 
+            item.b.toUpperCase() === b.toUpperCase() && 
+            item.the === theater && 
+            item.r === rounds
+        );
+
+        if(isDuplicateSide) {
+            alert(`⚠️ บันทึกไม่ได้: โรง ${theater} รอบที่ ${rounds} มีข้อมูลอยู่แล้ว`);
+            return;
+        }
+
+        rawP2.push({ b, n: movie, the: theater, r: rounds, i: income, v: view, stt: stt2 });
+
+        // ล้างข้อมูลหลังบันทึก
+        document.getElementById('c_the').value = '';
+        document.getElementById('c_rounds').value = '';
+        document.getElementById('c_income').value = '';
+        document.getElementById('c_view').value = '';
+    }
     sync();
 }
 
