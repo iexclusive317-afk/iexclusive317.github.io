@@ -11,11 +11,9 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
 
 <style>
-    /* CSS เดิมของคุณทั้งหมด... (ละไว้เพื่อความกระชับ) */
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: 'Noto Sans Thai', sans-serif; background: #121212; color: #e0e0e0; padding: 15px; min-height: 100vh; }
     
-    /* สไตล์สำหรับหน้า Login */
     #login-page {
         display: flex; flex-direction: column; align-items: center; justify-content: center;
         position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -23,16 +21,14 @@
     }
     .login-box { background: #1e1e1e; padding: 30px; border-radius: 15px; border: 1px solid #facc15; width: 320px; text-align: center; }
     .login-box h2 { color: #facc15; margin-bottom: 20px; }
-    .login-box input { margin-bottom: 15px; border-color: #333; }
+    .login-box input { margin-bottom: 15px; border-color: #333; width: 100%; padding: 12px; border-radius: 8px; background: #2a2a2a; color: white; border: 1px solid #444; }
     .btn-login { background: #facc15; color: black; border: none; padding: 12px; border-radius: 8px; width: 100%; font-weight: bold; cursor: pointer; }
     
-    /* ซ่อนเนื้อหาหลักไว้ก่อน Login */
     #main-content { display: none; }
     
     .logout-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding: 5px 0; }
     .btn-logout { background: #ff4444; color: white; border: none; padding: 5px 12px; border-radius: 5px; cursor: pointer; font-size: 12px; }
 
-    /* CSS ส่วนที่เหลือของคุณคงเดิม */
     .header-section { text-align: center; margin-bottom: 20px; }
     .filter-card { background: #1e1e1e; padding: 15px; border-radius: 12px; border: 1px solid #333; margin-bottom: 15px; }
     .filter-card label { display: block; margin-bottom: 8px; color: #facc15; font-weight: bold; font-size: 14px; }
@@ -103,7 +99,7 @@
                     <option>SF CINEMA CENTRAL CHAENGWATTANA</option>
                     <option>SF CINEMA ROBINSON SRISAMAN</option>
                 </optgroup>
-                </select>
+            </select>
         </div>
         <button class="btn-reset" onclick="resetBranch()">📊 ดูยอดรวมทุกสาขา</button>
     </div>
@@ -174,24 +170,19 @@
 </div>
 
 <script>
-// --- ส่วนเชื่อมต่อ Firebase (ใช้ค่าเดิมของคุณ) ---
-const firebaseConfig = { 
-    apiKey: const firebaseConfig = {
-  apiKey: const firebaseConfig = {
-  apiKey: "AIzaSyAWew6J4gcIdNpF9iMWYUj0GztWrrOrZeM",
-  authDomain: "newname-2e9f9.firebaseapp.com",
-  databaseURL: "https://newname-2e9f9-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "newname-2e9f9",
-  storageBucket: "newname-2e9f9.firebasestorage.app",
-  messagingSenderId: "784301554225",
-  appId: "1:784301554225:web:fcca1d2286f60ea5e0b310",
-  measurementId: "G-SCXCWC6MLH"
-};
-,
-  measurementId: "G-SCXCWC6MLH"
+// --- แก้ไขจุดที่มีปัญหา: รวม Config ให้เป็นอันเดียว ---
+const firebaseConfig = {
+    apiKey: "AIzaSyAWew6J4gcIdNpF9iMWYUj0GztWrrOrZeM",
+    authDomain: "newname-2e9f9.firebaseapp.com",
+    databaseURL: "https://newname-2e9f9-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "newname-2e9f9",
+    storageBucket: "newname-2e9f9.firebasestorage.app",
+    messagingSenderId: "784301554225",
+    appId: "1:784301554225:web:fcca1d2286f60ea5e0b310",
+    measurementId: "G-SCXCWC6MLH"
 };
 
-};
+// Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 const auth = firebase.auth();
@@ -202,6 +193,8 @@ function login() {
     const pass = document.getElementById('loginPass').value;
     const errorMsg = document.getElementById('loginError');
     
+    if(!email || !pass) return alert("กรุณากรอกข้อมูลให้ครบ");
+
     auth.signInWithEmailAndPassword(email, pass).catch(err => {
         errorMsg.innerText = "❌ เข้าสู่ระบบไม่สำเร็จ: " + err.message;
     });
@@ -211,20 +204,18 @@ function logout() {
     auth.signOut();
 }
 
-// ตรวจเช็คสถานะการเข้าสู่ระบบ
 auth.onAuthStateChanged(user => {
     if (user) {
         document.getElementById('login-page').style.display = 'none';
         document.getElementById('main-content').style.display = 'block';
         document.getElementById('userDisplay').innerText = `👤 ${user.email}`;
-        init(); // เรียกใช้งานระบบจัดการหนังเมื่อ Login แล้ว
+        init();
     } else {
         document.getElementById('login-page').style.display = 'flex';
         document.getElementById('main-content').style.display = 'none';
     }
 });
 
-// --- ส่วน JavaScript เดิมของคุณทั้งหมด (คงเดิม) ---
 let rawP1 = [], rawP2 = [], moviesM = [], moviesS = [];
 let stt1 = 'PRE', stt2 = 'PRE';
 
@@ -234,13 +225,15 @@ function init() {
     let opts = '';
     for (let i = 0; i < dropdown.options.length; i++) if(dropdown.options[i].value) opts += `<option value="${dropdown.options[i].value}">`;
     datalist.innerHTML = opts;
-    document.getElementById('targetDate').value = new Date().toISOString().split('T')[0];
-    db.ref('settings/movies_main').on('value', s => { moviesM = s.val()||[]; updateMovieLists(); loadData(); });
-    db.ref('settings/movies_side').on('value', s => { moviesS = s.val()||[]; updateMovieLists(); loadData(); });
-}
+    
+    if(!document.getElementById('targetDate').value) {
+        document.getElementById('targetDate').value = new Date().toISOString().split('T')[0];
+    }
 
-// ... ฟังก์ชันอื่นๆ (saveData, renderAll, syncSearch ฯลฯ) คงเดิมตามโค้ดล่าสุดของคุณ ...
-// อย่าลืมใส่ฟังก์ชัน saveData ที่มีระบบเช็คซ้ำและ Reset ที่ผมทำให้ก่อนหน้านี้ด้วยครับ
+    db.ref('settings/movies_main').on('value', s => { moviesM = s.val()||[]; updateMovieLists(); renderAll(); });
+    db.ref('settings/movies_side').on('value', s => { moviesS = s.val()||[]; updateMovieLists(); renderAll(); });
+    loadData();
+}
 
 function syncSearch() { document.getElementById('branchInput').value = document.getElementById('branchDropdown').value; renderAll(); }
 function syncDropdown() {
@@ -265,22 +258,28 @@ function renderAll() {
     const search = document.getElementById('branchInput').value.trim().toUpperCase();
     const isTotal = (search === "");
     const activeTab = document.getElementById('tab1').classList.contains('active') ? 1 : 2;
+    
     document.getElementById('movieManagerBox').style.display = isTotal ? 'block' : 'none';
     document.getElementById('inputBox1').style.display = isTotal ? 'none' : 'block';
     document.getElementById('inputBox2').style.display = isTotal ? 'none' : 'block';
+    
     let h1 = '', h2 = '', splitMain = {}, splitSide = {};
     const filteredP1 = isTotal ? rawP1 : rawP1.filter(x => x.b.toUpperCase() === search);
     const filteredP2 = isTotal ? rawP2 : rawP2.filter(x => x.b.toUpperCase() === search);
+
     filteredP1.forEach((d, i) => {
         if(isTotal) { if(!splitMain[d.n]) splitMain[d.n] = {}; splitMain[d.n][d.s] = (splitMain[d.n][d.s] || 0) + (d.m || 0); }
         h1 += `<tr class="${d.stt==='REAL'?'row-real':'row-pre'}"><td>${d.stt==='REAL'?'จริง':'เบื้องต้น'}</td><td>${d.b}</td><td>${d.n}</td><td>${d.s}</td><td>${d.the||'-'}</td><td>${d.tm||'-'}</td><td>${(d.m||0).toLocaleString()}</td><td><button onclick="delItem('p1',${i})">✕</button></td></tr>`;
     });
+
     filteredP2.forEach((d, i) => {
         if(isTotal) { if(!splitSide[d.n]) splitSide[d.n] = {}; splitSide[d.n]['ทั่วไป'] = (splitSide[d.n]['ทั่วไป'] || 0) + (d.i || 0); }
         h2 += `<tr class="${d.stt==='REAL'?'row-real':'row-pre'}"><td>${d.stt==='REAL'?'จริง':'เบื้องต้น'}</td><td>${d.b}</td><td>${d.n}</td><td>${d.the||'-'}</td><td>${d.r||'-'}</td><td>${(d.i||0).toLocaleString()}</td><td>${d.v||0}</td><td><button onclick="delItem('p2',${i})">✕</button></td></tr>`;
     });
+
     document.getElementById('tbody1').innerHTML = h1;
     document.getElementById('tbody2').innerHTML = h2;
+
     if(isTotal) {
         let cur = (activeTab === 1) ? splitMain : splitSide;
         document.getElementById('summaryTitle').innerText = (activeTab===1)?"🎬 สรุปรายได้หลัก (รวม)":"🍿 สรุปยอดข้างเคียง (รวม)";
@@ -300,27 +299,28 @@ function saveData(p) {
     if(p === 1) {
         const theater = document.getElementById('m_the').value;
         const time = document.getElementById('m_time').value.trim();
-        const isDuplicate = rawP1.some(item => item.b.toUpperCase() === b.toUpperCase() && item.the === theater && item.tm === time);
-        if(isDuplicate) return alert(`⚠️ บันทึกไม่ได้: โรง ${theater} เวลา ${time} มีข้อมูลอยู่แล้ว`);
+        if(!theater || !time) return alert("กรอกโรงและเวลาด้วย");
         rawP1.push({ b, n: document.getElementById('m_name_sel').value, s: document.getElementById('m_sys').value, the: theater, tm: time, m: parseFloat(document.getElementById('m_money').value)||0, seat: parseFloat(document.getElementById('m_seat').value)||0, stt: stt1 });
-        document.getElementById('m_the').value = ''; document.getElementById('m_time').value = ''; document.getElementById('m_money').value = ''; document.getElementById('m_seat').value = '';
+        ['m_the','m_time','m_money','m_seat'].forEach(id => document.getElementById(id).value = '');
     } else {
         const theater = document.getElementById('c_the').value;
         const rounds = document.getElementById('c_rounds').value;
-        const isDuplicateSide = rawP2.some(item => item.b.toUpperCase() === b.toUpperCase() && item.the === theater && item.r === rounds);
-        if(isDuplicateSide) return alert(`⚠️ บันทึกไม่ได้: โรง ${theater} รอบที่ ${rounds} มีข้อมูลอยู่แล้ว`);
+        if(!theater) return alert("กรอกโรงด้วย");
         rawP2.push({ b, n: document.getElementById('c_movie_sel').value, the: theater, r: rounds, i: parseFloat(document.getElementById('c_income').value)||0, v: parseInt(document.getElementById('c_view').value)||0, stt: stt2 });
-        document.getElementById('c_the').value = ''; document.getElementById('c_rounds').value = ''; document.getElementById('c_income').value = ''; document.getElementById('c_view').value = '';
+        ['c_the','c_rounds','c_income','c_view'].forEach(id => document.getElementById(id).value = '');
     }
     sync();
 }
 
 function updateMovieLists() {
-    document.getElementById('m_name_sel').innerHTML = moviesM.map(m => `<option>${m}</option>`).join('');
-    document.getElementById('c_movie_sel').innerHTML = moviesS.map(m => `<option>${m}</option>`).join('');
+    const m1 = document.getElementById('m_name_sel');
+    const m2 = document.getElementById('c_movie_sel');
+    if(m1) m1.innerHTML = moviesM.map(m => `<option>${m}</option>`).join('');
+    if(m2) m2.innerHTML = moviesS.map(m => `<option>${m}</option>`).join('');
     document.getElementById('list_tags_main').innerHTML = moviesM.map((m,i)=>`<span class="movie-tag">${m} <b onclick="removeMovie('main',${i})" style="color:red;cursor:pointer">✕</b></span>`).join(' ');
     document.getElementById('list_tags_side').innerHTML = moviesS.map((m,i)=>`<span class="movie-tag">${m} <b onclick="removeMovie('side',${i})" style="color:red;cursor:pointer">✕</b></span>`).join(' ');
 }
+
 function sync() { db.ref('data/'+document.getElementById('targetDate').value).set({ p1: rawP1, p2: rawP2 }); }
 function setStatus(p, s) { if(p===1) stt1=s; else stt2=s; document.getElementById('st-pre-'+p).classList.toggle('active', s==='PRE'); document.getElementById('st-real-'+p).classList.toggle('active', s==='REAL'); }
 function switchPage(p) { document.getElementById('tab1').classList.toggle('active', p===1); document.getElementById('tab2').classList.toggle('active', p===2); document.getElementById('p1').classList.toggle('active', p===1); document.getElementById('p2').classList.toggle('active', p===2); renderAll(); }
