@@ -19,7 +19,7 @@ h1 { text-align: center; color: #facc15; font-size: 24px; margin-bottom: 6px; }
 .page { display: none; }
 .page.active { display: block; }
 .box { background: #2a2a2a; padding: 20px; border-radius: 15px; margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end; }
-.field-group { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 130px; }
+.field-group { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 110px; }
 .field-group label { font-size: 11px; color: #aaa; }
 input, select { padding: 10px; border: 1px solid #444; border-radius: 8px; background: #1e1e1e; color: white; font-size: 13px; width: 100%; }
 input:focus, select:focus { border-color: #facc15; outline: none; }
@@ -29,7 +29,7 @@ input:focus, select:focus { border-color: #facc15; outline: none; }
 .stat { background: #2a2a2a; border-radius: 10px; padding: 15px; text-align: center; border-top: 3px solid #facc15; }
 .stat-val { font-size: 20px; font-weight: 700; color: #facc15; }
 .table-container { overflow-x: auto; border-radius: 10px; }
-table { width: 100%; border-collapse: collapse; background: white; color: black; min-width: 900px; }
+table { width: 100%; border-collapse: collapse; background: white; color: black; min-width: 1000px; }
 th { background: #16a34a; color: white; padding: 12px; font-size: 12px; }
 td { border: 1px solid #ddd; padding: 10px; text-align: center; font-size: 13px; }
 .editable { cursor: pointer; background: #fffdf0; font-weight: bold; color: #b45309; }
@@ -43,7 +43,7 @@ td { border: 1px solid #ddd; padding: 10px; text-align: center; font-size: 13px;
 <body>
 
 <h1>🎬 ระบบแจ้งยอดโรงหนัง</h1>
-<p class="subtitle">อัปเดตรายชื่อสาขาทั่วประเทศ (BKK / Peri / CNX)</p>
+<p class="subtitle">Full Cinema Database (เพิ่มช่องกรอกหมายเลขโรง)</p>
 
 <div class="date-bar">
     <label>📅 วันที่รายการ:</label>
@@ -65,6 +65,7 @@ td { border: 1px solid #ddd; padding: 10px; text-align: center; font-size: 13px;
                 <option>2D/TH</option><option>2D/EN</option><option>IMAX</option><option>4DX</option><option>SCREEN X</option>
             </select>
         </div>
+        <div class="field-group"><label>โรง</label><input type="number" id="theaterNo" placeholder="เลขโรง"></div>
         <div class="field-group"><label>รอบ</label><input type="text" id="roundTime" placeholder="12:00"></div>
         <div class="field-group"><label>ที่นั่ง</label><input type="number" id="seats"></div>
         <div class="field-group"><label>ยอดเงิน</label><input type="number" id="money"></div>
@@ -76,7 +77,7 @@ td { border: 1px solid #ddd; padding: 10px; text-align: center; font-size: 13px;
     </div>
     <div class="table-container">
         <table>
-            <thead><tr><th>#</th><th>ชื่อหนัง</th><th>สาขา</th><th>โซน</th><th>ระบบ</th><th>รอบ</th><th>ที่นั่ง (แก้ไขได้)</th><th>ยอดเงิน (แก้ไขได้)</th><th>ลบ</th></tr></thead>
+            <thead><tr><th>#</th><th>ชื่อหนัง</th><th>สาขา</th><th>โซน</th><th>ระบบ</th><th>โรง</th><th>รอบ</th><th>ที่นั่ง</th><th>ยอดเงิน</th><th>ลบ</th></tr></thead>
             <tbody id="tableData"></tbody>
         </table>
     </div>
@@ -109,7 +110,7 @@ td { border: 1px solid #ddd; padding: 10px; text-align: center; font-size: 13px;
 </div>
 
 <script>
-// --- รายชื่อโรงหนังทั้งหมด (จัดหมวดหมู่ตามที่คุณส่งมา) ---
+// --- รายชื่อโรงหนังทั้งหมด (ห้ามลบ) ---
 const BRANCH_HTML = `
     <optgroup label="🏙 กรุงเทพฯ - สุขุมวิท/ใจกลางเมือง">
         <option value="PARAGON CINEPLEX|bkk">PARAGON CINEPLEX</option>
@@ -197,8 +198,8 @@ const BRANCH_HTML = `
     </optgroup>
 `;
 
-let fullDatabase = JSON.parse(localStorage.getItem('cinema_db_v3')) || {};
-let compMovies = JSON.parse(localStorage.getItem('comp_movies_v3')) || ["Mortal Kombat 2", "Captain America"];
+let fullDatabase = JSON.parse(localStorage.getItem('cinema_db_v4')) || {};
+let compMovies = JSON.parse(localStorage.getItem('comp_movies_v4')) || ["Mortal Kombat 2", "Captain America"];
 let currentDay = "";
 let data1 = [], data2 = [];
 
@@ -222,8 +223,8 @@ function loadDayData(date) {
 
 function save() {
     fullDatabase[currentDay] = { data1, data2 };
-    localStorage.setItem('cinema_db_v3', JSON.stringify(fullDatabase));
-    localStorage.setItem('comp_movies_v3', JSON.stringify(compMovies));
+    localStorage.setItem('cinema_db_v4', JSON.stringify(fullDatabase));
+    localStorage.setItem('comp_movies_v4', JSON.stringify(compMovies));
 }
 
 function changeDate() {
@@ -238,6 +239,7 @@ function addData() {
         movie: document.getElementById('movieName').value,
         branch: b[0], region: b[1],
         sys: document.getElementById('sys').value,
+        theater: document.getElementById('theaterNo').value || "-",
         round: document.getElementById('roundTime').value,
         seats: parseInt(document.getElementById('seats').value) || 0,
         money: parseFloat(document.getElementById('money').value) || 0
@@ -249,7 +251,13 @@ function renderTable1() {
     const tbody = document.getElementById('tableData');
     tbody.innerHTML = data1.map((d, i) => `
         <tr class="region-${d.region}">
-            <td>${i+1}</td><td>${d.movie}</td><td>${d.branch}</td><td>${d.region.toUpperCase()}</td><td>${d.sys}</td><td>${d.round}</td>
+            <td>${i+1}</td>
+            <td>${d.movie}</td>
+            <td>${d.branch}</td>
+            <td>${d.region.toUpperCase()}</td>
+            <td>${d.sys}</td>
+            <td class="editable" contenteditable="true" onblur="update1(${i},'theater',this.innerText)">${d.theater}</td>
+            <td>${d.round}</td>
             <td class="editable" contenteditable="true" onblur="update1(${i},'seats',this.innerText)">${d.seats}</td>
             <td class="editable" contenteditable="true" onblur="update1(${i},'money',this.innerText)">${d.money.toLocaleString()}</td>
             <td><button class="deleteBtn" onclick="data1.splice(${i},1);save();renderTable1()">ลบ</button></td>
@@ -258,7 +266,12 @@ function renderTable1() {
     updateStats1();
 }
 
-function update1(i, f, v) { data1[i][f] = parseFloat(v.replace(/,/g,'')) || 0; save(); updateStats1(); }
+function update1(i, f, v) { 
+    if(f === 'theater') data1[i][f] = v;
+    else data1[i][f] = parseFloat(v.replace(/,/g,'')) || 0; 
+    save(); updateStats1(); 
+}
+
 function updateStats1() {
     document.getElementById('s-money').textContent = data1.reduce((s,d)=>s+d.money,0).toLocaleString();
     document.getElementById('s-seats').textContent = data1.reduce((s,d)=>s+d.seats,0).toLocaleString();
