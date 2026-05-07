@@ -1,0 +1,642 @@
+แชร์กับ เฉพาะฉัน
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ระบบแจ้งยอดโรงหนัง</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+font-family: ‘Noto Sans Thai’, ‘Segoe UI’, sans-serif;
+background: #1e1e1e;
+color: white;
+padding: 20px;
+min-height: 100vh;
+}
+h1 {
+text-align: center;
+color: #facc15;
+font-size: 24px;
+margin-bottom: 6px;
+}
+.subtitle {
+text-align: center;
+color: #888;
+font-size: 13px;
+margin-bottom: 20px;
+}
+/* TABS */
+.tabs {
+display: flex;
+justify-content: center;
+gap: 8px;
+margin-bottom: 20px;
+}
+.tab-btn {
+padding: 8px 24px;
+border: none;
+border-radius: 20px;
+cursor: pointer;
+font-family: ‘Noto Sans Thai’, sans-serif;
+font-size: 13px;
+font-weight: 600;
+background: #333;
+color: #aaa;
+transition: all 0.2s;
+}
+.tab-btn.active {
+background: #facc15;
+color: #000;
+}
+.page { display: none; }
+.page.active { display: block; }
+/* BOX / FORM */
+.box {
+background: #2a2a2a;
+padding: 20px;
+border-radius: 15px;
+margin-bottom: 20px;
+display: flex;
+flex-wrap: wrap;
+gap: 10px;
+align-items: flex-end;
+}
+.field-group {
+display: flex;
+flex-direction: column;
+gap: 4px;
+flex: 1;
+min-width: 140px;
+}
+.field-group label {
+font-size: 11px;
+color: #aaa;
+padding-left: 2px;
+}
+input, select {
+padding: 10px 12px;
+border: 1px solid #444;
+border-radius: 8px;
+outline: none;
+background: #1e1e1e;
+color: white;
+font-family: ‘Noto Sans Thai’, sans-serif;
+font-size: 13px;
+width: 100%;
+transition: border 0.2s;
+}
+input:focus, select:focus { border-color: #facc15; }
+select option { background: #1e1e1e; color: white; }
+.addBtn {
+padding: 10px 24px;
+border: none;
+border-radius: 8px;
+cursor: pointer;
+color: white;
+font-weight: bold;
+font-family: ‘Noto Sans Thai’, sans-serif;
+font-size: 14px;
+background: #22c55e;
+transition: background 0.2s;
+align-self: flex-end;
+white-space: nowrap;
+}
+.addBtn:hover { background: #16a34a; }
+.deleteBtn {
+background: #ef4444;
+border: none;
+border-radius: 6px;
+cursor: pointer;
+color: white;
+font-weight: bold;
+padding: 5px 12px;
+font-size: 12px;
+font-family: ‘Noto Sans Thai’, sans-serif;
+}
+.deleteBtn:hover { background: #b91c1c; }
+/* STATS */
+.stats {
+display: grid;
+grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+gap: 10px;
+margin-bottom: 20px;
+}
+.stat {
+background: #2a2a2a;
+border-radius: 10px;
+padding: 14px;
+text-align: center;
+border-top: 3px solid transparent;
+}
+.stat.s-yellow { border-top-color: #facc15; }
+.stat.s-green { border-top-color: #22c55e; }
+.stat.s-blue { border-top-color: #3b82f6; }
+.stat.s-red { border-top-color: #ef4444; }
+.stat-label { font-size: 10px; color: #888; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+.stat-val { font-size: 20px; font-weight: 700; color: #facc15; }
+.stat-sub { font-size: 10px; color: #666; margin-top: 2px; }
+/* FILTER BAR */
+.filter-bar {
+display: flex;
+gap: 8px;
+margin-bottom: 14px;
+flex-wrap: wrap;
+align-items: center;
+}
+.filter-bar span { font-size: 12px; color: #888; }
+.fbtn {
+padding: 4px 14px;
+border-radius: 16px;
+border: 1px solid #444;
+cursor: pointer;
+font-size: 12px;
+font-weight: 600;
+background: #2a2a2a;
+color: #aaa;
+transition: all 0.15s;
+font-family: ‘Noto Sans Thai’, sans-serif;
+}
+.fbtn:hover { border-color: #facc15; color: #facc15; }
+.fbtn.active { background: #facc15; color: #000; border-color: #facc15; }
+/* TABLE */
+.table-container {
+overflow-x: auto;
+border-radius: 10px;
+box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+}
+table {
+width: 100%;
+border-collapse: collapse;
+background: white;
+color: black;
+min-width: 600px;
+}
+th {
+background: #16a34a;
+color: white;
+font-family: ‘Noto Sans Thai’, sans-serif;
+font-size: 12px;
+font-weight: 700;
+white-space: nowrap;
+}
+th, td {
+border: 1px solid #ddd;
+padding: 10px 12px;
+text-align: center;
+}
+tr:nth-child(even) { background-color: #f9f9f9; }
+tr:hover { background-color: #f0fdf4 !important; }
+.money-cell { color: #16a34a; font-weight: 700; }
+.region-bkk { background: #dbeafe !important; }
+.region-peri { background: #fef9c3 !important; }
+.region-cnx { background: #fce7f3 !important; }
+.empty-row td { text-align: center; color: #aaa; padding: 30px; background: white; }
+/* COMPETITOR PAGE */
+.comp-box {
+background: #2a2a2a;
+padding: 20px;
+border-radius: 15px;
+margin-bottom: 20px;
+}
+.comp-box h3 { font-size: 13px; color: #aaa; margin-bottom: 12px; }
+.movie-name-inputs {
+display: flex;
+gap: 10px;
+flex-wrap: wrap;
+}
+.movie-name-inputs .field-group { min-width: 180px; max-width: 220px; }
+@media (max-width: 600px) {
+.field-group { min-width: 100%; }
+.addBtn { width: 100%; }
+.stats { grid-template-columns: repeat(2, 1fr); }
+}
+</style>
+</head>
+<body>
+<h1>🎬 ระบบแจ้งยอดโรงหนัง</h1>
+<p class="subtitle">Cinema Revenue Reporting System</p>
+<div class="tabs">
+    <button class="tab-btn active" onclick="showPage('p1', this)">📋 แจ้งรายได้หนังหลัก</button>
+    <button class="tab-btn" onclick="showPage('p2', this)">📊 ยอดข้างเคียง</button>
+</div>
+<!-- ===== PAGE 1 ===== -->
+<div id="p1" class="page active">
+```
+<!-- FORM -->
+<div class="box">
+    <div class="field-group">
+        <label>ชื่อภาพยนตร์</label>
+        <input type="text" id="movieName" placeholder="ชื่อภาพยนตร์">
+    </div>
+    <div class="field-group">
+        <label>สาขา</label>
+        <select id="branch">
+            <optgroup label="🏙 กรุงเทพฯ">
+                <option value="PARAGON CINEPLEX|bkk">PARAGON CINEPLEX</option>
+                <option value="MAJOR RATCHAYOTHIN|bkk">MAJOR RATCHAYOTHIN</option>
+                <option value="MAJOR RAMA 1|bkk">MAJOR RAMA 1</option>
+                <option value="MAJOR RAMA 2|bkk">MAJOR RAMA 2</option>
+                <option value="MAJOR BANGNA|bkk">MAJOR BANGNA</option>
+                <option value="MAJOR FASHION ISLAND|bkk">MAJOR FASHION ISLAND</option>
+                <option value="MAJOR BANGKAPI|bkk">MAJOR BANGKAPI</option>
+                <option value="MAJOR SUKHUMVIT|bkk">MAJOR SUKHUMVIT</option>
+                <option value="MAJOR SUMRONG|bkk">MAJOR SUMRONG</option>
+                <option value="MAJOR CHARN CHAENGWATTHANA|bkk">MAJOR CHARN CHAENGWATTHANA</option>
+                <option value="MAJOR PETCHAKASEM|bkk">MAJOR PETCHAKASEM</option>
+                <option value="MAJOR PINKLAO|bkk">MAJOR PINKLAO</option>
+                <option value="MAJOR THANYABURI|bkk">MAJOR THANYABURI</option>
+                <option value="ESPLANADE RATCHADA|bkk">ESPLANADE RATCHADA</option>
+                <option value="ESPLANADE RATTANATIBATE|bkk">ESPLANADE RATTANATIBATE</option>
+                <option value="MEGA BANGNA|bkk">MEGA BANGNA</option>
+            </optgroup>
+            <optgroup label="🏢 ปริมณฑล">
+                <option value="MAJOR RANGSIT|peri">MAJOR RANGSIT</option>
+                <option value="MAJOR LOTUS NAVANAKORN|peri">MAJOR LOTUS NAVANAKORN</option>
+                <option value="MAJOR LOTUS SAMUTPRAKARN|peri">MAJOR LOTUS SAMUTPRAKARN</option>
+                <option value="MAJOR BIG C TIWANON|peri">MAJOR BIG C TIWANON</option>
+                <option value="WESTVILLE|peri">WESTVILLE</option>
+                <option value="EMBASSY DIPLOMAT|peri">EMBASSY DIPLOMAT</option>
+                <option value="RABBIT SONY (สมุทรปราการ)|peri">RABBIT SONY (สมุทรปราการ)</option>
+            </optgroup>
+            <optgroup label="🏔 เชียงใหม่">
+                <option value="MAJOR AIRPORT PLAZA CNX|cnx">MAJOR AIRPORT PLAZA CNX</option>
+                <option value="MAJOR PROMENADA CNX|cnx">MAJOR PROMENADA CNX</option>
+                <option value="MAJOR CENTRAL FESTIVAL CNX|cnx">MAJOR CENTRAL FESTIVAL CNX</option>
+                <option value="SF CINEMA MAYA CNX|cnx">SF CINEMA MAYA CNX</option>
+            </optgroup>
+        </select>
+    </div>
+    <div class="field-group">
+        <label>ระบบฉาย</label>
+        <select id="sys">
+            <option>2D/TH</option>
+            <option>2D/EN</option>
+            <option>4DX/TH</option>
+            <option>4DX/EN</option>
+            <option>IMAX/EN</option>
+            <option>IMAX/TH</option>
+        </select>
+    </div>
+    <div class="field-group">
+        <label>รอบหนัง (เวลา)</label>
+        <input type="text" id="roundTime" placeholder="เช่น 14:30">
+    </div>
+    <div class="field-group">
+        <label>หมายเลขโรง</label>
+        <input type="number" id="theaterNo" placeholder="โรงที่" min="1">
+    </div>
+    <div class="field-group">
+        <label>จำนวนที่นั่ง</label>
+        <input type="number" id="seats" placeholder="ที่นั่ง" min="0">
+    </div>
+    <div class="field-group">
+        <label>ยอดเงิน (บาท)</label>
+        <input type="number" id="money" placeholder="ยอดเงิน" min="0">
+    </div>
+    <div class="field-group">
+        <label>หมายเหตุ</label>
+        <input type="text" id="note" placeholder="หมายเหตุ (ถ้ามี)">
+    </div>
+    <button class="addBtn" onclick="addData()">➕ เพิ่มข้อมูล</button>
+</div>
+<!-- STATS -->
+<div class="stats" id="stats1">
+    <div class="stat s-yellow"><div class="stat-label">รายได้รวม</div><div class="stat-val" id="s-money">0</div><div class="stat-sub">บาท</div></div>
+    <div class="stat s-green"><div class="stat-label">ที่นั่งรวม</div><div class="stat-val" id="s-seats">0</div><div class="stat-sub">ที่นั่ง</div></div>
+    <div class="stat s-blue"><div class="stat-label">รายการทั้งหมด</div><div class="stat-val" id="s-count">0</div><div class="stat-sub">รายการ</div></div>
+    <div class="stat s-red"><div class="stat-label">สาขาที่รายงาน</div><div class="stat-val" id="s-branches">0</div><div class="stat-sub">สาขา</div></div>
+</div>
+<!-- FILTER -->
+<div class="filter-bar">
+    <span>กรองโซน:</span>
+    <button class="fbtn active" onclick="filterTable('all', this)">🌐 ทั้งหมด</button>
+    <button class="fbtn" onclick="filterTable('bkk', this)">🏙 กรุงเทพฯ</button>
+    <button class="fbtn" onclick="filterTable('peri', this)">🏢 ปริมณฑล</button>
+    <button class="fbtn" onclick="filterTable('cnx', this)">🏔 เชียงใหม่</button>
+</div>
+<!-- TABLE -->
+<div class="table-container">
+    <table>
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>ชื่อหนัง</th>
+                <th>สาขา</th>
+                <th>โซน</th>
+                <th>ระบบ</th>
+                <th>โรง</th>
+                <th>รอบ</th>
+                <th>ที่นั่ง</th>
+                <th>ยอดเงิน</th>
+                <th>หมายเหตุ</th>
+                <th>ลบ</th>
+            </tr>
+        </thead>
+        <tbody id="tableData">
+            <tr class="empty-row"><td colspan="11">ยังไม่มีข้อมูล — กรุณาเพิ่มข้อมูลด้านบน</td></tr>
+        </tbody>
+    </table>
+</div>
+```
+</div>
+<!-- ===== PAGE 2 ===== -->
+<div id="p2" class="page">
+```
+<!-- editable competitor movie names -->
+<div class="comp-box">
+    <h3>✏️ ชื่อภาพยนตร์ข้างเคียง (แก้ไขได้)</h3>
+    <div class="movie-name-inputs" id="compMovieInputs"></div>
+</div>
+<!-- FORM competitor -->
+<div class="box">
+    <div class="field-group">
+        <label>สาขา</label>
+        <select id="c-branch">
+            <optgroup label="🏙 กรุงเทพฯ">
+                <option value="PARAGON CINEPLEX|bkk">PARAGON CINEPLEX</option>
+                <option value="MAJOR RATCHAYOTHIN|bkk">MAJOR RATCHAYOTHIN</option>
+                <option value="MAJOR RAMA 1|bkk">MAJOR RAMA 1</option>
+                <option value="MAJOR RAMA 2|bkk">MAJOR RAMA 2</option>
+                <option value="MAJOR BANGNA|bkk">MAJOR BANGNA</option>
+                <option value="MAJOR FASHION ISLAND|bkk">MAJOR FASHION ISLAND</option>
+                <option value="MAJOR BANGKAPI|bkk">MAJOR BANGKAPI</option>
+                <option value="MAJOR SUKHUMVIT|bkk">MAJOR SUKHUMVIT</option>
+                <option value="MAJOR SUMRONG|bkk">MAJOR SUMRONG</option>
+                <option value="MAJOR CHARN CHAENGWATTHANA|bkk">MAJOR CHARN CHAENGWATTHANA</option>
+                <option value="MAJOR PETCHAKASEM|bkk">MAJOR PETCHAKASEM</option>
+                <option value="MAJOR PINKLAO|bkk">MAJOR PINKLAO</option>
+                <option value="MAJOR THANYABURI|bkk">MAJOR THANYABURI</option>
+                <option value="ESPLANADE RATCHADA|bkk">ESPLANADE RATCHADA</option>
+                <option value="ESPLANADE RATTANATIBATE|bkk">ESPLANADE RATTANATIBATE</option>
+                <option value="MEGA BANGNA|bkk">MEGA BANGNA</option>
+            </optgroup>
+            <optgroup label="🏢 ปริมณฑล">
+                <option value="MAJOR RANGSIT|peri">MAJOR RANGSIT</option>
+                <option value="MAJOR LOTUS NAVANAKORN|peri">MAJOR LOTUS NAVANAKORN</option>
+                <option value="MAJOR LOTUS SAMUTPRAKARN|peri">MAJOR LOTUS SAMUTPRAKARN</option>
+                <option value="MAJOR BIG C TIWANON|peri">MAJOR BIG C TIWANON</option>
+                <option value="WESTVILLE|peri">WESTVILLE</option>
+                <option value="EMBASSY DIPLOMAT|peri">EMBASSY DIPLOMAT</option>
+                <option value="RABBIT SONY (สมุทรปราการ)|peri">RABBIT SONY (สมุทรปราการ)</option>
+            </optgroup>
+            <optgroup label="🏔 เชียงใหม่">
+                <option value="MAJOR AIRPORT PLAZA CNX|cnx">MAJOR AIRPORT PLAZA CNX</option>
+                <option value="MAJOR PROMENADA CNX|cnx">MAJOR PROMENADA CNX</option>
+                <option value="MAJOR CENTRAL FESTIVAL CNX|cnx">MAJOR CENTRAL FESTIVAL CNX</option>
+                <option value="SF CINEMA MAYA CNX|cnx">SF CINEMA MAYA CNX</option>
+            </optgroup>
+        </select>
+    </div>
+    <div class="field-group">
+        <label>ภาพยนตร์</label>
+        <select id="c-movie">
+            <!-- filled by JS -->
+        </select>
+    </div>
+    <div class="field-group">
+        <label>ระบบ</label>
+        <select id="c-sys">
+            <option>2D/TH</option><option>2D/EN</option><option>4DX/TH</option>
+            <option>4DX/EN</option><option>IMAX/EN</option><option>IMAX/TH</option>
+        </select>
+    </div>
+    <div class="field-group">
+        <label>รอบ 14:00 — เงิน</label>
+        <input type="number" id="c-i14" placeholder="ยอดเงิน" min="0">
+    </div>
+    <div class="field-group">
+        <label>รอบ 14:00 — ที่นั่ง</label>
+        <input type="number" id="c-s14" placeholder="ที่นั่ง" min="0">
+    </div>
+    <div class="field-group">
+        <label>รอบ 16:30 — เงิน</label>
+        <input type="number" id="c-i16" placeholder="ยอดเงิน" min="0">
+    </div>
+    <div class="field-group">
+        <label>รอบ 16:30 — ที่นั่ง</label>
+        <input type="number" id="c-s16" placeholder="ที่นั่ง" min="0">
+    </div>
+    <div class="field-group">
+        <label>หมายเหตุ</label>
+        <input type="text" id="c-note" placeholder="เช่น ไม่เข้าฉาย">
+    </div>
+    <button class="addBtn" onclick="addComp()">➕ เพิ่มข้อมูล</button>
+</div>
+<!-- STATS P2 -->
+<div class="stats" id="stats2"></div>
+<!-- FILTER P2 -->
+<div class="filter-bar">
+    <span>กรองโซน:</span>
+    <button class="fbtn active" onclick="filterComp('all', this)">🌐 ทั้งหมด</button>
+    <button class="fbtn" onclick="filterComp('bkk', this)">🏙 กรุงเทพฯ</button>
+    <button class="fbtn" onclick="filterComp('peri', this)">🏢 ปริมณฑล</button>
+    <button class="fbtn" onclick="filterComp('cnx', this)">🏔 เชียงใหม่</button>
+</div>
+<div class="table-container">
+    <table>
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>สาขา</th>
+                <th>โซน</th>
+                <th>ภาพยนตร์</th>
+                <th>ระบบ</th>
+                <th>รอบ 14:00 (เงิน)</th>
+                <th>รอบ 14:00 (ที่นั่ง)</th>
+                <th>รอบ 16:30 (เงิน)</th>
+                <th>รอบ 16:30 (ที่นั่ง)</th>
+                <th>รวมเงิน</th>
+                <th>หมายเหตุ</th>
+                <th>ลบ</th>
+            </tr>
+        </thead>
+        <tbody id="compTableData">
+            <tr class="empty-row"><td colspan="12">ยังไม่มีข้อมูล — กรุณาเพิ่มข้อมูลด้านบน</td></tr>
+        </tbody>
+    </table>
+</div>
+```
+</div>
+<script>
+// ===== DATA STORES =====
+let data1 = [];       // page 1 rows
+let data2 = [];       // page 2 competitor rows
+let compMovies = ["Mortal Kombat 2", "Billie Eilish Hit Me Hard and Soft", "Ghost in The Cell", "Khao Kala", "Iron Maiden Buring Ambition"];
+let filter1 = 'all';
+let filter2 = 'all';
+const REGION_LABEL = { bkk: '🏙 กรุงเทพฯ', peri: '🏢 ปริมณฑล', cnx: '🏔 เชียงใหม่' };
+const REGION_CLASS = { bkk: 'region-bkk', peri: 'region-peri', cnx: 'region-cnx' };
+// ===== PAGE TABS =====
+function showPage(id, el) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(t => t.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    el.classList.add('active');
+}
+// ===== PAGE 1 =====
+function addData() {
+    const movie = document.getElementById('movieName').value.trim();
+    const branchVal = document.getElementById('branch').value;
+    const sys = document.getElementById('sys').value;
+    const roundTime = document.getElementById('roundTime').value.trim();
+    const theaterNo = document.getElementById('theaterNo').value.trim();
+    const seats = parseInt(document.getElementById('seats').value) || 0;
+    const money = parseFloat(document.getElementById('money').value) || 0;
+    const note = document.getElementById('note').value.trim();
+    if (!movie || !branchVal || !roundTime) {
+        alert('กรุณากรอก ชื่อหนัง / สาขา / รอบหนัง ให้ครบ');
+        return;
+    }
+    const [branchName, region] = branchVal.split('|');
+    data1.push({ movie, branchName, region, sys, roundTime, theaterNo, seats, money, note });
+    renderTable1();
+    clearForm1();
+}
+function clearForm1() {
+    ['movieName','roundTime','theaterNo','seats','money','note'].forEach(id => document.getElementById(id).value = '');
+}
+function deleteRow1(idx) {
+    if (confirm('ยืนยันการลบข้อมูลนี้?')) {
+        data1.splice(idx, 1);
+        renderTable1();
+    }
+}
+function filterTable(r, el) {
+    filter1 = r;
+    document.querySelectorAll('#p1 .fbtn').forEach(b => b.classList.remove('active'));
+    el.classList.add('active');
+    renderTable1();
+}
+function renderTable1() {
+    const filtered = filter1 === 'all' ? data1 : data1.filter(d => d.region === filter1);
+    const tbody = document.getElementById('tableData');
+    if (filtered.length === 0) {
+        tbody.innerHTML = '<tr class="empty-row"><td colspan="11">ไม่มีข้อมูลในโซนนี้</td></tr>';
+        updateStats1();
+        return;
+    }
+    tbody.innerHTML = filtered.map((d, i) => {
+        const realIdx = data1.indexOf(d);
+        return `<tr class="${REGION_CLASS[d.region] || ''}">
+            <td>${i + 1}</td>
+            <td><strong>${d.movie}</strong></td>
+            <td>${d.branchName}</td>
+            <td>${REGION_LABEL[d.region] || d.region}</td>
+            <td>${d.sys}</td>
+            <td>${d.theaterNo || '-'}</td>
+            <td>${d.roundTime}</td>
+            <td>${d.seats.toLocaleString()}</td>
+            <td class="money-cell">${d.money.toLocaleString()} บาท</td>
+            <td style="font-size:11px;color:#666">${d.note || '-'}</td>
+            <td><button class="deleteBtn" onclick="deleteRow1(${realIdx})">ลบ</button></td>
+        </tr>`;
+    }).join('');
+    updateStats1();
+}
+function updateStats1() {
+    const totalMoney = data1.reduce((s, d) => s + d.money, 0);
+    const totalSeats = data1.reduce((s, d) => s + d.seats, 0);
+    const branches = new Set(data1.map(d => d.branchName)).size;
+    document.getElementById('s-money').textContent = totalMoney.toLocaleString();
+    document.getElementById('s-seats').textContent = totalSeats.toLocaleString();
+    document.getElementById('s-count').textContent = data1.length;
+    document.getElementById('s-branches').textContent = branches;
+}
+// ===== PAGE 2 =====
+function buildCompMovieInputs() {
+    document.getElementById('compMovieInputs').innerHTML = compMovies.map((m, i) => `
+        <div class="field-group">
+            <label>ภาพยนตร์ ${i + 1}</label>
+            <input type="text" value="${m}" oninput="compMovies[${i}]=this.value; updateCompMovieSelect(); renderTable2()">
+        </div>
+    `).join('');
+    updateCompMovieSelect();
+}
+function updateCompMovieSelect() {
+    const sel = document.getElementById('c-movie');
+    const cur = sel.value;
+    sel.innerHTML = compMovies.map(m => `<option value="${m}">${m}</option>`).join('');
+    if (cur) sel.value = cur;
+}
+function addComp() {
+    const branchVal = document.getElementById('c-branch').value;
+    const movie = document.getElementById('c-movie').value;
+    const sys = document.getElementById('c-sys').value;
+    const i14 = parseFloat(document.getElementById('c-i14').value) || 0;
+    const s14 = parseInt(document.getElementById('c-s14').value) || 0;
+    const i16 = parseFloat(document.getElementById('c-i16').value) || 0;
+    const s16 = parseInt(document.getElementById('c-s16').value) || 0;
+    const note = document.getElementById('c-note').value.trim();
+    if (!branchVal) { alert('กรุณาเลือกสาขา'); return; }
+    const [branchName, region] = branchVal.split('|');
+    data2.push({ branchName, region, movie, sys, i14, s14, i16, s16, note });
+    renderTable2();
+    ['c-i14','c-s14','c-i16','c-s16','c-note'].forEach(id => document.getElementById(id).value = '');
+}
+function deleteRow2(idx) {
+    if (confirm('ยืนยันการลบข้อมูลนี้?')) {
+        data2.splice(idx, 1);
+        renderTable2();
+    }
+}
+function filterComp(r, el) {
+    filter2 = r;
+    document.querySelectorAll('#p2 .fbtn').forEach(b => b.classList.remove('active'));
+    el.classList.add('active');
+    renderTable2();
+}
+function renderTable2() {
+    const filtered = filter2 === 'all' ? data2 : data2.filter(d => d.region === filter2);
+    const tbody = document.getElementById('compTableData');
+    if (filtered.length === 0) {
+        tbody.innerHTML = '<tr class="empty-row"><td colspan="12">ไม่มีข้อมูลในโซนนี้</td></tr>';
+        updateStats2();
+        return;
+    }
+    tbody.innerHTML = filtered.map((d, i) => {
+        const realIdx = data2.indexOf(d);
+        const total = d.i14 + d.i16;
+        return `<tr class="${REGION_CLASS[d.region] || ''}">
+            <td>${i + 1}</td>
+            <td>${d.branchName}</td>
+            <td>${REGION_LABEL[d.region] || d.region}</td>
+            <td><strong>${d.movie}</strong></td>
+            <td>${d.sys}</td>
+            <td class="money-cell">${d.i14 ? d.i14.toLocaleString() : '-'}</td>
+            <td>${d.s14 || '-'}</td>
+            <td class="money-cell">${d.i16 ? d.i16.toLocaleString() : '-'}</td>
+            <td>${d.s16 || '-'}</td>
+            <td class="money-cell" style="color:#c05621;font-weight:700">${total ? total.toLocaleString() + ' บาท' : '-'}</td>
+            <td style="font-size:11px;color:#666">${d.note || '-'}</td>
+            <td><button class="deleteBtn" onclick="deleteRow2(${realIdx})">ลบ</button></td>
+        </tr>`;
+    }).join('');
+    updateStats2();
+}
+function updateStats2() {
+    const totals = compMovies.map(m => {
+        const rows = data2.filter(d => d.movie === m);
+        return {
+            name: m,
+            inc: rows.reduce((s, d) => s + d.i14 + d.i16, 0),
+            seats: rows.reduce((s, d) => s + d.s14 + d.s16, 0),
+        };
+    });
+    const colors = ['s-yellow','s-blue','s-green','s-red','s-yellow'];
+    document.getElementById('stats2').innerHTML = totals.map((t, i) => `
+        <div class="stat ${colors[i]}">
+            <div class="stat-label">${t.name}</div>
+            <div class="stat-val">${t.inc.toLocaleString()}</div>
+            <div class="stat-sub">${t.seats} ที่นั่ง</div>
+        </div>
+    `).join('');
+}
+// ===== INIT =====
+buildCompMovieInputs();
+renderTable1();
+renderTable2();
+</script>
+</body>
+</html>
