@@ -1,918 +1,443 @@
- <!DOCTYPE html>
-
+<!DOCTYPE html>
 <html lang="th">
-
 <head>
-
 <meta charset="UTF-8">
-
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>Cinema Management - Multi-Branch Edition</title>
-
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
 
-
 <style>
-
+    /* CSS เดิมทั้งหมด */
     * { box-sizing: border-box; margin: 0; padding: 0; }
-
     body { font-family: 'Noto Sans Thai', sans-serif; background: #121212; color: #e0e0e0; padding: 15px; min-height: 100vh; }
-
     #login-page { display: flex; flex-direction: column; align-items: center; justify-content: center; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #121212; z-index: 9999; }
-
     .login-box { background: #1e1e1e; padding: 30px; border-radius: 15px; border: 1px solid #facc15; width: 320px; text-align: center; }
-
     .login-box h2 { color: #facc15; margin-bottom: 20px; }
-
     .login-box input { margin-bottom: 15px; width: 100%; padding: 12px; border-radius: 8px; background: #2a2a2a; color: white; border: 1px solid #444; outline: none; }
-
     .btn-login { background: #facc15; color: black; border: none; padding: 12px; border-radius: 8px; width: 100%; font-weight: bold; cursor: pointer; }
-
     #main-content { display: none; }
-
     .logout-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding: 5px 0; }
-
     .btn-logout { background: #ff4444; color: white; border: none; padding: 5px 12px; border-radius: 5px; cursor: pointer; font-size: 12px; }
-
     .header-section { text-align: center; margin-bottom: 20px; }
-
     .filter-card { background: #1e1e1e; padding: 15px; border-radius: 12px; border: 1px solid #333; margin-bottom: 15px; }
-
     .filter-card label { display: block; margin-bottom: 8px; color: #facc15; font-weight: bold; font-size: 14px; }
-
     .branch-selector-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
-
     select, input { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #444; background: #2a2a2a; color: white; font-size: 14px; outline: none; }
-
     .btn-reset { background: #444; color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-size: 12px; width: 100%; margin-top: 8px; font-weight: bold; }
-
     .status-selector { display: flex; gap: 5px; margin-bottom: 10px; }
-
     .status-btn { flex: 1; padding: 10px; border-radius: 6px; border: 1px solid #444; cursor: pointer; text-align: center; font-weight: bold; font-size: 12px; background: #333; color: #888; }
-
     .status-btn.active.pre { background: #ef4444; color: white; border-color: #ef4444; }
-
     .status-btn.active.real { background: #22c55e; color: white; border-color: #22c55e; }
-
     .tabs { display: flex; gap: 5px; margin-bottom: 15px; }
-
     .tab-btn { flex: 1; padding: 12px; border: none; border-radius: 8px; background: #333; color: #888; cursor: pointer; font-weight: bold; }
-
     .tab-btn.active { background: #facc15; color: #000; }
-
     .page { display: none; }
-
     .page.active { display: block; }
-
     .box { background: #1e1e1e; padding: 15px; border-radius: 12px; margin-bottom: 15px; border: 1px solid #333; }
-
     .total-summary-box { background: #1e1e1e; border: 1px solid #facc15; border-radius: 12px; padding: 15px; margin-bottom: 15px; overflow-x: auto; }
-
     .summary-table { width: 100%; border-collapse: collapse; font-size: 12px; color: #eee; min-width: 500px; }
-
     .summary-table th { background: #333; color: #facc15; padding: 10px; text-align: left; border: 1px solid #444; }
-
     .summary-table td { padding: 8px 10px; border: 1px solid #444; background: #262626; }
-
-    .table-container { overflow-x: auto; background: #fff; border-radius: 10px; }
-
-    table { width: 100%; border-collapse: collapse; color: #333; font-size: 12px; min-width: 1000px; }
-
-    th { background: #333; color: white; padding: 12px; }
-
-    td { padding: 10px; border-bottom: 1px solid #eee; text-align: center; }
-
+    .table-container { overflow-x: auto; background: #fff; border-radius: 10px; margin-top: 10px; }
+    table { width: 100%; border-collapse: collapse; color: #333; font-size: 11px; min-width: 1000px; }
+    th { background: #333; color: white; padding: 10px; position: sticky; top: 0; }
+    td { padding: 8px; border-bottom: 1px solid #eee; text-align: center; }
     .row-pre { color: #ef4444; font-weight: bold; }
-
     .row-real { color: #16a34a; font-weight: bold; }
-
     .btn-add { background: #3b82f6; color: white; border: none; padding: 15px; border-radius: 8px; width: 100%; font-weight: bold; margin-top: 10px; cursor: pointer; }
-
-    .btn-edit { background: #f59e0b; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; margin-right: 4px; }
-
-    .btn-check { background: #10b981; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; margin-right: 4px; }
-
-    .btn-del { background: #ef4444; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; }
-
+    .btn-edit { background: #f59e0b; color: white; border: none; padding: 6px; border-radius: 4px; cursor: pointer; }
+    .btn-del { background: #ef4444; color: white; border: none; padding: 6px; border-radius: 4px; cursor: pointer; }
     .movie-tag { background: #333; padding: 5px 10px; border-radius: 20px; font-size: 11px; display: inline-flex; align-items: center; gap: 6px; margin: 2px; border: 1px solid #444; }
-
+    .branch-tag { background: #333; padding: 5px 10px; border-radius: 8px; font-size: 11px; display: inline-flex; align-items: center; gap: 6px; margin: 2px; border: 1px solid #facc15; cursor: pointer; color: #fff; }
+    .assigned-email { color: #facc15; font-size: 10px; font-style: italic; }
 </style>
-
 </head>
-
 <body>
 
-
 <div id="login-page">
-
     <div class="login-box">
-
         <h2>Cinema Admin</h2>
-
         <input type="email" id="loginEmail" placeholder="Email">
-
         <input type="password" id="loginPass" placeholder="Password">
-
         <button class="btn-login" onclick="login()">เข้าสู่ระบบ</button>
-
         <p id="loginError" style="color: #ff4444; font-size: 12px; margin-top: 10px;"></p>
-
     </div>
-
 </div>
-
 
 <div id="main-content">
-
     <div class="logout-bar">
-
         <span id="userDisplay" style="font-size: 12px; color: #facc15; font-weight: bold;"></span>
-
         <button class="btn-logout" onclick="logout()">ออกจากระบบ</button>
-
     </div>
-
 
     <div class="header-section">
-
         <h2 style="color:#facc15">Cinema Management</h2>
-
         <input type="date" id="targetDate" onchange="loadData()" style="width: auto; margin-top: 10px; border-color: #facc15;">
-
     </div>
 
-
-    <div class="filter-card">
-
-        <label>🏢 ค้นหาหรือเลือกสาขา</label>
-
+    <div class="filter-card" id="branchFilterSection">
+        <label id="branchLabel">🏢 เลือกสาขา</label>
         <div class="branch-selector-grid">
-
             <input list="branchList" id="branchInput" placeholder="🔍 พิมพ์ชื่อสาขา..." oninput="syncDropdown()">
-
             <datalist id="branchList"></datalist>
-
             <select id="branchDropdown" onchange="syncSearch()">
-
                 <option value="">-- เลือกสาขา --</option>
-
-                <optgroup label="📍 รัตนาธิเบศร์-ติวานนท์-แจ้งวัฒนะ">
-
-                    <option>ESPLANADE RATTANATIBATE</option>
-
-                    <option>MAJOR CINEPLEX CHARN CHANGWATTHANA</option>
-
-                    <option>MAJOR HOLLYWOOD CHANGWATTHANA</option>
-
-                    <option>MAJOR CINEPLEX TIWANON</option>
-
-                </optgroup>
-
-                <optgroup label="📍 เชียงใหม่">
-
-                    <option>MAJOR CINEPLEX FESTIVAL CHIANGMAI</option>
-
-                    <option>MAJOR CINEPLEX AIRPORT CHIANGMAI</option>
-
-                    <option>SF CINEMA MAYA CHIANGMAI</option>
-
-                </optgroup>
-
-                <optgroup label="📍 เพชรเกษม-บางแค">
-
-                    <option>MAJOR CINEPLEX PETCHAKASEM</option>
-
-                    <option>SF CINEMA THE MALL BANGKAE</option>
-
-                    <option>SF CINEMA BIG C PETCHAKASEM</option>
-
-                </optgroup>
-
-                <optgroup label="📍 รัชโยธิน-อีสต์วิลล์">
-
-                    <option>MAJOR CINEPLEX RATCHAYOTHIN</option>
-
-                    <option>MAJOR EASTVILLE</option>
-
-                    <option>SFX THE CRYSTAL EKAMAI-RAMINTRA</option>
-
-                </optgroup>
-
-                <optgroup label="📍 เวสต์เกต-ราชพฤกษ์-แจ้งวัฒนะ">
-
-                    <option>MAJOR CENTRAL WESTGATE</option>
-
-                    <option>SF CINEMA COSMO BAZAAR</option>
-
-                    <option>MAJOR ROBINSON RATCHAPRUK</option>
-
-                    <option>SF CINEMA CENTRAL CHAENGWATTANA</option>
-
-                    <option>SF CINEMA ROBINSON SRISAMAN</option>
-
-                    <option>MAJOR BANGKADI</option>
-
-                </optgroup>
-
-                <optgroup label="📍 สมุทรปราการ-บางพลี">
-
-                    <option>MAJOR CINEPLEX SAMRONG</option>
-
-                    <option>MAJOR CINEPLEX SAMUTPRAKARN</option>
-
-                    <option>EGV BIG C SAMUTPRAKARN</option>
-
-                    <option>SF CINEMA BIG C BANGPLEE</option>
-
-                    <option>SF CINEMA MARKET VILLAGE SUVARNABHUMI</option>
-
-                    <option>MAJOR CINEPLEX LOTUS SAMUTPRAKARN</option>
-
-                    <option>MAJOR CINEPLEX LOTUS SRINAKARIN</option>
-
-                </optgroup>
-
-                <optgroup label="📍 รามอินทรา-ลาดกระบัง">
-
-                    <option>MAJOR PROMENADE (8)</option>
-
-                    <option>MAJOR CINEPLEX FASHION (11)</option>
-
-                    <option>MAJOR ROBINSON LADKRABUNG</option>
-
-                    <option>SF CINEMA RAMINTRA</option>
-
-                </optgroup>
-
-                <optgroup label="📍 ไอคอนสยาม-พระราม 3">
-
-                    <option>ICON</option>
-
-                    <option>MAJOR CINEPLEX RAMA3</option>
-
-                    <option>SF CINEMA TERMINAL 21 RAMA 3</option>
-
-                    <option>EMBASSY</option>
-
-                </optgroup>
-
-                <optgroup label="📍 ปิ่นเกล้า-สุขสวัสดิ์">
-
-                    <option>EGV PINKLAO (11)</option>
-
-                    <option>EGV SEACON BANGKAE (10)</option>
-
-                    <option>MAJOR CINEPLEX PINKLAO (13)</option>
-
-                    <option>MAJOR BIC C SUKSAWAD (12)</option>
-
-                </optgroup>
-
-                <optgroup label="📍 สยาม-สุขุมวิท">
-
-                    <option>PARAGON CINEPLEX</option>
-
-                    <option>ONE ULTRA SCREEN</option>
-
-                    <option>SF CINEMA MBK CENTER</option>
-
-                    <option>QUARTIER CINEART</option>
-
-                    <option>MAJOR CINEPLEX SUKHUMVIT</option>
-
-                    <option>SF CINEMA TERMINAL 21</option>
-
-                    <option>SF EMPREVE' CINECLUB</option>
-
-                </optgroup>
-
-                <optgroup label="📍 รังสิต-ปทุมธานี">
-
-                    <option>EGV RANGSIT</option>
-
-                    <option>MAJOR CINEPLEX RANGSIT KLONG6</option>
-
-                    <option>MAJOR CINEPLEX LOTUS NAWANAKORN</option>
-
-                    <option>MAJOR CINEPLEX RANGSIT</option>
-
-                    <option>MAJOR CINEPLEX PATUMTANI</option>
-
-                </optgroup>
-
-                <optgroup label="📍 งามวงศ์วาน-ราชพฤกษ์">
-
-                    <option>SFX CINEMA THE MALL NGAMWONGWAN</option>
-
-                    <option>WESTVILLE</option>
-
-                    <option>SF CINEMA THE CRYSTAL RATCHAPRUEK</option>
-
-                    <option>MAJOR CINEPLEX LOTUS BANGYAI</option>
-
-                </optgroup>
-
-                <optgroup label="📍 รัชดา-ลาดพร้าว-สามเสน">
-
-                    <option>ESPLANADE RATCHADA</option>
-
-                    <option>MAJOR GATEWAY BANGSUE</option>
-
-                    <option>SFX CINEMA CENTRAL LADPLAO</option>
-
-                    <option>MAJOR CINEPLEX SAMSEN</option>
-
-                    <option>SFX CINEMA CENTRAL RAMA9</option>
-
-                    <option>SF WORLD CINEMA CENTRAL WORLD</option>
-
-                </optgroup>
-
-                <optgroup label="📍 ศรีนครินทร์-บางนา-พระราม 2">
-
-                    <option>MAJOR CINEPLEX MEGA BANGNA</option>
-
-                    <option>EGV SEACON</option>
-
-                    <option>SF CINEMA JAS URBAN SRINAKARIN</option>
-
-                    <option>MAJOR CINEPLEX RAMA2</option>
-
-                    <option>MAJOR CINEPLEX LOTUS RAMA2</option>
-
-                    <option>MAJOR CINEPLEX LOTUS BANGPRAKOK</option>
-
-                    <option>SF CINEMA THE MALL TAPRA</option>
-
-                    <option>MAJOR CINEPLEX LOTUS BANGKAPI</option>
-
-                    <option>MAJOR CINEPLEX CENTRAL BANGNA</option>
-
-                    <option>BANGKAPI CINEPLEX (THE MALL BANGKAPI)</option>
-
-                </optgroup>
-
             </select>
-
         </div>
-
-        <button class="btn-reset" onclick="resetBranch()">📊 ดูยอดรวมทุกสาขา</button>
-
+        <button class="btn-reset" id="btnShowTotal" onclick="resetBranch()" style="display:none">📊 ดูยอดรวมทุกสาขา</button>
     </div>
 
-
-    <div id="advancedSummary" class="total-summary-box">
-
-        <h4 id="summaryTitle" style="color:#facc15; margin-bottom:10px">📈 สรุปยอดรวม</h4>
-
+    <div id="advancedSummary" class="total-summary-box" style="display:none">
+        <h4 id="summaryTitle" style="color:#facc15; margin-bottom:10px">📈 สรุปยอดรวม (Admin Only)</h4>
         <table class="summary-table">
-
             <thead><tr><th>ชื่อภาพยนตร์</th><th>ระบบ/เสียง</th><th style="text-align:right">ยอดรวม (บาท)</th></tr></thead>
-
             <tbody id="summarySplitBody"></tbody>
-
         </table>
-
     </div>
-
 
     <div class="tabs">
-
         <button class="tab-btn active" id="tab1" onclick="switchPage(1)">รายได้หลัก</button>
-
         <button class="tab-btn" id="tab2" onclick="switchPage(2)">ยอดข้างเคียง</button>
-
     </div>
 
-
-    <div id="movieManagerBox" class="box">
-
+    <div id="adminPanel" class="box" style="display:none">
+        <h4 style="color:#facc15; margin-bottom:10px;">🛠️ แผงควบคุม Admin</h4>
         <div style="display:flex; gap:5px; margin-bottom:10px">
-
-            <input type="text" id="new_movie_main" placeholder="เพิ่มหนังหลัก...">
-
-            <button onclick="addMovie('main')" style="background:#3b82f6; border:none; padding:10px; border-radius:8px; color:white; width: 60px;">เพิ่ม</button>
-
+            <input type="text" id="new_branch_name" placeholder="เพิ่มสาขาใหม่...">
+            <button onclick="addBranch()" style="background:#facc15; border:none; padding:10px; border-radius:8px; color:black; font-weight:bold;">เพิ่ม</button>
         </div>
-
-        <div id="list_tags_main" style="margin-bottom:15px"></div>
-
-        <hr style="border-color:#333; margin: 15px 0;">
-
-        <div style="display:flex; gap:5px; margin-bottom:10px">
-
-            <input type="text" id="new_movie_side" placeholder="เพิ่มหนังรอง...">
-
-            <button onclick="addMovie('side')" style="background:#22c55e; border:none; padding:10px; border-radius:8px; color:white; width: 60px;">เพิ่ม</button>
-
+        <div id="list_tags_branches"></div>
+        <hr style="border:0; border-top:1px solid #333; margin:15px 0">
+        <h4 style="color:#facc15; margin-bottom:10px;">🎬 รายชื่อหนัง</h4>
+        <div style="display:flex; gap:5px; margin-bottom:5px">
+            <input type="text" id="new_movie_main" placeholder="หนังหลัก...">
+            <button onclick="addMovie('main')" style="background:#3b82f6; border:none; padding:10px; border-radius:8px; color:white;">เพิ่ม</button>
         </div>
-
+        <div id="list_tags_main" style="margin-bottom:10px"></div>
+        <div style="display:flex; gap:5px; margin-bottom:5px">
+            <input type="text" id="new_movie_side" placeholder="หนังรอง...">
+            <button onclick="addMovie('side')" style="background:#22c55e; border:none; padding:10px; border-radius:8px; color:white;">เพิ่ม</button>
+        </div>
         <div id="list_tags_side"></div>
-
     </div>
-
 
     <div id="p1" class="page active">
-
         <div class="box" id="inputBox1" style="display:none;">
-
             <div class="status-selector">
-
                 <div id="st-pre-1" class="status-btn active pre" onclick="setStatus(1,'PRE')">ยอดเบื้องต้น</div>
-
                 <div id="st-real-1" class="status-btn real" onclick="setStatus(1,'REAL')">ปิดยอดจริง</div>
-
             </div>
-
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px">
-
                 <select id="m_name_sel"></select>
-
                 <select id="m_sys"><option>2D/TH</option><option>2D/EN</option><option>IMAX</option><option>4DX</option></select>
-
                 <input type="number" id="m_the" placeholder="โรง">
-
-                <input type="text" id="m_time" placeholder="เวลา (เช่น 14:00)">
-
+                <input type="text" id="m_time" placeholder="เวลา">
                 <input type="number" id="m_money" placeholder="ยอดเงิน">
-
                 <input type="number" id="m_seat" placeholder="ที่นั่ง">
-
             </div>
-
             <button class="btn-add" id="btn_save1" onclick="saveData(1)">บันทึกรายได้หลัก</button>
-
-            <button id="btn_cancel1" onclick="cancelEdit()" style="display:none; background:#666; color:white; border:none; padding:10px; border-radius:8px; width:100%; margin-top:5px;">ยกเลิกการแก้ไข</button>
-
+            <button id="btn_cancel1" onclick="cancelEdit()" style="display:none; background:#666; color:white; border:none; padding:10px; border-radius:8px; width:100%; margin-top:5px;">ยกเลิก</button>
         </div>
-
-        <div class="table-container"><table><thead><tr><th>สถานะ</th><th>สาขา</th><th>หนัง</th><th>ระบบ</th><th>โรง</th><th>เวลา</th><th>เงิน</th><th>จัดการ</th></tr></thead><tbody id="tbody1"></tbody></table></div>
-
+        <div class="table-container"><table><tbody id="tbody1"></tbody></table></div>
     </div>
-
 
     <div id="p2" class="page">
-
         <div class="box" id="inputBox2" style="display:none;">
-
             <div class="status-selector">
-
                 <div id="st-pre-2" class="status-btn active pre" onclick="setStatus(2,'PRE')">ยอดเบื้องต้น</div>
-
                 <div id="st-real-2" class="status-btn real" onclick="setStatus(2,'REAL')">ปิดยอดจริง</div>
-
             </div>
-
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px">
-
                 <select id="c_movie_sel"></select>
-
                 <input type="number" id="c_the" placeholder="โรง">
-
                 <input type="number" id="c_rounds" placeholder="รอบ">
-
                 <input type="number" id="c_income" placeholder="รายได้">
-
                 <input type="number" id="c_view" placeholder="ผู้ชม">
-
             </div>
-
             <button class="btn-add" id="btn_save2" onclick="saveData(2)" style="background:#22c55e">บันทึกยอดข้างเคียง</button>
-
-            <button id="btn_cancel2" onclick="cancelEdit()" style="display:none; background:#666; color:white; border:none; padding:10px; border-radius:8px; width:100%; margin-top:5px;">ยกเลิกการแก้ไข</button>
-
+            <button id="btn_cancel2" onclick="cancelEdit()" style="display:none; background:#666; color:white; border:none; padding:10px; border-radius:8px; width:100%; margin-top:5px;">ยกเลิก</button>
         </div>
-
-        <div class="table-container"><table><thead><tr><th>สถานะ</th><th>สาขา</th><th>หนัง</th><th>โรง</th><th>รอบ</th><th>เงิน</th><th>ผู้ชม</th><th>จัดการ</th></tr></thead><tbody id="tbody2"></tbody></table></div>
-
+        <div class="table-container"><table><tbody id="tbody2"></tbody></table></div>
     </div>
-
 </div>
 
-
 <script>
+// --- CONFIG & GLOBAL VARS ---
+const ADMIN_EMAILS = ["admin@gmail.com"]; 
 
 const firebaseConfig = {
-
     apiKey: "AIzaSyAWew6J4gcIdNpF9iMWYUj0GztWrrOrZeM",
-
     authDomain: "newname-2e9f9.firebaseapp.com",
-
     databaseURL: "https://newname-2e9f9-default-rtdb.asia-southeast1.firebasedatabase.app",
-
     projectId: "newname-2e9f9",
-
     storageBucket: "newname-2e9f9.firebasestorage.app",
-
     messagingSenderId: "784301554225",
-
     appId: "1:784301554225:web:fcca1d2286f60ea5e0b310"
-
 };
 
-
 firebase.initializeApp(firebaseConfig);
-
 const db = firebase.database();
-
 const auth = firebase.auth();
 
-
-let rawP1 = [], rawP2 = [], moviesM = [], moviesS = [];
-
-let stt1 = 'PRE', stt2 = 'PRE';
-
+let rawP1 = [], rawP2 = [], moviesM = [], moviesS = [], branches = [], permissions = {};
+// แก้ไขจุดที่ 1: เปลี่ยน myBranch เป็น myBranches (Array)
+let stt1 = 'PRE', stt2 = 'PRE', currentEmail = "", isAdmin = false, myBranches = [];
 let currentEditIndex = null;
 
-
+// --- LOGIN & AUTH ---
 function login() {
-
-    const email = document.getElementById('loginEmail').value;
-
+    const email = document.getElementById('loginEmail').value.trim();
     const pass = document.getElementById('loginPass').value;
-
-    auth.signInWithEmailAndPassword(email, pass).catch(err => { document.getElementById('loginError').innerText = "❌ " + err.message; });
-
+    auth.signInWithEmailAndPassword(email, pass).catch(err => { 
+        document.getElementById('loginError').innerText = "❌ " + err.message; 
+    });
 }
-
-function logout() { auth.signOut(); }
+function logout() { auth.signOut(); location.reload(); }
 
 auth.onAuthStateChanged(user => {
-
     if (user) {
-
+        currentEmail = user.email.toLowerCase();
+        isAdmin = ADMIN_EMAILS.map(e => e.toLowerCase()).includes(currentEmail);
         document.getElementById('login-page').style.display = 'none';
-
         document.getElementById('main-content').style.display = 'block';
-
-        document.getElementById('userDisplay').innerText = `👤 ${user.email}`;
-
+        document.getElementById('userDisplay').innerText = `👤 ${currentEmail} ${isAdmin?'(Admin)':''}`;
+        
+        document.getElementById('adminPanel').style.display = isAdmin ? 'block' : 'none';
+        document.getElementById('btnShowTotal').style.display = isAdmin ? 'block' : 'none';
+        
         init();
-
     } else {
-
         document.getElementById('login-page').style.display = 'flex';
-
         document.getElementById('main-content').style.display = 'none';
-
     }
-
 });
 
-
 function init() {
-
-    const dl = document.getElementById('branchList');
-
-    const dd = document.getElementById('branchDropdown');
-
-    let opts = '';
-
-    const allOptions = dd.querySelectorAll('option');
-
-    allOptions.forEach(opt => { if(opt.value) opts += `<option value="${opt.value}">`; });
-
-    dl.innerHTML = opts;
-
-
     if(!document.getElementById('targetDate').value) document.getElementById('targetDate').value = new Date().toISOString().split('T')[0];
+    
+    db.ref('settings/permissions').on('value', s => { 
+        permissions = s.val() || {}; 
+        checkAccess(); 
+        loadData(); 
+    });
 
-    db.ref('settings/movies_main').on('value', s => { moviesM = s.val()||[]; updateMovieLists(); renderAll(); });
+    db.ref('settings/branches').on('value', s => { 
+        branches = s.val() || []; 
+        updateBranchDropdowns(); 
+    });
 
-    db.ref('settings/movies_side').on('value', s => { moviesS = s.val()||[]; updateMovieLists(); renderAll(); });
-
-    loadData();
-
+    db.ref('settings/movies_main').on('value', s => { moviesM = s.val()||[]; updateMovieLists(); });
+    db.ref('settings/movies_side').on('value', s => { moviesS = s.val()||[]; updateMovieLists(); });
 }
 
+// แก้ไขจุดที่ 2: ฟังก์ชัน checkAccess รองรับหลายสาขา
+function checkAccess() {
+    myBranches = []; 
+    if(!isAdmin) {
+        // วนลูปหาทุกสาขาที่ Email นี้มีสิทธิ์
+        for (let b in permissions) { 
+            if(permissions[b] && permissions[b].toLowerCase() === currentEmail) { 
+                myBranches.push(b); 
+            } 
+        }
 
-function syncSearch() { document.getElementById('branchInput').value = document.getElementById('branchDropdown').value; renderAll(); }
+        const inp = document.getElementById('branchInput');
+        const dd = document.getElementById('branchDropdown');
+        const label = document.getElementById('branchLabel');
 
-function syncDropdown() {
-
-    const val = document.getElementById('branchInput').value.toUpperCase();
-
-    const dd = document.getElementById('branchDropdown');
-
-    dd.value = ""; 
-
-    for (let i = 0; i < dd.options.length; i++) if(dd.options[i].value === val) { dd.value = val; break; }
-
-    renderAll();
-
+        if(myBranches.length > 0) {
+            if (myBranches.length === 1) {
+                // ถ้ามีสาขาเดียว ล็อกเหมือนเดิม
+                inp.value = myBranches[0]; 
+                inp.readOnly = true;
+                dd.style.display = 'none';
+                label.innerText = "🏢 สาขาของคุณ: " + myBranches[0];
+            } else {
+                // ถ้ามีหลายสาขา เปลี่ยนเป็น Dropdown ให้เลือก
+                inp.style.display = 'none';
+                dd.style.display = 'block';
+                label.innerText = "🏢 เลือกสาขาที่ต้องการจัดการ:";
+                
+                let options = '<option value="">-- กรุณาเลือกสาขา --</option>';
+                myBranches.forEach(b => {
+                    options += `<option value="${b}">${b}</option>`;
+                });
+                dd.innerHTML = options;
+            }
+        } else { 
+            alert("บัญชีนี้ยังไม่ได้รับสิทธิ์เข้าดูแลสาขาใดๆ กรุณาติดต่อ Admin"); 
+            logout();
+        }
+    }
 }
-
-function resetBranch() { document.getElementById('branchInput').value = ""; document.getElementById('branchDropdown').value = ""; cancelEdit(); renderAll(); }
-
 
 function loadData() {
-
     const d = document.getElementById('targetDate').value;
-
     db.ref('data/'+d).on('value', s => {
-
         const v = s.val()||{};
-
-        rawP1 = v.p1 || []; rawP2 = v.p2 || [];
-
+        rawP1 = v.p1 || []; 
+        rawP2 = v.p2 || [];
         renderAll();
-
     });
-
 }
 
-
+// แก้ไขจุดที่ 3: renderAll ดึงค่าสาขาให้ถูกต้องตามสิทธิ์
 function renderAll() {
-
-    const search = document.getElementById('branchInput').value.trim().toUpperCase();
+    let search = document.getElementById('branchInput').value.trim().toUpperCase();
+    
+    // กรองข้อมูลตามสาขาที่เลือกสำหรับ User
+    if(!isAdmin) {
+        if(myBranches.length > 1) {
+            search = document.getElementById('branchDropdown').value.toUpperCase();
+        } else {
+            search = (myBranches[0] || "").toUpperCase();
+        }
+    }
 
     const isTotal = (search === "");
+    const tab = document.getElementById('tab1').classList.contains('active') ? 1 : 2;
 
-    const activeTab = document.getElementById('tab1').classList.contains('active') ? 1 : 2;
-
+    document.getElementById('advancedSummary').style.display = (isAdmin && isTotal) ? 'block' : 'none';
     
+    const hasBranchSelected = search !== "";
+    document.getElementById('inputBox1').style.display = hasBranchSelected ? 'block' : 'none';
+    document.getElementById('inputBox2').style.display = hasBranchSelected ? 'block' : 'none';
 
-    document.getElementById('movieManagerBox').style.display = isTotal ? 'block' : 'none';
-
-    document.getElementById('advancedSummary').style.display = isTotal ? 'block' : 'none'; 
-
-    document.getElementById('inputBox1').style.display = isTotal ? 'none' : 'block';
-
-    document.getElementById('inputBox2').style.display = isTotal ? 'none' : 'block';
-
-    
-
-    let h1 = '', h2 = '', splitData = {};
-
-
-    if (activeTab === 1) {
-
-        rawP1.forEach(d => {
-
-            if(!splitData[d.n]) splitData[d.n] = {}; 
-
-            splitData[d.n][d.s] = (splitData[d.n][d.s] || 0) + (d.m || 0);
-
-        });
-
-    } else {
-
-        rawP2.forEach(d => {
-
-            if(!splitData[d.n]) splitData[d.n] = {}; 
-
-            splitData[d.n]['ทั่วไป'] = (splitData[d.n]['ทั่วไป'] || 0) + (d.i || 0);
-
-        });
-
-    }
-
+    let h1 = '', h2 = '', summaryData = {};
+    const timeHead = isAdmin ? '<th>แก้ไขเมื่อ</th>' : '';
 
     rawP1.forEach((d, i) => {
-
-        if(isTotal || d.b.toUpperCase() === search) {
-
-            h1 += `<tr class="${d.stt==='REAL'?'row-real':'row-pre'}">
-
-                <td>${d.stt==='REAL'?'จริง':'เบื้องต้น'}</td>
-
-                <td>${d.b}</td><td>${d.n}</td><td>${d.s}</td><td>${d.the||'-'}</td><td>${d.tm||'-'}</td>
-
-                <td>${(d.m||0).toLocaleString()}</td>
-
-                <td>
-
-                    ${d.stt==='PRE' ? `<button class="btn-check" title="ปิดยอดจริง" onclick="closeReal('p1',${i})">✅</button>` : ''}
-
-                    <button class="btn-edit" onclick="editRow('p1',${i})">✏️</button>
-
-                    <button class="btn-del" onclick="delItem('p1',${i})">✕</button>
-
-                </td>
-
-            </tr>`;
-
+        if(tab === 1) {
+            if(!summaryData[d.n]) summaryData[d.n] = {};
+            summaryData[d.n][d.s] = (summaryData[d.n][d.s] || 0) + (d.m || 0);
         }
-
+        if((isAdmin && isTotal) || d.b === search) {
+            h1 += `<tr class="${d.stt==='REAL'?'row-real':'row-pre'}">
+                <td><button onclick="toggleStatus('p1',${i})" style="border:none;background:none;cursor:pointer;font-weight:bold;color:inherit;">${d.stt==='REAL'?'✅ จริง':'⏳ เบื้องต้น'}</button></td>
+                <td>${d.b}</td><td>${d.n}</td><td>${d.s}</td><td>${d.the}</td><td>${d.tm}</td><td>${(d.m||0).toLocaleString()}</td>
+                ${isAdmin ? `<td><small>${d.ts || '-'}</small></td>` : ''}
+                <td><button class="btn-edit" onclick="editRow('p1',${i})">✏️</button> <button class="btn-del" onclick="delItem('p1',${i})">✕</button></td>
+            </tr>`;
+        }
     });
-
 
     rawP2.forEach((d, i) => {
-
-        if(isTotal || d.b.toUpperCase() === search) {
-
+        if(tab === 2) { if(!summaryData[d.n]) summaryData[d.n] = 0; summaryData[d.n] += (d.i || 0); }
+        if((isAdmin && isTotal) || d.b === search) {
             h2 += `<tr class="${d.stt==='REAL'?'row-real':'row-pre'}">
-
-                <td>${d.stt==='REAL'?'จริง':'เบื้องต้น'}</td>
-
-                <td>${d.b}</td><td>${d.n}</td><td>${d.the||'-'}</td><td>${d.r||'-'}</td>
-
-                <td>${(d.i||0).toLocaleString()}</td><td>${d.v||0}</td>
-
-                <td>
-
-                    ${d.stt==='PRE' ? `<button class="btn-check" title="ปิดยอดจริง" onclick="closeReal('p2',${i})">✅</button>` : ''}
-
-                    <button class="btn-edit" onclick="editRow('p2',${i})">✏️</button>
-
-                    <button class="btn-del" onclick="delItem('p2',${i})">✕</button>
-
-                </td>
-
+                <td><button onclick="toggleStatus('p2',${i})" style="border:none;background:none;cursor:pointer;font-weight:bold;color:inherit;">${d.stt==='REAL'?'✅ จริง':'⏳ เบื้องต้น'}</button></td>
+                <td>${d.b}</td><td>${d.n}</td><td>${d.the}</td><td>${d.r}</td><td>${(d.i||0).toLocaleString()}</td><td>${d.v}</td>
+                ${isAdmin ? `<td><small>${d.ts || '-'}</small></td>` : ''}
+                <td><button class="btn-edit" onclick="editRow('p2',${i})">✏️</button> <button class="btn-del" onclick="delItem('p2',${i})">✕</button></td>
             </tr>`;
-
         }
-
     });
 
-
-    document.getElementById('tbody1').innerHTML = h1;
-
-    document.getElementById('tbody2').innerHTML = h2;
-
-
-    document.getElementById('summaryTitle').innerText = (activeTab===1)?"🎬 สรุปรายได้หลัก (รวมทุกสาขา)":"🍿 สรุปยอดข้างเคียง (รวมทุกสาขา)";
-
-    let sHtml = '';
-
-    Object.keys(splitData).sort().forEach(m => {
-
-        let sys = splitData[m], keys = Object.keys(sys), total = 0;
-
-        keys.forEach((s, idx) => { total += sys[s]; sHtml += `<tr>${idx===0?`<td rowspan="${keys.length+1}">${m}</td>`:''}<td>${s}</td><td style="text-align:right">${sys[s].toLocaleString()}</td></tr>`; });
-
-        sHtml += `<tr style="background:#2a2a2a; color:#facc15; font-weight:bold;"><td colspan="2" style="text-align:right">รวม ${m}</td><td style="text-align:right">${total.toLocaleString()}</td></tr>`;
-
-    });
-
-    document.getElementById('summarySplitBody').innerHTML = sHtml || '<tr><td colspan="3" style="text-align:center">ไม่มีข้อมูล</td></tr>';
-
+    document.getElementById('tbody1').parentElement.innerHTML = `<thead><tr><th>สถานะ</th><th>สาขา</th><th>หนัง</th><th>ระบบ</th><th>โรง</th><th>เวลา</th><th>เงิน</th>${timeHead}<th>จัดการ</th></tr></thead><tbody id="tbody1">${h1}</tbody>`;
+    document.getElementById('tbody2').parentElement.innerHTML = `<thead><tr><th>สถานะ</th><th>สาขา</th><th>หนัง</th><th>โรง</th><th>รอบ</th><th>เงิน</th><th>ผู้ชม</th>${timeHead}<th>จัดการ</th></tr></thead><tbody id="tbody2">${h2}</tbody>`;
+    
+    if(isAdmin) renderSummary(summaryData, tab);
 }
 
+// --- DATA MANAGEMENT ---
+function toggleStatus(p, i) {
+    const now = new Date().toLocaleTimeString('th-TH', {hour: '2-digit', minute:'2-digit'});
+    if(p === 'p1') { rawP1[i].stt = (rawP1[i].stt === 'REAL' ? 'PRE' : 'REAL'); rawP1[i].ts = now; }
+    else { rawP2[i].stt = (rawP2[i].stt === 'REAL' ? 'PRE' : 'REAL'); rawP2[i].ts = now; }
+    sync();
+}
 
 function saveData(p) {
-
-    const b = document.getElementById('branchInput').value.trim();
-
-    if(!b) return alert("กรุณาเลือกสาขาก่อน");
-
+    // แก้ไข: ให้บันทึกตามสาขาที่เลือกจาก Dropdown ถ้าเป็น User
+    let b = document.getElementById('branchInput').value.trim().toUpperCase();
+    if(!isAdmin && myBranches.length > 1) {
+        b = document.getElementById('branchDropdown').value.toUpperCase();
+    }
+    
+    if(!b) return alert("เลือกสาขาก่อน");
+    const now = new Date().toLocaleTimeString('th-TH', {hour: '2-digit', minute:'2-digit'});
 
     if(p === 1) {
-
-        const movieName = document.getElementById('m_name_sel').value;
-
-        const theater = document.getElementById('m_the').value;
-
-        const timeInput = document.getElementById('m_time').value.trim();
-
-        
-
-        if (!timeInput) return alert("กรุณาระบุเวลา");
-
-
-        const isDuplicate = rawP1.some((item, index) => {
-
-            if (currentEditIndex !== null && index === currentEditIndex) return false;
-
-            return item.b.toUpperCase() === b.toUpperCase() && 
-
-                   item.the === theater && 
-
-                   item.tm === timeInput;
-
-        });
-
-
-        if (isDuplicate) {
-
-            alert(`⚠️ ตรวจพบข้อมูลซ้ำ: สาขา ${b} โรง ${theater} มีรอบเวลา ${timeInput} อยู่แล้วในระบบ`);
-
-            return;
-
-        }
-
-
-        const data = { b, n: movieName, s: document.getElementById('m_sys').value, the: theater, tm: timeInput, m: parseFloat(document.getElementById('m_money').value)||0, seat: parseFloat(document.getElementById('m_seat').value)||0, stt: stt1 };
-
-        if(currentEditIndex !== null) rawP1[currentEditIndex] = data; else rawP1.push(data);
-
+        const d = { b, n: document.getElementById('m_name_sel').value, s: document.getElementById('m_sys').value, the: document.getElementById('m_the').value, tm: document.getElementById('m_time').value, m: parseFloat(document.getElementById('m_money').value)||0, seat: parseInt(document.getElementById('m_seat').value)||0, stt: stt1, ts: now };
+        if(currentEditIndex !== null) rawP1[currentEditIndex] = d; else rawP1.push(d);
     } else {
-
-        const data = { b, n: document.getElementById('c_movie_sel').value, the: document.getElementById('c_the').value, r: document.getElementById('c_rounds').value, i: parseFloat(document.getElementById('c_income').value)||0, v: parseInt(document.getElementById('c_view').value)||0, stt: stt2 };
-
-        if(currentEditIndex !== null) rawP2[currentEditIndex] = data; else rawP2.push(data);
-
+        const d = { b, n: document.getElementById('c_movie_sel').value, the: document.getElementById('c_the').value, r: document.getElementById('c_rounds').value, i: parseFloat(document.getElementById('c_income').value)||0, v: parseInt(document.getElementById('c_view').value)||0, stt: stt2, ts: now };
+        if(currentEditIndex !== null) rawP2[currentEditIndex] = d; else rawP2.push(d);
     }
-
-    cancelEdit(); 
-
-    sync();
-
+    cancelEdit(); sync();
 }
-
-
-function editRow(page, index) {
-
-    currentEditIndex = index;
-
-    if(page === 'p1') {
-
-        const d = rawP1[index];
-
-        document.getElementById('m_name_sel').value = d.n;
-
-        document.getElementById('m_sys').value = d.s;
-
-        document.getElementById('m_the').value = d.the;
-
-        document.getElementById('m_time').value = d.tm;
-
-        document.getElementById('m_money').value = d.m;
-
-        document.getElementById('m_seat').value = d.seat;
-
-        setStatus(1, d.stt);
-
-        document.getElementById('btn_save1').innerText = "💾 บันทึกการแก้ไข";
-
-        document.getElementById('btn_cancel1').style.display = "block";
-
-    } else {
-
-        const d = rawP2[index];
-
-        document.getElementById('c_movie_sel').value = d.n;
-
-        document.getElementById('c_the').value = d.the;
-
-        document.getElementById('c_rounds').value = d.r;
-
-        document.getElementById('c_income').value = d.i;
-
-        document.getElementById('c_view').value = d.v;
-
-        setStatus(2, d.stt);
-
-        document.getElementById('btn_save2').innerText = "💾 บันทึกการแก้ไข";
-
-        document.getElementById('btn_cancel2').style.display = "block";
-
-    }
-
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-
-}
-
-
-function cancelEdit() {
-
-    currentEditIndex = null;
-
-    document.getElementById('btn_save1').innerText = "บันทึกรายได้หลัก";
-
-    document.getElementById('btn_save2').innerText = "บันทึกยอดข้างเคียง";
-
-    document.getElementById('btn_cancel1').style.display = "none";
-
-    document.getElementById('btn_cancel2').style.display = "none";
-
-    ['m_the','m_time','m_money','m_seat','c_the','c_rounds','c_income','c_view'].forEach(id => {
-
-        const el = document.getElementById(id);
-
-        if(el) el.value = '';
-
-    });
-
-}
-
 
 function sync() { db.ref('data/'+document.getElementById('targetDate').value).set({ p1: rawP1, p2: rawP2 }); }
 
-function closeReal(page, index) { if(page === 'p1') rawP1[index].stt = 'REAL'; else rawP2[index].stt = 'REAL'; sync(); }
+function delItem(p, i) { if(confirm("ยืนยันการลบข้อมูล?")) { if(p==='p1') rawP1.splice(i,1); else rawP2.splice(i,1); sync(); } }
 
+function renderSummary(summaryData, tab) {
+    let sHtml = '';
+    for(let movie in summaryData) {
+        if(tab === 1) {
+            let movieTotal = 0;
+            for(let sys in summaryData[movie]) {
+                movieTotal += summaryData[movie][sys];
+                sHtml += `<tr><td>${movie}</td><td>${sys}</td><td style="text-align:right">${summaryData[movie][sys].toLocaleString()}</td></tr>`;
+            }
+            sHtml += `<tr style="background:#222; font-weight:bold"><td colspan="2">รวม ${movie}</td><td style="text-align:right; color:#facc15">${movieTotal.toLocaleString()}</td></tr>`;
+        } else {
+            sHtml += `<tr><td>${movie}</td><td>รวมยอดข้างเคียง</td><td style="text-align:right">${summaryData[movie].toLocaleString()}</td></tr>`;
+        }
+    }
+    document.getElementById('summarySplitBody').innerHTML = sHtml || '<tr><td colspan="3" style="text-align:center">ไม่มีข้อมูล</td></tr>';
+}
+
+// --- UI HELPERS ---
 function setStatus(p, s) { if(p===1) stt1=s; else stt2=s; document.getElementById('st-pre-'+p).classList.toggle('active', s==='PRE'); document.getElementById('st-real-'+p).classList.toggle('active', s==='REAL'); }
+function switchPage(p) { document.getElementById('tab1').classList.toggle('active', p===1); document.getElementById('tab2').classList.toggle('active', p===2); document.getElementById('p1').classList.toggle('active', p===1); document.getElementById('p2').classList.toggle('active', p===2); renderAll(); }
+function editRow(p, i) {
+    currentEditIndex = i; const d = (p==='p1' ? rawP1[i] : rawP2[i]);
+    if(p==='p1') {
+        document.getElementById('m_name_sel').value = d.n; document.getElementById('m_sys').value = d.s;
+        document.getElementById('m_the').value = d.the; document.getElementById('m_time').value = d.tm;
+        document.getElementById('m_money').value = d.m; document.getElementById('m_seat').value = d.seat;
+        setStatus(1, d.stt); document.getElementById('btn_cancel1').style.display = 'block';
+    } else {
+        document.getElementById('c_movie_sel').value = d.n; document.getElementById('c_the').value = d.the;
+        document.getElementById('c_rounds').value = d.r; document.getElementById('c_income').value = d.i;
+        document.getElementById('c_view').value = d.v; setStatus(2, d.stt); document.getElementById('btn_cancel2').style.display = 'block';
+    }
+}
+function cancelEdit() { currentEditIndex = null; ['m_the','m_time','m_money','m_seat','c_the','c_rounds','c_income','c_view'].forEach(id => document.getElementById(id).value = ''); document.getElementById('btn_cancel1').style.display = 'none'; document.getElementById('btn_cancel2').style.display = 'none'; }
 
-function switchPage(p) { cancelEdit(); document.getElementById('tab1').classList.toggle('active', p===1); document.getElementById('tab2').classList.toggle('active', p===2); document.getElementById('p1').classList.toggle('active', p===1); document.getElementById('p2').classList.toggle('active', p===2); renderAll(); }
+// --- SETTINGS MANAGEMENT (ADMIN ONLY) ---
+function updateBranchDropdowns() {
+    const list = document.getElementById('branchList'); const dd = document.getElementById('branchDropdown'); const tags = document.getElementById('list_tags_branches');
+    list.innerHTML = branches.map(b => `<option value="${b}">`).join('');
+    // เฉพาะ Admin เท่านั้นที่เห็นทุกสาขาใน Dropdown นี้
+    if(isAdmin) {
+        dd.innerHTML = '<option value="">-- เลือกสาขา --</option>' + branches.map(b => `<option value="${b}">${b}</option>`).join('');
+        tags.innerHTML = branches.map((b, i) => {
+            const email = permissions[b] || 'ยังไม่มีผู้ดูแล';
+            return `<span class="branch-tag" onclick="setBranchPerm('${b}')">${b} <br><span class="assigned-email">${email}</span> <b onclick="delBranch(${i}); event.stopPropagation();" style="color:#ff4444; margin-left:5px">✕</b></span>`;
+        }).join('');
+    }
+}
+function setBranchPerm(bName) { const email = prompt(`ระบุ Email ผู้ดูแลสาขา ${bName}:`, permissions[bName] || ""); if(email !== null) db.ref('settings/permissions/' + bName).set(email.trim().toLowerCase()); }
+function addBranch() { const name = document.getElementById('new_branch_name').value.trim().toUpperCase(); if(name && !branches.includes(name)) { branches.push(name); db.ref('settings/branches').set(branches); document.getElementById('new_branch_name').value = ''; } }
+function delBranch(i) { if(confirm("ลบสาขานี้? ข้อมูลที่มีอยู่จะไม่หายแต่สาขาจะถูกถอดจากรายการ")) { const bName = branches[i]; db.ref('settings/permissions/' + bName).remove(); branches.splice(i, 1); db.ref('settings/branches').set(branches); } }
+function syncSearch() { renderAll(); }
+function syncDropdown() { renderAll(); }
+function resetBranch() { if(!isAdmin) return; document.getElementById('branchInput').value = ""; document.getElementById('branchDropdown').value = ""; renderAll(); }
 
-function delItem(p, i) { if(confirm("ลบข้อมูลนี้ใช่หรือไม่?")) { if(p==='p1') rawP1.splice(i,1); else rawP2.splice(i,1); sync(); } }
-
-function updateMovieLists() { document.getElementById('m_name_sel').innerHTML = moviesM.map(m => `<option>${m}</option>`).join(''); document.getElementById('c_movie_sel').innerHTML = moviesS.map(m => `<option>${m}</option>`).join(''); document.getElementById('list_tags_main').innerHTML = moviesM.map((m,i)=>`<span class="movie-tag">${m} <b onclick="removeMovie('main',${i})" style="color:red;cursor:pointer">✕</b></span>`).join(' '); document.getElementById('list_tags_side').innerHTML = moviesS.map((m,i)=>`<span class="movie-tag">${m} <b onclick="removeMovie('side',${i})" style="color:red;cursor:pointer">✕</b></span>`).join(' '); }
-
-function addMovie(t) { const i = document.getElementById('new_movie_'+t); if(i.value) { if(t==='main') moviesM.push(i.value); else moviesS.push(i.value); db.ref('settings/movies_'+t).set(t==='main'?moviesM:moviesS); i.value=''; } }
-
-function removeMovie(t, i) { if(t==='main') moviesM.splice(i,1); else moviesS.splice(i,1); db.ref('settings/movies_'+t).set(t==='main'?moviesM:moviesS); }
-
+function updateMovieLists() {
+    document.getElementById('m_name_sel').innerHTML = moviesM.map(m => `<option>${m}</option>`).join('');
+    document.getElementById('c_movie_sel').innerHTML = moviesS.map(m => `<option>${m}</option>`).join('');
+    document.getElementById('list_tags_main').innerHTML = moviesM.map((m, i) => `<span class="movie-tag">${m} <b onclick="delMovie('main',${i})" style="color:red;cursor:pointer">✕</b></span>`).join('');
+    document.getElementById('list_tags_side').innerHTML = moviesS.map((m, i) => `<span class="movie-tag">${m} <b onclick="delMovie('side',${i})" style="color:red;cursor:pointer">✕</b></span>`).join('');
+}
+function addMovie(t) { const inp = document.getElementById('new_movie_'+t); if(inp.value) { if(t==='main') moviesM.push(inp.value); else moviesS.push(inp.value); db.ref('settings/movies_'+t).set(t==='main'?moviesM:moviesS); inp.value = ''; } }
+function delMovie(t, i) { if(t==='main') moviesM.splice(i,1); else moviesS.splice(i,1); db.ref('settings/movies_'+t).set(t==='main'?moviesM:moviesS); }
 </script>
-
 </body>
-
-</html> 
+</html>
