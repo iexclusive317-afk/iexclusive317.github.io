@@ -392,8 +392,13 @@ function renderAll() {
 }
 
 function saveData(p) {
+    // 1. ดึงชื่อสาขาจาก Input/Dropdown ที่เลือกไว้
     const b = document.getElementById('branchInput').value.trim();
-    if(!b) return alert("กรุณาเลือกสาขาก่อน");
+    
+    if(!b) {
+        alert("⚠️ กรุณาเลือกหรือพิมพ์ชื่อสาขาก่อนบันทึกข้อมูล");
+        return;
+    }
 
     if(p === 1) {
         const movieName = document.getElementById('m_name_sel').value;
@@ -402,6 +407,7 @@ function saveData(p) {
         
         if (!timeInput) return alert("กรุณาระบุเวลา");
 
+        // เช็คซ้ำโดยดูจาก สาขา + โรง + เวลา
         const isDuplicate = rawP1.some((item, index) => {
             if (currentEditIndex !== null && index === currentEditIndex) return false;
             return item.b.toUpperCase() === b.toUpperCase() && 
@@ -410,18 +416,42 @@ function saveData(p) {
         });
 
         if (isDuplicate) {
-            alert(`⚠️ ตรวจพบข้อมูลซ้ำ: สาขา ${b} โรง ${theater} มีรอบเวลา ${timeInput} อยู่แล้วในระบบ`);
+            alert(`⚠️ ข้อมูลซ้ำ: สาขา ${b} โรง ${theater} รอบ ${timeInput} มีในระบบแล้ว`);
             return;
         }
 
-        const data = { b, n: movieName, s: document.getElementById('m_sys').value, the: theater, tm: timeInput, m: parseFloat(document.getElementById('m_money').value)||0, seat: parseFloat(document.getElementById('m_seat').value)||0, stt: stt1 };
-        if(currentEditIndex !== null) rawP1[currentEditIndex] = data; else rawP1.push(data);
+        const data = { 
+            b: b, // บันทึกชื่อสาขาลงไปในก้อนข้อมูล
+            n: movieName, 
+            s: document.getElementById('m_sys').value, 
+            the: theater, 
+            tm: timeInput, 
+            m: parseFloat(document.getElementById('m_money').value)||0, 
+            seat: parseFloat(document.getElementById('m_seat').value)||0, 
+            stt: stt1 
+        };
+        
+        if(currentEditIndex !== null) rawP1[currentEditIndex] = data; 
+        else rawP1.push(data);
+
     } else {
-        const data = { b, n: document.getElementById('c_movie_sel').value, the: document.getElementById('c_the').value, r: document.getElementById('c_rounds').value, i: parseFloat(document.getElementById('c_income').value)||0, v: parseInt(document.getElementById('c_view').value)||0, stt: stt2 };
-        if(currentEditIndex !== null) rawP2[currentEditIndex] = data; else rawP2.push(data);
+        // ส่วนของยอดข้างเคียง
+        const data = { 
+            b: b, 
+            n: document.getElementById('c_movie_sel').value, 
+            the: document.getElementById('c_the').value, 
+            r: document.getElementById('c_rounds').value, 
+            i: parseFloat(document.getElementById('c_income').value)||0, 
+            v: parseInt(document.getElementById('c_view').value)||0, 
+            stt: stt2 
+        };
+        if(currentEditIndex !== null) rawP2[currentEditIndex] = data; 
+        else rawP2.push(data);
     }
+    
     cancelEdit(); 
-    sync();
+    sync(); // บันทึกลง Firebase
+}
 }
 
 function editRow(page, index) {
