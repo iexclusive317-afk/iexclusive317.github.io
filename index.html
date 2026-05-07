@@ -176,13 +176,17 @@
 <script>
 // --- ส่วนเชื่อมต่อ Firebase (ใช้ค่าเดิมของคุณ) ---
 const firebaseConfig = { 
-    apiKey: "AIzaSyBGDiT7wGEnigYpAp7Q3nUNiLNHtcKYEDI", 
-    authDomain: "newnane-fe1b7.firebaseapp.com", 
-    databaseURL: "https://newname-2e9f9-default-rtdb.asia-southeast1.firebasedatabase.app/", 
-    projectId: "newnane-fe1b7", 
-    storageBucket: "newnane-fe1b7.firebasestorage.app", 
-    messagingSenderId: "227043707783", 
-    appId: "1:227043707783:web:24b4c5b0e9f53e5661a122" 
+    apiKey: const firebaseConfig = {
+  apiKey: "AIzaSyAWew6J4gcIdNpF9iMWYUj0GztWrrOrZeM",
+  authDomain: "newname-2e9f9.firebaseapp.com",
+  databaseURL: "https://newname-2e9f9-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "newname-2e9f9",
+  storageBucket: "newname-2e9f9.firebasestorage.app",
+  messagingSenderId: "784301554225",
+  appId: "1:784301554225:web:fcca1d2286f60ea5e0b310",
+  measurementId: "G-SCXCWC6MLH"
+};
+
 };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
