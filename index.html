@@ -11,7 +11,7 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
 
 <style>
-    /* CSS เดิมทั้งหมด */
+    /* CSS พื้นฐาน */
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: 'Noto Sans Thai', sans-serif; background: #121212; color: #e0e0e0; padding: 15px; min-height: 100vh; }
     #login-page { display: flex; flex-direction: column; align-items: center; justify-content: center; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #121212; z-index: 9999; }
@@ -52,7 +52,7 @@
     .btn-edit { background: #f59e0b; color: white; border: none; padding: 6px; border-radius: 4px; cursor: pointer; }
     .btn-del { background: #ef4444; color: white; border: none; padding: 6px; border-radius: 4px; cursor: pointer; }
     .movie-tag { background: #333; padding: 5px 10px; border-radius: 20px; font-size: 11px; display: inline-flex; align-items: center; gap: 6px; margin: 2px; border: 1px solid #444; }
-    .branch-tag { background: #333; padding: 5px 10px; border-radius: 8px; font-size: 11px; display: inline-flex; align-items: center; gap: 6px; margin: 2px; border: 1px solid #facc15; cursor: pointer; color: #fff; }
+    .branch-tag { background: #333; padding: 5px 10px; border-radius: 8px; font-size: 11px; display: inline-flex; align-items: center; gap: 6px; margin: 2px; border: 1px solid #facc15; cursor: pointer; color: #fff; width: 200px; text-align: left; position: relative; }
     .assigned-email { color: #facc15; font-size: 10px; font-style: italic; }
 </style>
 </head>
@@ -79,7 +79,7 @@
         <input type="date" id="targetDate" onchange="loadData()" style="width: auto; margin-top: 10px; border-color: #facc15;">
     </div>
 
-    <div class="filter-card" id="branchFilterSection">
+    <div class="filter-card">
         <label id="branchLabel">🏢 เลือกสาขา</label>
         <div class="branch-selector-grid">
             <input list="branchList" id="branchInput" placeholder="🔍 พิมพ์ชื่อสาขา..." oninput="syncDropdown()">
@@ -92,7 +92,7 @@
     </div>
 
     <div id="advancedSummary" class="total-summary-box" style="display:none">
-        <h4 id="summaryTitle" style="color:#facc15; margin-bottom:10px">📈 สรุปยอดรวม (Admin Only)</h4>
+        <h4 id="summaryTitle" style="color:#facc15; margin-bottom:10px">📈 สรุปยอดแยกตามหนัง (Admin)</h4>
         <table class="summary-table">
             <thead><tr><th>ชื่อภาพยนตร์</th><th>ระบบ/เสียง</th><th style="text-align:right">ยอดรวม (บาท)</th></tr></thead>
             <tbody id="summarySplitBody"></tbody>
@@ -106,11 +106,22 @@
 
     <div id="adminPanel" class="box" style="display:none">
         <h4 style="color:#facc15; margin-bottom:10px;">🛠️ แผงควบคุม Admin</h4>
+        
+        <datalist id="emailSuggestions"></datalist>
+        <div style="background: #2a2a2a; padding: 10px; border-radius: 8px; margin-bottom: 10px; border: 1px dashed #facc15;">
+            <p style="font-size: 11px; color: #facc15; margin-bottom: 5px;">📧 กำหนด Email ผู้ดูแล (พิมพ์ที่นี่เพื่อเลือกได้ง่ายขึ้น):</p>
+            <input type="email" id="emailQuickSelect" list="emailSuggestions" placeholder="พิมพ์ Email เพื่อให้ระบบจดจำ..." style="margin-bottom: 0;">
+        </div>
+
         <div style="display:flex; gap:5px; margin-bottom:10px">
             <input type="text" id="new_branch_name" placeholder="เพิ่มสาขาใหม่...">
             <button onclick="addBranch()" style="background:#facc15; border:none; padding:10px; border-radius:8px; color:black; font-weight:bold;">เพิ่ม</button>
+            <button onclick="importMasterBranches()" style="background:#444; border:none; padding:10px; border-radius:8px; color:white; font-size:10px;">โหลดสาขาทั้งหมด</button>
         </div>
-        <div id="list_tags_branches"></div>
+        
+        <p style="font-size: 10px; color: #888; margin-bottom: 5px;">* คลิกที่ชื่อสาขาเพื่อใส่ Email ผู้ดูแล</p>
+        <div id="list_tags_branches" style="display: flex; flex-wrap: wrap; gap: 5px; max-height: 250px; overflow-y: auto; padding: 5px; background: #000; border-radius: 8px;"></div>
+        
         <hr style="border:0; border-top:1px solid #333; margin:15px 0">
         <h4 style="color:#facc15; margin-bottom:10px;">🎬 รายชื่อหนัง</h4>
         <div style="display:flex; gap:5px; margin-bottom:5px">
@@ -135,7 +146,7 @@
                 <select id="m_name_sel"></select>
                 <select id="m_sys"><option>2D/TH</option><option>2D/EN</option><option>IMAX</option><option>4DX</option></select>
                 <input type="number" id="m_the" placeholder="โรง">
-                <input type="text" id="m_time" placeholder="เวลา">
+                <input type="text" id="m_time" placeholder="เวลา (เช่น 14:30)">
                 <input type="number" id="m_money" placeholder="ยอดเงิน">
                 <input type="number" id="m_seat" placeholder="ที่นั่ง">
             </div>
@@ -166,7 +177,6 @@
 </div>
 
 <script>
-// --- CONFIG & GLOBAL VARS ---
 const ADMIN_EMAILS = ["admin@gmail.com"]; 
 
 const firebaseConfig = {
@@ -184,11 +194,33 @@ const db = firebase.database();
 const auth = firebase.auth();
 
 let rawP1 = [], rawP2 = [], moviesM = [], moviesS = [], branches = [], permissions = {};
-// แก้ไขจุดที่ 1: เปลี่ยน myBranch เป็น myBranches (Array)
 let stt1 = 'PRE', stt2 = 'PRE', currentEmail = "", isAdmin = false, myBranches = [];
 let currentEditIndex = null;
 
-// --- LOGIN & AUTH ---
+// --- MASTER DATA ---
+const masterBranchList = [
+    "ESPLANADE", "MAJOR CINEPLEX CHARN CHANGWATTHANA", "MAJOR HOLLYWOOD CHANGWATTHANA", "MAJOR CINEPLEX TIWANON",
+    "MAJOR CINEPLEX FESTIVAL CHIANGMAI", "MAJOR CINEPLEX AIRPORT CHIANGMAI", "SF CINEMA MAYA CHIANGMAI",
+    "MAJOR CINEPLEX PETCHAKASEM", "SF CINEMA THE MALL BANGKAE", "SF CINEMA BIG C PETCHAKASEM",
+    "MAJOR CINEPLLEX RATCHAYOTHIN", "MAJOR EASTVILLE", "SFX THE CRYSTAL EKAMAI-RAMINTRA",
+    "MAJOR CENTRAL WESTGATE", "SF CINEMA COSMO BAZAAR", "MAJOR ROBINSON RATCHAPRUK", "SF CINEMA CENTRAL CHAENGWATTANA",
+    "MAJOR CINEPLEX SAMRONG", "MAJOR CINEPLEX SAMUTPRAKARN", "EGV BIG C SAMUTPRAKARN", "SF CINEMA BIG C BANGPLEE", "SF CINEMA MARKET VILLAGE SUVARNABHUMI",
+    "MAJOR PROMENADE (8)", "MAJOR CINEPLEX FASHION ( 11 )", "MAJOR ROBINSON LADKRABUNG",
+    "ICON", "MAJOR CINEPLEX RAMA3", "SF CINEMA TERMINAL 21 RAMA 3", "EMBASSY",
+    "EGV PINKLAO ( 11 )", "EGV SEACON BANGKAE ( 10 )", "MAJOR CINEPLEX PINKLAO ( 13 )", "MAJOR BIC C SUKSAWAD (12)",
+    "PARAGON CINEPLEX", "ONE ULTRA SCREEN", "SF CINEMA MBK CENTER",
+    "EGV RANGSIT", "MAJOR CINEPLEX RANGSIT KLONG6", "MAJOR CINE PLEX LOTUS NAWANAKORN", "SFX CINEMA THE MALL NGAMWONGWAN",
+    "WESTVILLE", "SF CINEMA THE CRYSTAL RATCHAPRUEK", "MAJOR CINEPLEX LOTUS BANGYAI",
+    "MAJOR CINEPLEX RANGSIT", "SF CINEMA RAMINTRA", "MAJOR CINEPLEX PATUMTANI", "MAJOR BANGKADI", "SF CINEMA ROBINSON SRISAMAN",
+    "ESPLANADE RATCHADA", "MAJOR GATEWAY BANGSUE", "SFX CINEMA CENTRAL LADPLAO",
+    "MAJOR CINEPLEX MEGA BANGNA", "MAJOR CINEPLEX LOTUS SAMUTPRAKARN", "EGV SEACON", "SF CINEMA JAS URBAN SRINAKARIN",
+    "MAJOR CINEPLEX RAMR2", "MAJOR CINEPLEX LOTUS RAMA2", "MAJOR CINEPLEX LOTUS BANGPRAKOK", "SF CINEMA THE MALL TAPRA",
+    "SFX CINEMA CENTRAL RAMA9", "MAJOR CINEPLEX SAMSEN", "SF WORLD CINEMA CENTRAL WORLD",
+    "MAJOR CINEPLEX LOTUS BANGKAPI", "MAJOR CINEPLEX CENTRAL BANGNA", "BANGKAPI CINEPLEX (THE MALL BANGKAPI)", "MAJOR CINEPLEX LOTUS SRINAKARIN",
+    "QUARTIER CINEART", "MAJOR CINEPLEX SUKHUMVIT", "SF CINEMA TERMINAL 21", "SF EMPREVE' CINECLUB"
+];
+
+// --- AUTH ---
 function login() {
     const email = document.getElementById('loginEmail').value.trim();
     const pass = document.getElementById('loginPass').value;
@@ -205,10 +237,8 @@ auth.onAuthStateChanged(user => {
         document.getElementById('login-page').style.display = 'none';
         document.getElementById('main-content').style.display = 'block';
         document.getElementById('userDisplay').innerText = `👤 ${currentEmail} ${isAdmin?'(Admin)':''}`;
-        
         document.getElementById('adminPanel').style.display = isAdmin ? 'block' : 'none';
         document.getElementById('btnShowTotal').style.display = isAdmin ? 'block' : 'none';
-        
         init();
     } else {
         document.getElementById('login-page').style.display = 'flex';
@@ -218,60 +248,31 @@ auth.onAuthStateChanged(user => {
 
 function init() {
     if(!document.getElementById('targetDate').value) document.getElementById('targetDate').value = new Date().toISOString().split('T')[0];
-    
-    db.ref('settings/permissions').on('value', s => { 
-        permissions = s.val() || {}; 
-        checkAccess(); 
-        loadData(); 
-    });
-
-    db.ref('settings/branches').on('value', s => { 
-        branches = s.val() || []; 
-        updateBranchDropdowns(); 
-    });
-
+    db.ref('settings/permissions').on('value', s => { permissions = s.val() || {}; checkAccess(); loadData(); });
+    db.ref('settings/branches').on('value', s => { branches = s.val() || []; updateBranchDropdowns(); });
     db.ref('settings/movies_main').on('value', s => { moviesM = s.val()||[]; updateMovieLists(); });
     db.ref('settings/movies_side').on('value', s => { moviesS = s.val()||[]; updateMovieLists(); });
 }
 
-// แก้ไขจุดที่ 2: ฟังก์ชัน checkAccess รองรับหลายสาขา
 function checkAccess() {
     myBranches = []; 
     if(!isAdmin) {
-        // วนลูปหาทุกสาขาที่ Email นี้มีสิทธิ์
-        for (let b in permissions) { 
-            if(permissions[b] && permissions[b].toLowerCase() === currentEmail) { 
-                myBranches.push(b); 
-            } 
-        }
-
+        for (let b in permissions) { if(permissions[b] && permissions[b].toLowerCase() === currentEmail) myBranches.push(b); }
         const inp = document.getElementById('branchInput');
         const dd = document.getElementById('branchDropdown');
         const label = document.getElementById('branchLabel');
-
         if(myBranches.length > 0) {
             if (myBranches.length === 1) {
-                // ถ้ามีสาขาเดียว ล็อกเหมือนเดิม
-                inp.value = myBranches[0]; 
-                inp.readOnly = true;
-                dd.style.display = 'none';
+                inp.value = myBranches[0]; inp.readOnly = true; dd.style.display = 'none';
                 label.innerText = "🏢 สาขาของคุณ: " + myBranches[0];
             } else {
-                // ถ้ามีหลายสาขา เปลี่ยนเป็น Dropdown ให้เลือก
-                inp.style.display = 'none';
-                dd.style.display = 'block';
+                inp.style.display = 'none'; dd.style.display = 'block';
                 label.innerText = "🏢 เลือกสาขาที่ต้องการจัดการ:";
-                
                 let options = '<option value="">-- กรุณาเลือกสาขา --</option>';
-                myBranches.forEach(b => {
-                    options += `<option value="${b}">${b}</option>`;
-                });
+                myBranches.forEach(b => { options += `<option value="${b}">${b}</option>`; });
                 dd.innerHTML = options;
             }
-        } else { 
-            alert("บัญชีนี้ยังไม่ได้รับสิทธิ์เข้าดูแลสาขาใดๆ กรุณาติดต่อ Admin"); 
-            logout();
-        }
+        } else { alert("บัญชีนี้ยังไม่ได้รับสิทธิ์เข้าดูแลสาขาใดๆ กรุณาติดต่อ Admin"); logout(); }
     }
 }
 
@@ -285,27 +286,15 @@ function loadData() {
     });
 }
 
-// แก้ไขจุดที่ 3: renderAll ดึงค่าสาขาให้ถูกต้องตามสิทธิ์
 function renderAll() {
     let search = document.getElementById('branchInput').value.trim().toUpperCase();
-    
-    // กรองข้อมูลตามสาขาที่เลือกสำหรับ User
-    if(!isAdmin) {
-        if(myBranches.length > 1) {
-            search = document.getElementById('branchDropdown').value.toUpperCase();
-        } else {
-            search = (myBranches[0] || "").toUpperCase();
-        }
-    }
+    if(!isAdmin) search = (myBranches.length > 1) ? document.getElementById('branchDropdown').value.toUpperCase() : (myBranches[0] || "").toUpperCase();
 
     const isTotal = (search === "");
     const tab = document.getElementById('tab1').classList.contains('active') ? 1 : 2;
-
     document.getElementById('advancedSummary').style.display = (isAdmin && isTotal) ? 'block' : 'none';
-    
-    const hasBranchSelected = search !== "";
-    document.getElementById('inputBox1').style.display = hasBranchSelected ? 'block' : 'none';
-    document.getElementById('inputBox2').style.display = hasBranchSelected ? 'block' : 'none';
+    document.getElementById('inputBox1').style.display = search !== "" ? 'block' : 'none';
+    document.getElementById('inputBox2').style.display = search !== "" ? 'block' : 'none';
 
     let h1 = '', h2 = '', summaryData = {};
     const timeHead = isAdmin ? '<th>แก้ไขเมื่อ</th>' : '';
@@ -337,32 +326,25 @@ function renderAll() {
         }
     });
 
-    document.getElementById('tbody1').parentElement.innerHTML = `<thead><tr><th>สถานะ</th><th>สาขา</th><th>หนัง</th><th>ระบบ</th><th>โรง</th><th>เวลา</th><th>เงิน</th>${timeHead}<th>จัดการ</th></tr></thead><tbody id="tbody1">${h1}</tbody>`;
-    document.getElementById('tbody2').parentElement.innerHTML = `<thead><tr><th>สถานะ</th><th>สาขา</th><th>หนัง</th><th>โรง</th><th>รอบ</th><th>เงิน</th><th>ผู้ชม</th>${timeHead}<th>จัดการ</th></tr></thead><tbody id="tbody2">${h2}</tbody>`;
-    
+    document.getElementById('tbody1').innerHTML = h1;
+    document.getElementById('tbody2').innerHTML = h2;
     if(isAdmin) renderSummary(summaryData, tab);
 }
 
-// --- DATA MANAGEMENT ---
-function toggleStatus(p, i) {
-    const now = new Date().toLocaleTimeString('th-TH', {hour: '2-digit', minute:'2-digit'});
-    if(p === 'p1') { rawP1[i].stt = (rawP1[i].stt === 'REAL' ? 'PRE' : 'REAL'); rawP1[i].ts = now; }
-    else { rawP2[i].stt = (rawP2[i].stt === 'REAL' ? 'PRE' : 'REAL'); rawP2[i].ts = now; }
-    sync();
-}
-
+// --- DATA LOGIC ---
 function saveData(p) {
-    // แก้ไข: ให้บันทึกตามสาขาที่เลือกจาก Dropdown ถ้าเป็น User
     let b = document.getElementById('branchInput').value.trim().toUpperCase();
-    if(!isAdmin && myBranches.length > 1) {
-        b = document.getElementById('branchDropdown').value.toUpperCase();
-    }
-    
-    if(!b) return alert("เลือกสาขาก่อน");
+    if(!isAdmin && myBranches.length > 1) b = document.getElementById('branchDropdown').value.toUpperCase();
+    if(!b) return alert("กรุณาเลือกสาขาก่อนบันทึก");
+
     const now = new Date().toLocaleTimeString('th-TH', {hour: '2-digit', minute:'2-digit'});
 
     if(p === 1) {
-        const d = { b, n: document.getElementById('m_name_sel').value, s: document.getElementById('m_sys').value, the: document.getElementById('m_the').value, tm: document.getElementById('m_time').value, m: parseFloat(document.getElementById('m_money').value)||0, seat: parseInt(document.getElementById('m_seat').value)||0, stt: stt1, ts: now };
+        const timeVal = document.getElementById('m_time').value.trim();
+        const isDuplicate = rawP1.some((item, idx) => item.b === b && item.tm === timeVal && idx !== currentEditIndex);
+        if(isDuplicate) return alert("❌ เวลานี้ (" + timeVal + ") มีการบันทึกข้อมูลไปแล้วในสาขานี้");
+
+        const d = { b, n: document.getElementById('m_name_sel').value, s: document.getElementById('m_sys').value, the: document.getElementById('m_the').value, tm: timeVal, m: parseFloat(document.getElementById('m_money').value)||0, seat: parseInt(document.getElementById('m_seat').value)||0, stt: stt1, ts: now };
         if(currentEditIndex !== null) rawP1[currentEditIndex] = d; else rawP1.push(d);
     } else {
         const d = { b, n: document.getElementById('c_movie_sel').value, the: document.getElementById('c_the').value, r: document.getElementById('c_rounds').value, i: parseFloat(document.getElementById('c_income').value)||0, v: parseInt(document.getElementById('c_view').value)||0, stt: stt2, ts: now };
@@ -373,28 +355,86 @@ function saveData(p) {
 
 function sync() { db.ref('data/'+document.getElementById('targetDate').value).set({ p1: rawP1, p2: rawP2 }); }
 
-function delItem(p, i) { if(confirm("ยืนยันการลบข้อมูล?")) { if(p==='p1') rawP1.splice(i,1); else rawP2.splice(i,1); sync(); } }
+function toggleStatus(p, i) {
+    const now = new Date().toLocaleTimeString('th-TH', {hour: '2-digit', minute:'2-digit'});
+    if(p === 'p1') { rawP1[i].stt = (rawP1[i].stt === 'REAL' ? 'PRE' : 'REAL'); rawP1[i].ts = now; }
+    else { rawP2[i].stt = (rawP2[i].stt === 'REAL' ? 'PRE' : 'REAL'); rawP2[i].ts = now; }
+    sync();
+}
 
-function renderSummary(summaryData, tab) {
-    let sHtml = '';
-    for(let movie in summaryData) {
-        if(tab === 1) {
-            let movieTotal = 0;
-            for(let sys in summaryData[movie]) {
-                movieTotal += summaryData[movie][sys];
-                sHtml += `<tr><td>${movie}</td><td>${sys}</td><td style="text-align:right">${summaryData[movie][sys].toLocaleString()}</td></tr>`;
-            }
-            sHtml += `<tr style="background:#222; font-weight:bold"><td colspan="2">รวม ${movie}</td><td style="text-align:right; color:#facc15">${movieTotal.toLocaleString()}</td></tr>`;
-        } else {
-            sHtml += `<tr><td>${movie}</td><td>รวมยอดข้างเคียง</td><td style="text-align:right">${summaryData[movie].toLocaleString()}</td></tr>`;
-        }
+// --- ADMIN FUNCTIONS ---
+function importMasterBranches() {
+    if(confirm("ต้องการโหลดรายชื่อสาขามาตรฐานทั้งหมดเข้าสู่ระบบใช่หรือไม่?")) {
+        let updated = [...new Set([...branches, ...masterBranchList])];
+        branches = updated;
+        db.ref('settings/branches').set(branches);
+        alert("โหลดสาขาสำเร็จ!");
     }
-    document.getElementById('summarySplitBody').innerHTML = sHtml || '<tr><td colspan="3" style="text-align:center">ไม่มีข้อมูล</td></tr>';
+}
+
+function addBranch() {
+    const name = document.getElementById('new_branch_name').value.trim().toUpperCase();
+    if(name && !branches.includes(name)) {
+        branches.push(name);
+        db.ref('settings/branches').set(branches);
+        document.getElementById('new_branch_name').value = '';
+    }
+}
+
+function updateBranchDropdowns() {
+    const list = document.getElementById('branchList'); 
+    const dd = document.getElementById('branchDropdown'); 
+    const tags = document.getElementById('list_tags_branches');
+    
+    list.innerHTML = branches.map(b => `<option value="${b}">`).join('');
+    
+    if(isAdmin) {
+        dd.innerHTML = '<option value="">-- เลือกสาขา (Admin) --</option>' + branches.map(b => `<option value="${b}">${b}</option>`).join('');
+        
+        // อัปเดตรายการ Email ที่เคยใช้งานทั้งหมด
+        const allEmails = [...new Set(Object.values(permissions))].filter(e => e && e !== 'ยังไม่มีผู้ดูแล');
+        document.getElementById('emailSuggestions').innerHTML = allEmails.map(e => `<option value="${e}">`).join('');
+
+        tags.innerHTML = branches.map((b, i) => {
+            const email = permissions[b] || 'ยังไม่มีผู้ดูแล';
+            return `<div class="branch-tag" onclick="setBranchPerm('${b}')">
+                <b>${b}</b><br><span class="assigned-email">${email}</span>
+                <span onclick="delBranch(${i}); event.stopPropagation();" style="position:absolute; top:5px; right:8px; color:#ff4444; font-weight:bold;">✕</span>
+            </div>`;
+        }).join('');
+    }
 }
 
 // --- UI HELPERS ---
-function setStatus(p, s) { if(p===1) stt1=s; else stt2=s; document.getElementById('st-pre-'+p).classList.toggle('active', s==='PRE'); document.getElementById('st-real-'+p).classList.toggle('active', s==='REAL'); }
+function setBranchPerm(bName) { 
+    // ดึงค่าจากช่อง Quick Select มาเป็นค่าตั้งต้นถ้ามี
+    const quickEmail = document.getElementById('emailQuickSelect').value.trim().toLowerCase();
+    const currentEmailAssigned = permissions[bName] || "";
+    
+    // ถ้ามีการพิมพ์ Email ทิ้งไว้ในช่อง Quick Select จะใช้ค่านั้นทันที
+    let email = quickEmail;
+    if(!email) {
+        email = prompt(`ระบุ Email ผู้ดูแลสาขา ${bName}:`, currentEmailAssigned);
+    }
+
+    if(email !== null) {
+        const cleanEmail = email.trim().toLowerCase();
+        if(cleanEmail === "") {
+            db.ref('settings/permissions/' + bName).remove();
+        } else {
+            db.ref('settings/permissions/' + bName).set(cleanEmail);
+            // ล้างค่าช่อง Quick Select เพื่อให้พร้อมใส่คนต่อไป
+            document.getElementById('emailQuickSelect').value = '';
+        }
+    } 
+}
+
+function delBranch(i) { if(confirm("ลบสาขานี้?")) { const bName = branches[i]; db.ref('settings/permissions/' + bName).remove(); branches.splice(i, 1); db.ref('settings/branches').set(branches); } }
+function syncSearch() { renderAll(); }
+function syncDropdown() { renderAll(); }
+function resetBranch() { document.getElementById('branchInput').value = ""; document.getElementById('branchDropdown').value = ""; renderAll(); }
 function switchPage(p) { document.getElementById('tab1').classList.toggle('active', p===1); document.getElementById('tab2').classList.toggle('active', p===2); document.getElementById('p1').classList.toggle('active', p===1); document.getElementById('p2').classList.toggle('active', p===2); renderAll(); }
+function setStatus(p, s) { if(p===1) stt1=s; else stt2=s; document.getElementById('st-pre-'+p).classList.toggle('active', s==='PRE'); document.getElementById('st-real-'+p).classList.toggle('active', s==='REAL'); }
 function editRow(p, i) {
     currentEditIndex = i; const d = (p==='p1' ? rawP1[i] : rawP2[i]);
     if(p==='p1') {
@@ -409,26 +449,7 @@ function editRow(p, i) {
     }
 }
 function cancelEdit() { currentEditIndex = null; ['m_the','m_time','m_money','m_seat','c_the','c_rounds','c_income','c_view'].forEach(id => document.getElementById(id).value = ''); document.getElementById('btn_cancel1').style.display = 'none'; document.getElementById('btn_cancel2').style.display = 'none'; }
-
-// --- SETTINGS MANAGEMENT (ADMIN ONLY) ---
-function updateBranchDropdowns() {
-    const list = document.getElementById('branchList'); const dd = document.getElementById('branchDropdown'); const tags = document.getElementById('list_tags_branches');
-    list.innerHTML = branches.map(b => `<option value="${b}">`).join('');
-    // เฉพาะ Admin เท่านั้นที่เห็นทุกสาขาใน Dropdown นี้
-    if(isAdmin) {
-        dd.innerHTML = '<option value="">-- เลือกสาขา --</option>' + branches.map(b => `<option value="${b}">${b}</option>`).join('');
-        tags.innerHTML = branches.map((b, i) => {
-            const email = permissions[b] || 'ยังไม่มีผู้ดูแล';
-            return `<span class="branch-tag" onclick="setBranchPerm('${b}')">${b} <br><span class="assigned-email">${email}</span> <b onclick="delBranch(${i}); event.stopPropagation();" style="color:#ff4444; margin-left:5px">✕</b></span>`;
-        }).join('');
-    }
-}
-function setBranchPerm(bName) { const email = prompt(`ระบุ Email ผู้ดูแลสาขา ${bName}:`, permissions[bName] || ""); if(email !== null) db.ref('settings/permissions/' + bName).set(email.trim().toLowerCase()); }
-function addBranch() { const name = document.getElementById('new_branch_name').value.trim().toUpperCase(); if(name && !branches.includes(name)) { branches.push(name); db.ref('settings/branches').set(branches); document.getElementById('new_branch_name').value = ''; } }
-function delBranch(i) { if(confirm("ลบสาขานี้? ข้อมูลที่มีอยู่จะไม่หายแต่สาขาจะถูกถอดจากรายการ")) { const bName = branches[i]; db.ref('settings/permissions/' + bName).remove(); branches.splice(i, 1); db.ref('settings/branches').set(branches); } }
-function syncSearch() { renderAll(); }
-function syncDropdown() { renderAll(); }
-function resetBranch() { if(!isAdmin) return; document.getElementById('branchInput').value = ""; document.getElementById('branchDropdown').value = ""; renderAll(); }
+function delItem(p, i) { if(confirm("ยืนยันการลบข้อมูล?")) { if(p==='p1') rawP1.splice(i,1); else rawP2.splice(i,1); sync(); } }
 
 function updateMovieLists() {
     document.getElementById('m_name_sel').innerHTML = moviesM.map(m => `<option>${m}</option>`).join('');
@@ -438,6 +459,23 @@ function updateMovieLists() {
 }
 function addMovie(t) { const inp = document.getElementById('new_movie_'+t); if(inp.value) { if(t==='main') moviesM.push(inp.value); else moviesS.push(inp.value); db.ref('settings/movies_'+t).set(t==='main'?moviesM:moviesS); inp.value = ''; } }
 function delMovie(t, i) { if(t==='main') moviesM.splice(i,1); else moviesS.splice(i,1); db.ref('settings/movies_'+t).set(t==='main'?moviesM:moviesS); }
+
+function renderSummary(summaryData, tab) {
+    let sHtml = '';
+    for(let movie in summaryData) {
+        if(tab === 1) {
+            let movieTotal = 0;
+            for(let sys in summaryData[movie]) {
+                movieTotal += summaryData[movie][sys];
+                sHtml += `<tr><td>${movie}</td><td>${sys}</td><td style="text-align:right">${summaryData[movie][sys].toLocaleString()}</td></tr>`;
+            }
+            sHtml += `<tr style="background:#222; font-weight:bold"><td colspan="2">รวม ${movie}</td><td style="text-align:right; color:#facc15">${movieTotal.toLocaleString()}</td></tr>`;
+        } else {
+            sHtml += `<tr><td>${movie}</td><td>ยอดข้างเคียง</td><td style="text-align:right">${summaryData[movie].toLocaleString()}</td></tr>`;
+        }
+    }
+    document.getElementById('summarySplitBody').innerHTML = sHtml || '<tr><td colspan="3" style="text-align:center">ไม่มีข้อมูล</td></tr>';
+}
 </script>
 </body>
 </html>
