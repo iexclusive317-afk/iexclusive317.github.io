@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ระบบแจ้งยอดโรงหนัง Online (Full Version)</title>
+<title>ระบบแจ้งยอดโรงหนัง Online (Full Version + แยกเสียง)</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
 
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
@@ -32,7 +32,7 @@ input:focus, select:focus { border-color: #facc15; outline: none; }
 .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-bottom: 20px; }
 .stat { background: #2a2a2a; border-radius: 10px; padding: 15px; text-align: center; border-top: 3px solid #facc15; }
 .stat-val { font-size: 20px; font-weight: 700; color: #facc15; }
-.table-container { overflow-x: auto; border-radius: 10px; }
+.table-container { overflow-x: auto; border-radius: 10px; margin-bottom: 20px; }
 table { width: 100%; border-collapse: collapse; background: white; color: black; min-width: 1000px; }
 th { background: #16a34a; color: white; padding: 12px; font-size: 12px; }
 td { border: 1px solid #ddd; padding: 10px; text-align: center; font-size: 13px; }
@@ -42,12 +42,20 @@ td { border: 1px solid #ddd; padding: 10px; text-align: center; font-size: 13px;
 .region-cnx { background: #fdf2f8 !important; }
 .comp-box { background: #2a2a2a; padding: 15px; border-radius: 12px; margin-bottom: 20px; }
 .movie-input-wrap { display: flex; gap: 5px; margin-bottom: 5px; }
+
+/* เพิ่มเติม: ส่วนสรุปแยกเสียง */
+.sound-summary { background: #333; padding: 15px; border-radius: 10px; margin-bottom: 20px; border-left: 5px solid #3b82f6; }
+.sound-summary h4 { font-size: 14px; margin-bottom: 10px; color: #3b82f6; display: flex; align-items: center; gap: 5px; }
+.sound-grid { display: flex; flex-wrap: wrap; gap: 15px; }
+.sound-item { background: #1e1e1e; padding: 8px 15px; border-radius: 6px; border: 1px solid #444; }
+.sound-label { font-size: 10px; color: #888; text-transform: uppercase; }
+.sound-value { font-size: 16px; font-weight: bold; color: #fff; }
 </style>
 </head>
 <body>
 
 <h1>🎬 ระบบแจ้งยอดโรงหนัง</h1>
-<p class="subtitle">โครงการ: Newnane | แชร์ยอดออนไลน์แบบ Real-time</p>
+<p class="subtitle">โครงการ: Newnane | แยกยอดตามระบบเสียง Real-time</p>
 
 <div class="date-bar">
     <label>📅 วันที่รายการ:</label>
@@ -74,10 +82,17 @@ td { border: 1px solid #ddd; padding: 10px; text-align: center; font-size: 13px;
         <div class="field-group"><label>ยอดเงิน</label><input type="number" id="money"></div>
         <button class="addBtn" onclick="addData()">➕ เพิ่ม</button>
     </div>
+
     <div class="stats">
         <div class="stat"><div style="font-size:10px;color:#888">รายได้รวม</div><div id="s-money" class="stat-val">0</div></div>
         <div class="stat"><div style="font-size:10px;color:#888">ที่นั่งรวม</div><div id="s-seats" class="stat-val">0</div></div>
     </div>
+
+    <div class="sound-summary">
+        <h4>🔊 ยอดแยกตามระบบเสียง</h4>
+        <div id="sound-summary-p1" class="sound-grid"></div>
+    </div>
+
     <div class="table-container">
         <table>
             <thead><tr><th>#</th><th>ชื่อหนัง</th><th>สาขา</th><th>โซน</th><th>ระบบ</th><th>โรง</th><th>รอบ</th><th>ที่นั่ง</th><th>ยอดเงิน</th><th>ลบ</th></tr></thead>
@@ -102,7 +117,14 @@ td { border: 1px solid #ddd; padding: 10px; text-align: center; font-size: 13px;
         <div class="field-group"><label>ผู้ชม</label><input type="number" id="c-audience"></div>
         <button class="addBtn" onclick="addComp()">➕ เพิ่มข้อมูล</button>
     </div>
+    
     <div class="stats" id="stats2"></div>
+
+    <div class="sound-summary">
+        <h4>🔊 รายได้แยกตามระบบเสียง (เปรียบเทียบ)</h4>
+        <div id="sound-summary-p2" class="sound-grid"></div>
+    </div>
+
     <div class="table-container">
         <table>
             <thead><tr><th>#</th><th>สาขา</th><th>โซน</th><th>ภาพยนตร์</th><th>ระบบ</th><th>จอ</th><th>รอบ</th><th>รายได้</th><th>ผู้ชม</th><th>ลบ</th></tr></thead>
@@ -112,7 +134,7 @@ td { border: 1px solid #ddd; padding: 10px; text-align: center; font-size: 13px;
 </div>
 
 <script>
-// --- 2. ตั้งค่า Firebase (ใช้ข้อมูลจริงของคุณ) ---
+// --- 2. ตั้งค่า Firebase (Newnane) ---
 const firebaseConfig = {
   apiKey: "AIzaSyBGDiT7wGEnigYpAp7Q3nUNiLNHtcKYEDI",
   authDomain: "newnane-fe1b7.firebaseapp.com",
@@ -162,51 +184,12 @@ const BRANCH_HTML = `
         <option value="SF THE MALL THAPRA|bkk">SF THE MALL THAPRA</option>
         <option value="MAJOR BIC C SUKSAWAD|bkk">MAJOR BIC C SUKSAWAD</option>
     </optgroup>
-    <optgroup label="🏙 กรุงเทพฯ - พระราม 3/ตะวันออก">
-        <option value="MAJOR RAMA 3|bkk">MAJOR RAMA 3</option>
-        <option value="SF TERMINAL 21 RAMA 3|bkk">SF TERMINAL 21 RAMA 3</option>
-        <option value="MAJOR EASTVILLE|bkk">MAJOR EASTVILLE</option>
-        <option value="SFX THE CRYSTAL EKAMAI-RAMINTRA|bkk">SFX THE CRYSTAL EKAMAI-RAMINTRA</option>
-        <option value="MAJOR PROMENADE|bkk">MAJOR PROMENADE</option>
-        <option value="MAJOR FASHION ISLAND|bkk">MAJOR FASHION ISLAND</option>
-        <option value="MAJOR ROBINSON LADKRABUNG|bkk">MAJOR ROBINSON LADKRABUNG</option>
-        <option value="MAJOR LOTUS BANGKAPI|bkk">MAJOR LOTUS BANGKAPI</option>
-        <option value="MAJOR CENTRAL BANGNA|bkk">MAJOR CENTRAL BANGNA</option>
-        <option value="BANGKAPI CINEPLEX|bkk">BANGKAPI CINEPLEX (THE MALL)</option>
-        <option value="MAJOR LOTUS SRINAKARIN|bkk">MAJOR LOTUS SRINAKARIN</option>
-        <option value="MAJOR MEGA BANGNA|bkk">MAJOR MEGA BANGNA</option>
-        <option value="EGV SEACON SRINAKARIN|bkk">EGV SEACON SRINAKARIN</option>
-        <option value="SF JAS URBAN SRINAKARIN|bkk">SF JAS URBAN SRINAKARIN</option>
-    </optgroup>
     <optgroup label="🏢 ปริมณฑล - นนทบุรี/ราชพฤกษ์">
         <option value="ESPLANADE RATTANATIBATE|peri">ESPLANADE RATTANATIBATE</option>
-        <option value="MAJOR CHARN CHANGWATTHANA|peri">MAJOR CHARN CHANGWATTHANA</option>
-        <option value="MAJOR HOLLYWOOD CHANGWATTHANA|peri">MAJOR HOLLYWOOD CHANGWATTHANA</option>
-        <option value="MAJOR TIWANON|peri">MAJOR TIWANON</option>
         <option value="MAJOR CENTRAL WESTGATE|peri">MAJOR CENTRAL WESTGATE</option>
         <option value="SF CENTRAL CHAENGWATTANA|peri">SF CENTRAL CHAENGWATTANA</option>
-        <option value="SF COSMO BAZAAR|peri">SF COSMO BAZAAR</option>
-        <option value="MAJOR ROBINSON RATCHAPRUK|peri">MAJOR ROBINSON RATCHAPRUK</option>
+        <option value="MAJOR MEGA BANGNA|peri">MAJOR MEGA BANGNA</option>
         <option value="WESTVILLE CINEPLEX|peri">WESTVILLE CINEPLEX</option>
-        <option value="SF THE CRYSTAL RATCHAPRUEK|peri">SF THE CRYSTAL RATCHAPRUEK</option>
-        <option value="MAJOR LOTUS BANGYAI|peri">MAJOR LOTUS BANGYAI</option>
-        <option value="SFX THE MALL NGAMWONGWAN|peri">SFX THE MALL NGAMWONGWAN</option>
-    </optgroup>
-    <optgroup label="🏢 ปริมณฑล - สมุทรปราการ/ปทุมธานี/รังสิต">
-        <option value="MAJOR SAMRONG|peri">MAJOR SAMRONG</option>
-        <option value="MAJOR SAMUTPRAKARN|peri">MAJOR SAMUTPRAKARN</option>
-        <option value="MAJOR LOTUS SAMUTPRAKARN|peri">MAJOR LOTUS SAMUTPRAKARN</option>
-        <option value="EGV BIG C SAMUTPRAKARN|peri">EGV BIG C SAMUTPRAKARN</option>
-        <option value="SF BIG C BANGPLEE|peri">SF BIG C BANGPLEE</option>
-        <option value="SF MARKET VILLAGE SUVARNABHUMI|peri">SF MARKET VILLAGE SUVARNABHUMI</option>
-        <option value="EGV RANGSIT|peri">EGV RANGSIT</option>
-        <option value="MAJOR RANGSIT|peri">MAJOR RANGSIT</option>
-        <option value="MAJOR RANGSIT KLONG 6|peri">MAJOR RANGSIT KLONG 6</option>
-        <option value="MAJOR LOTUS NAWANAKORN|peri">MAJOR LOTUS NAWANAKORN</option>
-        <option value="MAJOR PATUMTANI|peri">MAJOR PATUMTANI</option>
-        <option value="MAJOR BANGKADI|peri">MAJOR BANGKADI</option>
-        <option value="SF ROBINSON SRISAMAN|peri">SF ROBINSON SRISAMAN</option>
-        <option value="SF RAMINTRA|peri">SF RAMINTRA</option>
     </optgroup>
     <optgroup label="🏔 เชียงใหม่ (CNX)">
         <option value="MAJOR FESTIVAL CHIANGMAI|cnx">MAJOR FESTIVAL CHIANGMAI</option>
@@ -225,27 +208,19 @@ function init() {
     currentDay = today;
     document.getElementById('branch').innerHTML = BRANCH_HTML;
     document.getElementById('c-branch').innerHTML = BRANCH_HTML;
-    
-    // โหลดข้อมูลออนไลน์
     syncOnlineData(today);
 }
 
 function syncOnlineData(date) {
-    // ฟังการเปลี่ยนแปลงของข้อมูลรายวัน
     db.ref('cinema_data/' + date).on('value', (snapshot) => {
         const val = snapshot.val();
         data1 = (val && val.data1) ? val.data1 : [];
         data2 = (val && val.data2) ? val.data2 : [];
         renderAll();
     });
-
-    // ฟังการเปลี่ยนแปลงของรายชื่อหนังข้างเคียง
     db.ref('comp_movies').on('value', (snapshot) => {
         const val = snapshot.val();
-        if (val) {
-            compMovies = val;
-            buildCompMovieInputs();
-        }
+        if (val) { compMovies = val; buildCompMovieInputs(); }
     });
 }
 
@@ -259,7 +234,7 @@ function changeDate() {
     syncOnlineData(currentDay);
 }
 
-// --- Logic หน้า 1 ---
+// --- หน้า 1 ---
 function addData() {
     const b = document.getElementById('branch').value.split('|');
     data1.push({
@@ -278,11 +253,7 @@ function renderTable1() {
     const tbody = document.getElementById('tableData');
     tbody.innerHTML = data1.map((d, i) => `
         <tr class="region-${d.region}">
-            <td>${i+1}</td>
-            <td>${d.movie}</td>
-            <td>${d.branch}</td>
-            <td>${d.region.toUpperCase()}</td>
-            <td>${d.sys}</td>
+            <td>${i+1}</td><td>${d.movie}</td><td>${d.branch}</td><td>${d.region.toUpperCase()}</td><td>${d.sys}</td>
             <td class="editable" contenteditable="true" onblur="update1(${i},'theater',this.innerText)">${d.theater}</td>
             <td>${d.round}</td>
             <td class="editable" contenteditable="true" onblur="update1(${i},'seats',this.innerText)">${d.seats}</td>
@@ -300,11 +271,27 @@ function update1(i, f, v) {
 }
 
 function updateStats1() {
-    document.getElementById('s-money').textContent = data1.reduce((s,d)=>s+d.money,0).toLocaleString();
-    document.getElementById('s-seats').textContent = data1.reduce((s,d)=>s+d.seats,0).toLocaleString();
+    const totalMoney = data1.reduce((s,d)=>s+d.money,0);
+    const totalSeats = data1.reduce((s,d)=>s+d.seats,0);
+    document.getElementById('s-money').textContent = totalMoney.toLocaleString();
+    document.getElementById('s-seats').textContent = totalSeats.toLocaleString();
+
+    // คำนวณแยกเสียง หน้า 1
+    const soundMap = {};
+    data1.forEach(d => {
+        soundMap[d.sys] = (soundMap[d.sys] || 0) + d.money;
+    });
+    
+    const summaryHtml = Object.keys(soundMap).sort().map(sys => `
+        <div class="sound-item">
+            <div class="sound-label">${sys}</div>
+            <div class="sound-value">${soundMap[sys].toLocaleString()}</div>
+        </div>
+    `).join('');
+    document.getElementById('sound-summary-p1').innerHTML = summaryHtml || '<span style="color:#666; font-size:12px;">ยังไม่มีข้อมูลระบบเสียง</span>';
 }
 
-// --- Logic หน้า 2 ---
+// --- หน้า 2 ---
 function addComp() {
     const b = document.getElementById('c-branch').value.split('|');
     data2.push({
@@ -336,12 +323,25 @@ function renderTable2() {
 function update2(i, f, v) { data2[i][f] = parseFloat(v.replace(/,/g,'')) || 0; save(); }
 
 function updateStats2() {
-    const statsDiv = document.getElementById('stats2');
     const movieTotals = compMovies.map(m => {
         const rows = data2.filter(d => d.movie === m);
         return { name: m, inc: rows.reduce((s, d) => s + d.income, 0) };
     });
-    statsDiv.innerHTML = movieTotals.map(t => t.inc > 0 ? `<div class="stat"><div style="font-size:10px;color:#888">${t.name}</div><div class="stat-val">${t.inc.toLocaleString()}</div></div>` : "").join('');
+    document.getElementById('stats2').innerHTML = movieTotals.map(t => t.inc > 0 ? `<div class="stat"><div style="font-size:10px;color:#888">${t.name}</div><div class="stat-val">${t.inc.toLocaleString()}</div></div>` : "").join('');
+
+    // คำนวณแยกเสียง หน้า 2
+    const soundMap = {};
+    data2.forEach(d => {
+        soundMap[d.sys] = (soundMap[d.sys] || 0) + d.income;
+    });
+    
+    const summaryHtml = Object.keys(soundMap).sort().map(sys => `
+        <div class="sound-item">
+            <div class="sound-label">${sys}</div>
+            <div class="sound-value">${soundMap[sys].toLocaleString()}</div>
+        </div>
+    `).join('');
+    document.getElementById('sound-summary-p2').innerHTML = summaryHtml || '<span style="color:#666; font-size:12px;">ยังไม่มีข้อมูลระบบเสียง</span>';
 }
 
 function buildCompMovieInputs() {
@@ -351,10 +351,6 @@ function buildCompMovieInputs() {
             <button class="deleteBtn" style="padding:5px" onclick="compMovies.splice(${i},1);save()">✕</button>
         </div>
     `).join('');
-    updateCompMovieSelect();
-}
-
-function updateCompMovieSelect() {
     const sel = document.getElementById('c-movie');
     sel.innerHTML = compMovies.map(m => `<option value="${m}">${m}</option>`).join('');
 }
