@@ -1,208 +1,932 @@
 <!DOCTYPE html>
+
 <html lang="th">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Cinema Management - Multi-Branch Edition</title>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
+<title>Cinema Management — Multi-Branch</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Noto+Sans+Thai:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
 
 <style>
-    /* CSS ทั้งหมดคงเดิม */
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Noto Sans Thai', sans-serif; background: #121212; color: #e0e0e0; padding: 15px; min-height: 100vh; }
-    #login-page { display: flex; flex-direction: column; align-items: center; justify-content: center; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #121212; z-index: 9999; }
-    .login-box { background: #1e1e1e; padding: 30px; border-radius: 15px; border: 1px solid #facc15; width: 320px; text-align: center; }
-    .login-box h2 { color: #facc15; margin-bottom: 20px; }
-    .login-box input { margin-bottom: 15px; width: 100%; padding: 12px; border-radius: 8px; background: #2a2a2a; color: white; border: 1px solid #444; outline: none; }
-    .btn-login { background: #facc15; color: black; border: none; padding: 12px; border-radius: 8px; width: 100%; font-weight: bold; cursor: pointer; }
-    #main-content { display: none; }
-    .logout-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding: 5px 0; }
-    .btn-logout { background: #ff4444; color: white; border: none; padding: 5px 12px; border-radius: 5px; cursor: pointer; font-size: 12px; }
-    .header-section { text-align: center; margin-bottom: 20px; }
-    .filter-card { background: #1e1e1e; padding: 15px; border-radius: 12px; border: 1px solid #333; margin-bottom: 15px; }
-    .filter-card label { display: block; margin-bottom: 8px; color: #facc15; font-weight: bold; font-size: 14px; }
-    .branch-selector-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
-    select, input { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #444; background: #2a2a2a; color: white; font-size: 14px; outline: none; }
-    .btn-reset { background: #444; color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-size: 12px; width: 100%; margin-top: 8px; font-weight: bold; }
-    .status-selector { display: flex; gap: 5px; margin-bottom: 10px; }
-    .status-btn { flex: 1; padding: 10px; border-radius: 6px; border: 1px solid #444; cursor: pointer; text-align: center; font-weight: bold; font-size: 12px; background: #333; color: #888; }
-    .status-btn.active.pre { background: #ef4444; color: white; border-color: #ef4444; }
-    .status-btn.active.real { background: #22c55e; color: white; border-color: #22c55e; }
-    .tabs { display: flex; gap: 5px; margin-bottom: 15px; }
-    .tab-btn { flex: 1; padding: 12px; border: none; border-radius: 8px; background: #333; color: #888; cursor: pointer; font-weight: bold; }
-    .tab-btn.active { background: #facc15; color: #000; }
-    .page { display: none; }
-    .page.active { display: block; }
-    .box { background: #1e1e1e; padding: 15px; border-radius: 12px; margin-bottom: 15px; border: 1px solid #333; }
-    .total-summary-box { background: #1e1e1e; border: 1px solid #facc15; border-radius: 12px; padding: 15px; margin-bottom: 15px; overflow-x: auto; }
-    .summary-table { width: 100%; border-collapse: collapse; font-size: 12px; color: #eee; min-width: 500px; }
-    .summary-table th { background: #333; color: #facc15; padding: 10px; text-align: left; border: 1px solid #444; }
-    .summary-table td { padding: 8px 10px; border: 1px solid #444; background: #262626; }
-    .table-container { overflow-x: auto; background: #fff; border-radius: 10px; margin-top: 10px; }
-    table { width: 100%; border-collapse: collapse; color: #333; font-size: 11px; min-width: 900px; }
-    th { background: #333; color: white; padding: 10px; position: sticky; top: 0; }
-    td { padding: 8px; border-bottom: 1px solid #eee; text-align: center; }
-    .row-pre { color: #ef4444; font-weight: bold; }
-    .row-real { color: #16a34a; font-weight: bold; }
-    .btn-add { background: #3b82f6; color: white; border: none; padding: 15px; border-radius: 8px; width: 100%; font-weight: bold; margin-top: 10px; cursor: pointer; }
-    .btn-edit { background: #f59e0b; color: white; border: none; padding: 6px; border-radius: 4px; cursor: pointer; }
-    .btn-del { background: #ef4444; color: white; border: none; padding: 6px; border-radius: 4px; cursor: pointer; }
-    .movie-tag { background: #333; padding: 5px 10px; border-radius: 20px; font-size: 11px; display: inline-flex; align-items: center; gap: 6px; margin: 2px; border: 1px solid #444; }
-    .branch-tag { background: #333; padding: 5px 10px; border-radius: 8px; font-size: 11px; display: inline-flex; align-items: center; gap: 6px; margin: 2px; border: 1px solid #facc15; cursor: pointer; color: #fff; width: 200px; text-align: left; position: relative; }
-    .assigned-email { color: #facc15; font-size: 10px; font-style: italic; }
+:root {
+  --bg: #0a0a0f;
+  --surface: #111118;
+  --surface2: #18181f;
+  --surface3: #1f1f2a;
+  --border: #2a2a38;
+  --border-accent: #facc15;
+  --gold: #facc15;
+  --gold-dim: #a88d0d;
+  --text: #e8e8f0;
+  --text-muted: #666680;
+  --text-dim: #9898b0;
+  --green: #22c55e;
+  --red: #ef4444;
+  --blue: #3b82f6;
+  --amber: #f59e0b;
+  --radius: 10px;
+  --radius-sm: 6px;
+  --shadow: 0 4px 24px rgba(0,0,0,0.5);
+  --shadow-gold: 0 0 20px rgba(250,204,21,0.12);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Noto Sans Thai', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  background-image:
+    radial-gradient(ellipse 80% 40% at 50% 0%, rgba(250,204,21,0.04) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 60% at 100% 50%, rgba(59,130,246,0.03) 0%, transparent 60%);
+}
+
+/* ===== SCROLLBAR ===== */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: var(--surface); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: var(--gold-dim); }
+
+/* ===== LOGIN ===== */
+#login-page {
+  display: flex; align-items: center; justify-content: center;
+  position: fixed; inset: 0;
+  background: var(--bg);
+  z-index: 9999;
+}
+
+.login-wrap {
+  display: flex; flex-direction: column; align-items: center; gap: 32px;
+}
+
+.login-logo {
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+}
+
+.login-logo .logo-icon {
+  width: 64px; height: 64px;
+  background: linear-gradient(135deg, var(--gold) 0%, #f59e0b 100%);
+  border-radius: 18px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 28px;
+  box-shadow: 0 8px 32px rgba(250,204,21,0.3);
+}
+
+.login-logo h1 {
+  font-family: 'Space Mono', monospace;
+  font-size: 22px; letter-spacing: 2px; color: var(--gold);
+}
+
+.login-logo p { font-size: 12px; color: var(--text-muted); letter-spacing: 1px; }
+
+.login-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 32px;
+  width: 340px;
+  box-shadow: var(--shadow), var(--shadow-gold);
+}
+
+.login-box .field { margin-bottom: 14px; }
+.login-box .field label { display: block; font-size: 11px; color: var(--text-muted); margin-bottom: 6px; letter-spacing: 0.5px; text-transform: uppercase; }
+
+.login-box input {
+  width: 100%; padding: 12px 14px;
+  border-radius: var(--radius-sm);
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-size: 14px;
+  font-family: inherit;
+  transition: border-color 0.2s;
+  outline: none;
+}
+
+.login-box input:focus { border-color: var(--gold); }
+
+.btn-login {
+  width: 100%; padding: 13px;
+  background: var(--gold);
+  color: #000;
+  border: none; border-radius: var(--radius-sm);
+  font-weight: 700; font-size: 14px;
+  cursor: pointer; margin-top: 8px;
+  font-family: inherit;
+  letter-spacing: 0.5px;
+  transition: opacity 0.2s, transform 0.1s;
+}
+
+.btn-login:hover { opacity: 0.9; }
+.btn-login:active { transform: scale(0.98); }
+
+#loginError { font-size: 12px; color: var(--red); margin-top: 10px; text-align: center; min-height: 18px; }
+
+/* ===== MAIN CONTENT ===== */
+#main-content { display: none; max-width: 900px; margin: 0 auto; padding: 16px; }
+
+/* ===== TOP BAR ===== */
+.top-bar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 16px;
+}
+
+.top-bar-left { display: flex; align-items: center; gap: 10px; }
+
+.logo-small {
+  width: 32px; height: 32px;
+  background: var(--gold);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; flex-shrink: 0;
+}
+
+.top-bar-title { font-family: 'Space Mono', monospace; font-size: 14px; color: var(--gold); letter-spacing: 1px; }
+.top-bar-sub { font-size: 11px; color: var(--text-muted); }
+
+.user-badge {
+  display: flex; align-items: center; gap: 8px;
+}
+
+.user-email {
+  font-size: 12px; color: var(--text-dim);
+  background: var(--surface2);
+  padding: 4px 10px; border-radius: 20px;
+  border: 1px solid var(--border);
+}
+
+.user-email .admin-tag {
+  color: var(--gold); font-size: 10px; margin-left: 4px;
+  font-family: 'Space Mono', monospace;
+}
+
+.btn-logout {
+  background: transparent; color: var(--text-muted);
+  border: 1px solid var(--border);
+  padding: 5px 12px; border-radius: 20px;
+  cursor: pointer; font-size: 12px;
+  transition: all 0.2s; font-family: inherit;
+}
+
+.btn-logout:hover { border-color: var(--red); color: var(--red); }
+
+/* ===== HERO FILTER SECTION ===== */
+.hero-filter {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px;
+  margin-bottom: 14px;
+}
+
+.hero-filter-top {
+  display: grid; grid-template-columns: 1fr auto;
+  gap: 12px; align-items: end; margin-bottom: 12px;
+}
+
+.date-field { }
+.date-field label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 6px; }
+
+.branch-row {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+input, select {
+  width: 100%; padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--surface2);
+  color: var(--text);
+  font-size: 13px;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+input:focus, select:focus { border-color: var(--gold); }
+input::placeholder { color: var(--text-muted); }
+
+select option { background: var(--surface2); }
+
+.btn-reset-branch {
+  background: transparent;
+  border: 1px dashed var(--gold-dim);
+  color: var(--gold);
+  padding: 8px 14px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: 12px;
+  font-family: inherit;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.btn-reset-branch:hover { background: rgba(250,204,21,0.06); }
+
+/* ===== SUMMARY PANEL ===== */
+.summary-panel {
+  background: var(--surface);
+  border: 1px solid rgba(250,204,21,0.3);
+  border-radius: var(--radius);
+  padding: 16px;
+  margin-bottom: 14px;
+  display: none;
+}
+
+.summary-panel h4 {
+  color: var(--gold);
+  font-size: 13px;
+  margin-bottom: 12px;
+  display: flex; align-items: center; gap: 6px;
+}
+
+.summary-table-wrap { overflow-x: auto; }
+
+.summary-table {
+  width: 100%; border-collapse: collapse; font-size: 12px;
+  min-width: 440px;
+}
+
+.summary-table th {
+  background: var(--surface2);
+  color: var(--text-muted);
+  padding: 8px 10px;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+  font-weight: 600;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.summary-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+}
+
+.summary-table .movie-total td {
+  background: var(--surface2);
+  font-weight: 700;
+  color: var(--gold);
+}
+
+/* ===== TABS ===== */
+.tabs {
+  display: flex; gap: 4px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 4px;
+  margin-bottom: 14px;
+}
+
+.tab-btn {
+  flex: 1; padding: 10px;
+  border: none; border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-weight: 600; font-size: 13px;
+  font-family: inherit;
+  transition: all 0.2s;
+}
+
+.tab-btn.active { background: var(--gold); color: #000; }
+.tab-btn:not(.active):hover { color: var(--text); background: var(--surface2); }
+
+/* ===== PAGES ===== */
+.page { display: none; }
+.page.active { display: block; }
+
+/* ===== INPUT PANEL ===== */
+.input-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  margin-bottom: 14px;
+  display: none;
+}
+
+.input-panel h4 { font-size: 13px; color: var(--text-dim); margin-bottom: 14px; }
+
+.status-selector {
+  display: flex; gap: 6px; margin-bottom: 14px;
+}
+
+.status-btn {
+  flex: 1; padding: 9px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  text-align: center;
+  font-weight: 700;
+  font-size: 12px;
+  font-family: inherit;
+  background: var(--surface2);
+  color: var(--text-muted);
+  transition: all 0.2s;
+}
+
+.status-btn.active.pre {
+  background: rgba(239,68,68,0.1);
+  border-color: var(--red);
+  color: var(--red);
+}
+
+.status-btn.active.real {
+  background: rgba(34,197,94,0.1);
+  border-color: var(--green);
+  color: var(--green);
+}
+
+.form-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px;
+}
+
+.form-grid .span2 { grid-column: span 2; }
+
+.form-group label {
+  display: block; font-size: 11px; color: var(--text-muted);
+  margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.4px;
+}
+
+.btn-save {
+  width: 100%; padding: 12px;
+  border: none; border-radius: var(--radius-sm);
+  font-weight: 700; font-size: 13px;
+  cursor: pointer; font-family: inherit;
+  letter-spacing: 0.3px;
+  transition: all 0.2s;
+}
+
+.btn-save:hover { opacity: 0.88; }
+
+.btn-save-1 { background: var(--blue); color: white; }
+.btn-save-2 { background: var(--green); color: white; }
+
+.btn-cancel-edit {
+  display: none; width: 100%; padding: 10px;
+  background: transparent; border: 1px solid var(--border);
+  color: var(--text-muted); border-radius: var(--radius-sm);
+  cursor: pointer; font-family: inherit; font-size: 13px;
+  margin-top: 6px; transition: all 0.2s;
+}
+
+.btn-cancel-edit:hover { border-color: var(--text-muted); color: var(--text); }
+
+/* ===== DATA TABLE ===== */
+.table-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.table-scroll { overflow-x: auto; }
+
+table {
+  width: 100%; border-collapse: collapse;
+  font-size: 12px; min-width: 780px;
+}
+
+thead th {
+  background: var(--surface2);
+  color: var(--text-muted);
+  padding: 10px 12px;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+tbody td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+  color: var(--text);
+}
+
+tbody tr:last-child td { border-bottom: none; }
+
+tbody tr:hover td { background: var(--surface2); }
+
+.status-chip {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 3px 8px; border-radius: 20px;
+  font-size: 11px; font-weight: 700;
+  cursor: pointer; border: none; font-family: inherit;
+  transition: all 0.2s;
+}
+
+.chip-pre { background: rgba(239,68,68,0.1); color: var(--red); border: 1px solid rgba(239,68,68,0.3); }
+.chip-real { background: rgba(34,197,94,0.1); color: var(--green); border: 1px solid rgba(34,197,94,0.3); }
+
+.num-cell { font-family: 'Space Mono', monospace; font-size: 12px; }
+
+.badge-branch {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  padding: 2px 8px; border-radius: 4px;
+  font-size: 11px; color: var(--text-dim);
+  white-space: nowrap;
+}
+
+.empty-state {
+  text-align: center; padding: 48px 20px;
+  color: var(--text-muted); font-size: 13px;
+}
+
+.empty-icon { font-size: 36px; margin-bottom: 10px; opacity: 0.5; }
+
+/* ===== ACTION BUTTONS ===== */
+.action-btns { display: flex; gap: 4px; }
+
+.btn-action {
+  padding: 5px 9px; border-radius: 5px;
+  border: none; cursor: pointer; font-size: 12px;
+  transition: all 0.2s; font-family: inherit;
+}
+
+.btn-edit-row { background: rgba(245,158,11,0.12); color: var(--amber); border: 1px solid rgba(245,158,11,0.3); }
+.btn-edit-row:hover { background: rgba(245,158,11,0.2); }
+.btn-del-row { background: rgba(239,68,68,0.1); color: var(--red); border: 1px solid rgba(239,68,68,0.25); }
+.btn-del-row:hover { background: rgba(239,68,68,0.2); }
+
+/* ===== ADMIN PANEL ===== */
+.admin-panel {
+  background: var(--surface);
+  border: 1px solid rgba(250,204,21,0.25);
+  border-radius: var(--radius);
+  padding: 18px;
+  margin-bottom: 14px;
+  display: none;
+}
+
+.admin-panel-header {
+  display: flex; align-items: center; gap: 8px;
+  margin-bottom: 18px;
+}
+
+.admin-panel-header h4 { color: var(--gold); font-size: 14px; }
+.admin-badge {
+  font-family: 'Space Mono', monospace;
+  font-size: 9px;
+  background: var(--gold);
+  color: #000;
+  padding: 2px 6px; border-radius: 3px;
+}
+
+.admin-section {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 14px;
+  margin-bottom: 12px;
+}
+
+.admin-section h5 {
+  font-size: 12px; color: var(--text-muted);
+  text-transform: uppercase; letter-spacing: 0.5px;
+  margin-bottom: 10px;
+}
+
+.export-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+}
+
+.btn-export {
+  padding: 10px; border: none; border-radius: var(--radius-sm);
+  font-weight: 700; font-size: 12px; cursor: pointer;
+  font-family: inherit; transition: all 0.2s; letter-spacing: 0.3px;
+}
+
+.btn-export-1 { background: rgba(59,130,246,0.15); color: var(--blue); border: 1px solid rgba(59,130,246,0.3); }
+.btn-export-1:hover { background: rgba(59,130,246,0.25); }
+.btn-export-2 { background: rgba(34,197,94,0.12); color: var(--green); border: 1px solid rgba(34,197,94,0.3); }
+.btn-export-2:hover { background: rgba(34,197,94,0.22); }
+
+.input-row { display: flex; gap: 6px; margin-bottom: 8px; }
+.input-row input { flex: 1; }
+
+.btn-add-item {
+  padding: 8px 14px; border: none; border-radius: var(--radius-sm);
+  background: var(--gold); color: #000;
+  font-weight: 700; font-size: 12px; cursor: pointer;
+  font-family: inherit; white-space: nowrap;
+  transition: opacity 0.2s;
+}
+
+.btn-add-item:hover { opacity: 0.85; }
+
+.btn-import {
+  padding: 8px 10px; border: 1px solid var(--border); border-radius: var(--radius-sm);
+  background: transparent; color: var(--text-muted);
+  font-size: 11px; cursor: pointer; font-family: inherit;
+  transition: all 0.2s; white-space: nowrap;
+}
+
+.btn-import:hover { border-color: var(--text-muted); color: var(--text); }
+
+.tags-wrap {
+  display: flex; flex-wrap: wrap; gap: 5px;
+  max-height: 160px; overflow-y: auto;
+  padding: 8px; background: var(--bg);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+}
+
+.movie-tag {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 4px 10px; border-radius: 20px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  font-size: 11px; color: var(--text-dim);
+}
+
+.movie-tag .del-tag { color: var(--red); cursor: pointer; font-weight: bold; font-size: 13px; line-height: 1; }
+
+.branch-tag {
+  display: flex; flex-direction: column; gap: 2px;
+  padding: 7px 10px; border-radius: 7px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  font-size: 11px; cursor: pointer; color: var(--text);
+  position: relative; width: 190px;
+  transition: border-color 0.2s;
+}
+
+.branch-tag:hover { border-color: var(--gold-dim); }
+.branch-tag b { font-size: 11px; }
+.branch-tag .assigned-email { color: var(--gold-dim); font-size: 10px; font-style: italic; }
+.branch-tag .del-branch {
+  position: absolute; top: 5px; right: 8px;
+  color: var(--red); font-size: 14px; font-weight: bold; line-height: 1;
+}
+
+.email-section {
+  background: rgba(250,204,21,0.04);
+  border: 1px dashed rgba(250,204,21,0.25);
+  border-radius: var(--radius-sm);
+  padding: 10px; margin-bottom: 10px;
+}
+
+.email-section label { font-size: 11px; color: var(--gold-dim); display: block; margin-bottom: 6px; }
+
+/* ===== DIVIDER ===== */
+.divider { border: none; border-top: 1px solid var(--border); margin: 14px 0; }
+
+/* ===== MOBILE ===== */
+@media (max-width: 600px) {
+  #main-content { padding: 10px; }
+  .top-bar { padding: 8px 12px; }
+  .branch-row { grid-template-columns: 1fr; }
+  .form-grid { grid-template-columns: 1fr; }
+  .form-grid .span2 { grid-column: span 1; }
+  .export-grid { grid-template-columns: 1fr; }
+  .top-bar-title { font-size: 12px; }
+}
+
+/* ===== FADE IN ===== */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.table-card, .input-panel, .admin-panel, .summary-panel {
+  animation: fadeUp 0.3s ease;
+}
 </style>
+
 </head>
 <body>
 
+<!-- ===== LOGIN ===== -->
+
 <div id="login-page">
-    <div class="login-box">
-        <h2>Cinema Admin</h2>
-        <input type="email" id="loginEmail" placeholder="Email">
-        <input type="password" id="loginPass" placeholder="Password">
-        <button class="btn-login" onclick="login()">เข้าสู่ระบบ</button>
-        <p id="loginError" style="color: #ff4444; font-size: 12px; margin-top: 10px;"></p>
+  <div class="login-wrap">
+    <div class="login-logo">
+      <div class="logo-icon">🎬</div>
+      <h1>CINEMA MX</h1>
+      <p>MULTI-BRANCH MANAGEMENT</p>
     </div>
+    <div class="login-box">
+      <div class="field">
+        <label>Email</label>
+        <input type="email" id="loginEmail" placeholder="admin@example.com">
+      </div>
+      <div class="field">
+        <label>Password</label>
+        <input type="password" id="loginPass" placeholder="••••••••" onkeydown="if(event.key==='Enter')login()">
+      </div>
+      <button class="btn-login" onclick="login()">เข้าสู่ระบบ</button>
+      <p id="loginError"></p>
+    </div>
+  </div>
 </div>
 
+<!-- ===== MAIN ===== -->
+
 <div id="main-content">
-    <div class="logout-bar">
-        <span id="userDisplay" style="font-size: 12px; color: #facc15; font-weight: bold;"></span>
-        <button class="btn-logout" onclick="logout()">ออกจากระบบ</button>
+
+  <!-- TOP BAR -->
+
+  <div class="top-bar">
+    <div class="top-bar-left">
+      <div class="logo-small">🎬</div>
+      <div>
+        <div class="top-bar-title">CINEMA MX</div>
+        <div class="top-bar-sub">Multi-Branch Edition</div>
+      </div>
+    </div>
+    <div class="user-badge">
+      <div class="user-email">
+        <span id="userDisplay"></span>
+      </div>
+      <button class="btn-logout" onclick="logout()">ออกจากระบบ</button>
+    </div>
+  </div>
+
+  <!-- HERO FILTER -->
+
+  <div class="hero-filter">
+    <div class="hero-filter-top">
+      <div class="date-field">
+        <label>📅 เรียกดูข้อมูลวันที่</label>
+        <input type="date" id="targetDate" onchange="loadData()" style="border-color: rgba(250,204,21,0.4);">
+      </div>
+      <button class="btn-reset-branch" id="btnShowTotal" onclick="resetBranch()" style="display:none">
+        📊 ยอดรวมทุกสาขา
+      </button>
+    </div>
+    <div>
+      <label style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:6px;" id="branchLabel">🏢 เลือกสาขา</label>
+      <div class="branch-row">
+        <input list="branchList" id="branchInput" placeholder="🔍 พิมพ์ชื่อสาขา..." oninput="syncDropdown()">
+        <datalist id="branchList"></datalist>
+        <select id="branchDropdown" onchange="syncSearch()">
+          <option value="">-- เลือกสาขา --</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUMMARY PANEL -->
+
+  <div id="advancedSummary" class="summary-panel">
+    <h4 id="summaryTitle">📈 สรุปยอดแยกตามหนัง (Admin)</h4>
+    <div class="summary-table-wrap">
+      <table class="summary-table">
+        <thead>
+          <tr>
+            <th>ชื่อภาพยนตร์</th>
+            <th>ระบบ / เสียง</th>
+            <th style="text-align:right">ยอดรวม (฿)</th>
+          </tr>
+        </thead>
+        <tbody id="summarySplitBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- TABS -->
+
+  <div class="tabs">
+    <button class="tab-btn active" id="tab1" onclick="switchPage(1)">🎞️ รายได้หลัก</button>
+    <button class="tab-btn" id="tab2" onclick="switchPage(2)">📊 ยอดข้างเคียง</button>
+  </div>
+
+  <!-- ADMIN PANEL -->
+
+  <div id="adminPanel" class="admin-panel">
+    <div class="admin-panel-header">
+      <h4>⚙️ แผงควบคุม</h4>
+      <span class="admin-badge">ADMIN</span>
     </div>
 
-    <div class="header-section">
-        <h2 style="color:#facc15">Cinema Management</h2>
-        <p style="font-size: 12px; color: #888;">เรียกดูข้อมูลวันที่:</p>
-        <input type="date" id="targetDate" onchange="loadData()" style="width: auto; margin-top: 5px; border-color: #facc15;">
+```
+<!-- Export -->
+<div class="admin-section">
+  <h5>📥 ส่งออกข้อมูล CSV</h5>
+  <div class="export-grid">
+    <button class="btn-export btn-export-1" onclick="exportToCSV(1)">↓ รายได้หลัก</button>
+    <button class="btn-export btn-export-2" onclick="exportToCSV(2)">↓ ยอดข้างเคียง</button>
+  </div>
+</div>
+
+<!-- Branch Management -->
+<div class="admin-section">
+  <h5>🏢 จัดการสาขา</h5>
+  <div class="email-section">
+    <label>📧 Email ผู้ดูแล (เลือกก่อนคลิกสาขา)</label>
+    <input type="email" id="emailQuickSelect" list="emailSuggestions" placeholder="พิมพ์ Email ผู้ดูแล...">
+    <datalist id="emailSuggestions"></datalist>
+  </div>
+  <div class="input-row">
+    <input type="text" id="new_branch_name" placeholder="ชื่อสาขาใหม่...">
+    <button class="btn-add-item" onclick="addBranch()">+ เพิ่ม</button>
+    <button class="btn-import" onclick="importMasterBranches()">โหลดมาตรฐาน</button>
+  </div>
+  <div id="list_tags_branches" class="tags-wrap"></div>
+</div>
+
+<hr class="divider">
+
+<!-- Systems -->
+<div class="admin-section">
+  <h5>🔊 ระบบ / เสียง</h5>
+  <div class="input-row">
+    <input type="text" id="new_system_name" placeholder="เช่น 2D/TH, IMAX, 4DX...">
+    <button class="btn-add-item" onclick="addSystem()">+ เพิ่ม</button>
+  </div>
+  <div id="list_tags_systems" style="display:flex;flex-wrap:wrap;gap:5px;margin-top:6px;"></div>
+</div>
+
+<hr class="divider">
+
+<!-- Movies -->
+<div class="admin-section">
+  <h5>🎬 รายชื่อหนัง</h5>
+  <div class="input-row" style="margin-bottom:10px;">
+    <input type="text" id="new_movie_main" placeholder="หนังหลัก...">
+    <button class="btn-add-item" style="background:var(--blue);color:white;" onclick="addMovie('main')">+ หลัก</button>
+  </div>
+  <div id="list_tags_main" style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px;"></div>
+  <div class="input-row">
+    <input type="text" id="new_movie_side" placeholder="หนังข้างเคียง...">
+    <button class="btn-add-item" style="background:var(--green);color:white;" onclick="addMovie('side')">+ รอง</button>
+  </div>
+  <div id="list_tags_side" style="display:flex;flex-wrap:wrap;gap:5px;margin-top:6px;"></div>
+</div>
+```
+
+  </div>
+
+  <!-- ===== PAGE 1: รายได้หลัก ===== -->
+
+  <div id="p1" class="page active">
+    <div id="inputBox1" class="input-panel">
+      <h4>✏️ กรอกรายได้หลัก</h4>
+      <div class="status-selector">
+        <button id="st-pre-1" class="status-btn active pre" onclick="setStatus(1,'PRE')">⏳ ยอดเบื้องต้น</button>
+        <button id="st-real-1" class="status-btn real" onclick="setStatus(1,'REAL')">✅ ปิดยอดจริง</button>
+      </div>
+      <div class="form-grid">
+        <div class="form-group span2">
+          <label>วันที่</label>
+          <input type="date" id="m_date">
+        </div>
+        <div class="form-group">
+          <label>ชื่อหนัง</label>
+          <select id="m_name_sel"></select>
+        </div>
+        <div class="form-group">
+          <label>ระบบ / เสียง</label>
+          <select id="m_sys_sel"></select>
+        </div>
+        <div class="form-group">
+          <label>โรง</label>
+          <input type="number" id="m_the" placeholder="หมายเลขโรง">
+        </div>
+        <div class="form-group">
+          <label>เวลา</label>
+          <input type="text" id="m_time" placeholder="เช่น 14:30">
+        </div>
+        <div class="form-group">
+          <label>ยอดเงิน (฿)</label>
+          <input type="number" id="m_money" placeholder="0.00">
+        </div>
+        <div class="form-group">
+          <label>จำนวนที่นั่ง</label>
+          <input type="number" id="m_seat" placeholder="0">
+        </div>
+      </div>
+      <button id="btn_save1" class="btn-save btn-save-1" onclick="saveData(1)">💾 บันทึกรายได้หลัก</button>
+      <button id="btn_cancel1" class="btn-cancel-edit" onclick="cancelEdit()">ยกเลิก</button>
     </div>
 
-    <div class="filter-card">
-        <label id="branchLabel">🏢 เลือกสาขา</label>
-        <div class="branch-selector-grid">
-            <input list="branchList" id="branchInput" placeholder="🔍 พิมพ์ชื่อสาขา..." oninput="syncDropdown()">
-            <datalist id="branchList"></datalist>
-            <select id="branchDropdown" onchange="syncSearch()">
-                <option value="">-- เลือกสาขา --</option>
-            </select>
+```
+<div class="table-card">
+  <div class="table-scroll">
+    <table>
+      <thead>
+        <tr>
+          <th>สถานะ</th>
+          <th>วัน-เวลา</th>
+          <th>สาขา</th>
+          <th>ชื่อหนัง</th>
+          <th>ระบบ</th>
+          <th>โรง</th>
+          <th>เงิน (฿)</th>
+          <th>ที่นั่ง</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="tbody1"><tr><td colspan="9"><div class="empty-state"><div class="empty-icon">🎬</div>ยังไม่มีข้อมูล</div></td></tr></tbody>
+    </table>
+  </div>
+</div>
+```
+
+  </div>
+
+  <!-- ===== PAGE 2: ยอดข้างเคียง ===== -->
+
+  <div id="p2" class="page">
+    <div id="inputBox2" class="input-panel">
+      <h4>✏️ กรอกยอดข้างเคียง</h4>
+      <div class="status-selector">
+        <button id="st-pre-2" class="status-btn active pre" onclick="setStatus(2,'PRE')">⏳ ยอดเบื้องต้น</button>
+        <button id="st-real-2" class="status-btn real" onclick="setStatus(2,'REAL')">✅ ปิดยอดจริง</button>
+      </div>
+      <div class="form-grid">
+        <div class="form-group span2">
+          <label>วันที่</label>
+          <input type="date" id="c_date">
         </div>
-        <button class="btn-reset" id="btnShowTotal" onclick="resetBranch()" style="display:none">📊 ดูยอดรวมทุกสาขา</button>
+        <div class="form-group">
+          <label>ชื่อหนัง</label>
+          <select id="c_movie_sel"></select>
+        </div>
+        <div class="form-group">
+          <label>ระบบ / เสียง</label>
+          <select id="c_sys_sel"></select>
+        </div>
+        <div class="form-group">
+          <label>โรง</label>
+          <input type="number" id="c_the" placeholder="หมายเลขโรง">
+        </div>
+        <div class="form-group">
+          <label>เวลา / รอบ</label>
+          <input type="text" id="c_time" placeholder="เช่น 19:00">
+        </div>
+        <div class="form-group">
+          <label>รายได้ (฿)</label>
+          <input type="number" id="c_income" placeholder="0.00">
+        </div>
+        <div class="form-group">
+          <label>ผู้ชม (คน)</label>
+          <input type="number" id="c_view" placeholder="0">
+        </div>
+      </div>
+      <button id="btn_save2" class="btn-save btn-save-2" onclick="saveData(2)">💾 บันทึกยอดข้างเคียง</button>
+      <button id="btn_cancel2" class="btn-cancel-edit" onclick="cancelEdit()">ยกเลิก</button>
     </div>
 
-    <div id="advancedSummary" class="total-summary-box" style="display:none">
-        <h4 id="summaryTitle" style="color:#facc15; margin-bottom:10px">📈 สรุปยอดแยกตามหนัง (Admin)</h4>
-        <table class="summary-table">
-            <thead><tr><th>ชื่อภาพยนตร์</th><th>ระบบ/เสียง</th><th style="text-align:right">ยอดรวม (บาท)</th></tr></thead>
-            <tbody id="summarySplitBody"></tbody>
-        </table>
-    </div>
+```
+<div class="table-card">
+  <div class="table-scroll">
+    <table>
+      <thead>
+        <tr>
+          <th>สถานะ</th>
+          <th>วัน-เวลา</th>
+          <th>สาขา</th>
+          <th>ชื่อหนัง</th>
+          <th>ระบบ</th>
+          <th>โรง</th>
+          <th>รายได้ (฿)</th>
+          <th>ผู้ชม</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="tbody2"><tr><td colspan="9"><div class="empty-state"><div class="empty-icon">📊</div>ยังไม่มีข้อมูล</div></td></tr></tbody>
+    </table>
+  </div>
+</div>
+```
 
-    <div class="tabs">
-        <button class="tab-btn active" id="tab1" onclick="switchPage(1)">รายได้หลัก</button>
-        <button class="tab-btn" id="tab2" onclick="switchPage(2)">ยอดข้างเคียง</button>
-    </div>
+  </div>
 
-    <!-- แผงควบคุม Admin -->
-    <div id="adminPanel" class="box" style="display:none">
-        <h4 style="color:#facc15; margin-bottom:10px;">🛠️ แผงควบคุม Admin</h4>
-        <div style="background: #1a365d; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #3b82f6;">
-            <p style="font-size: 13px; color: #fff; margin-bottom: 10px; font-weight: bold;">📥 ส่งออกข้อมูล (CSV)</p>
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
-                <button onclick="exportToCSV(1)" style="background:#3b82f6; border:none; padding:10px; border-radius:8px; color:white; font-weight:bold; cursor:pointer;">โหลดรายได้หลัก</button>
-                <button onclick="exportToCSV(2)" style="background:#22c55e; border:none; padding:10px; border-radius:8px; color:white; font-weight:bold; cursor:pointer;">โหลดยอดข้างเคียง</button>
-            </div>
-        </div>
-        <datalist id="emailSuggestions"></datalist>
-        <div style="background: #2a2a2a; padding: 10px; border-radius: 8px; margin-bottom: 10px; border: 1px dashed #facc15;">
-            <p style="font-size: 11px; color: #facc15; margin-bottom: 5px;">📧 กำหนด Email ผู้ดูแล:</p>
-            <input type="email" id="emailQuickSelect" list="emailSuggestions" placeholder="พิมพ์ Email ผู้ดูแล...">
-        </div>
-        <div style="display:flex; gap:5px; margin-bottom:10px">
-            <input type="text" id="new_branch_name" placeholder="เพิ่มสาขาใหม่...">
-            <button onclick="addBranch()" style="background:#facc15; border:none; padding:10px; border-radius:8px; color:black; font-weight:bold;">เพิ่ม</button>
-            <button onclick="importMasterBranches()" style="background:#444; border:none; padding:10px; border-radius:8px; color:white; font-size:10px;">โหลดสาขามาตรฐาน</button>
-        </div>
-        <div id="list_tags_branches" style="display: flex; flex-wrap: wrap; gap: 5px; max-height: 200px; overflow-y: auto; padding: 5px; background: #000; border-radius: 8px; margin-bottom:15px;"></div>
-        <hr style="border:0; border-top:1px solid #333; margin:15px 0">
-        <h4 style="color:#facc15; margin-bottom:10px;">🔊 จัดการระบบ/เสียง</h4>
-        <div style="display:flex; gap:5px; margin-bottom:5px">
-            <input type="text" id="new_system_name" placeholder="เช่น 2D/TH, VIP, 3D...">
-            <button onclick="addSystem()" style="background:#facc15; border:none; padding:10px; border-radius:8px; color:black;">เพิ่ม</button>
-        </div>
-        <div id="list_tags_systems" style="margin-bottom:15px"></div>
-        <hr style="border:0; border-top:1px solid #333; margin:15px 0">
-        <h4 style="color:#facc15; margin-bottom:10px;">🎬 รายชื่อหนัง</h4>
-        <div style="display:flex; gap:5px; margin-bottom:5px">
-            <input type="text" id="new_movie_main" placeholder="หนังหลัก...">
-            <button onclick="addMovie('main')" style="background:#3b82f6; border:none; padding:10px; border-radius:8px; color:white;">เพิ่ม</button>
-        </div>
-        <div id="list_tags_main" style="margin-bottom:10px"></div>
-        <div style="display:flex; gap:5px; margin-bottom:5px">
-            <input type="text" id="new_movie_side" placeholder="หนังรอง...">
-            <button onclick="addMovie('side')" style="background:#22c55e; border:none; padding:10px; border-radius:8px; color:white;">เพิ่ม</button>
-        </div>
-        <div id="list_tags_side"></div>
-    </div>
-
-    <!-- หน้ากรอกข้อมูล P1 -->
-    <div id="p1" class="page active">
-        <div class="box" id="inputBox1" style="display:none;">
-            <div class="status-selector">
-                <div id="st-pre-1" class="status-btn active pre" onclick="setStatus(1,'PRE')">ยอดเบื้องต้น</div>
-                <div id="st-real-1" class="status-btn real" onclick="setStatus(1,'REAL')">ปิดยอดจริง</div>
-            </div>
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px">
-                <div style="grid-column: span 2;"><label style="font-size:11px; color:#facc15;">วันที่:</label><input type="date" id="m_date"></div>
-                <select id="m_name_sel"></select>
-                <select id="m_sys_sel"></select>
-                <input type="number" id="m_the" placeholder="โรง">
-                <input type="text" id="m_time" placeholder="เวลา (เช่น 14:30)">
-                <input type="number" id="m_money" placeholder="ยอดเงิน">
-                <input type="number" id="m_seat" placeholder="ที่นั่ง">
-            </div>
-            <button class="btn-add" id="btn_save1" onclick="saveData(1)">บันทึกรายได้หลัก</button>
-            <button id="btn_cancel1" onclick="cancelEdit()" style="display:none; background:#666; color:white; border:none; padding:10px; border-radius:8px; width:100%; margin-top:5px;">ยกเลิก</button>
-        </div>
-        <div class="table-container"><table><thead><tr><th>สถานะ</th><th>วัน-เวลา</th><th>สาขา</th><th>ชื่อหนัง</th><th>ระบบ</th><th>โรง</th><th>เงิน</th><th>ที่นั่ง</th><th>แก้ไข</th></tr></thead><tbody id="tbody1"></tbody></table></div>
-    </div>
-
-    <!-- หน้ากรอกข้อมูล P2 -->
-    <div id="p2" class="page">
-        <div class="box" id="inputBox2" style="display:none;">
-            <div class="status-selector">
-                <div id="st-pre-2" class="status-btn active pre" onclick="setStatus(2,'PRE')">ยอดเบื้องต้น</div>
-                <div id="st-real-2" class="status-btn real" onclick="setStatus(2,'REAL')">ปิดยอดจริง</div>
-            </div>
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px">
-                <div style="grid-column: span 2;"><label style="font-size:11px; color:#facc15;">วันที่:</label><input type="date" id="c_date"></div>
-                <select id="c_movie_sel"></select>
-                <select id="c_sys_sel"></select>
-                <input type="number" id="c_the" placeholder="โรง">
-                <input type="text" id="c_time" placeholder="เวลา/รอบ (เช่น 19:00)">
-                <input type="number" id="c_income" placeholder="รายได้">
-                <input type="number" id="c_view" placeholder="ผู้ชม">
-            </div>
-            <button class="btn-add" id="btn_save2" onclick="saveData(2)" style="background:#22c55e">บันทึกยอดข้างเคียง</button>
-            <button id="btn_cancel2" onclick="cancelEdit()" style="display:none; background:#666; color:white; border:none; padding:10px; border-radius:8px; width:100%; margin-top:5px;">ยกเลิก</button>
-        </div>
-        <div class="table-container"><table><thead><tr><th>สถานะ</th><th>วัน-เวลา</th><th>สาขา</th><th>ชื่อหนัง</th><th>ระบบ</th><th>โรง</th><th>รายได้</th><th>ผู้ชม</th><th>แก้ไข</th></tr></thead><tbody id="tbody2"></tbody></table></div>
-    </div>
 </div>
 
 <script>
-// --- Config ---
-const ADMIN_EMAILS = ["admin@gmail.com"]; 
+// ===== CONFIG =====
+const ADMIN_EMAILS = ["admin@gmail.com"];
 const firebaseConfig = {
-    apiKey: "AIzaSyAWew6J4gcIdNpF9iMWYUj0GztWrrOrZeM",
-    authDomain: "newname-2e9f9.firebaseapp.com",
-    databaseURL: "https://newname-2e9f9-default-rtdb.asia-southeast1.firebasedatabase.app",
-    projectId: "newname-2e9f9",
-    storageBucket: "newname-2e9f9.firebasestorage.app",
-    messagingSenderId: "784301554225",
-    appId: "1:784301554225:web:fcca1d2286f60ea5e0b310"
+  apiKey: "AIzaSyAWew6J4gcIdNpF9iMWYUj0GztWrrOrZeM",
+  authDomain: "newname-2e9f9.firebaseapp.com",
+  databaseURL: "https://newname-2e9f9-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "newname-2e9f9",
+  storageBucket: "newname-2e9f9.firebasestorage.app",
+  messagingSenderId: "784301554225",
+  appId: "1:784301554225:web:fcca1d2286f60ea5e0b310"
 };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
@@ -211,231 +935,404 @@ const auth = firebase.auth();
 let rawP1 = [], rawP2 = [], moviesM = [], moviesS = [], branches = [], permissions = {}, movieSystems = [];
 let stt1 = 'PRE', stt2 = 'PRE', currentEmail = "", isAdmin = false, myBranches = [];
 let currentEditIndex = null;
-const masterBranchList = ["ESPLANADE", "MAJOR RATCHAYOTHIN", "PARAGON CINEPLEX", "ICON CINECONIC", "QUARTIER CINEART", "SF WORLD CINEMA", "SFX CENTRAL LADPLAO"];
+
+const masterBranchList = [
+  "ESPLANADE","MAJOR RATCHAYOTHIN","PARAGON CINEPLEX",
+  "ICON CINECONIC","QUARTIER CINEART","SF WORLD CINEMA","SFX CENTRAL LADPLAO"
+];
 
 function login() {
-    const email = document.getElementById('loginEmail').value.trim();
-    const pass = document.getElementById('loginPass').value;
-    auth.signInWithEmailAndPassword(email, pass).catch(err => { 
-        document.getElementById('loginError').innerText = "❌ " + err.message; 
-    });
+  const email = document.getElementById('loginEmail').value.trim();
+  const pass = document.getElementById('loginPass').value;
+  auth.signInWithEmailAndPassword(email, pass)
+    .catch(err => { document.getElementById('loginError').innerText = "❌ " + err.message; });
 }
+
 function logout() { auth.signOut(); location.reload(); }
 
 auth.onAuthStateChanged(user => {
-    if (user) {
-        currentEmail = user.email.toLowerCase();
-        isAdmin = ADMIN_EMAILS.map(e => e.toLowerCase()).includes(currentEmail);
-        document.getElementById('login-page').style.display = 'none';
-        document.getElementById('main-content').style.display = 'block';
-        document.getElementById('userDisplay').innerText = `👤 ${currentEmail} ${isAdmin?'(Admin)':''}`;
-        document.getElementById('adminPanel').style.display = isAdmin ? 'block' : 'none';
-        document.getElementById('btnShowTotal').style.display = isAdmin ? 'block' : 'none';
-        init();
-    } else {
-        document.getElementById('login-page').style.display = 'flex';
-        document.getElementById('main-content').style.display = 'none';
-    }
+  if (user) {
+    currentEmail = user.email.toLowerCase();
+    isAdmin = ADMIN_EMAILS.map(e => e.toLowerCase()).includes(currentEmail);
+    document.getElementById('login-page').style.display = 'none';
+    document.getElementById('main-content').style.display = 'block';
+    const adminTag = isAdmin ? '<span class="admin-tag">ADMIN</span>' : '';
+    document.getElementById('userDisplay').innerHTML = `👤 ${currentEmail}${adminTag}`;
+    document.getElementById('adminPanel').style.display = isAdmin ? 'block' : 'none';
+    document.getElementById('btnShowTotal').style.display = isAdmin ? 'block' : 'none';
+    init();
+  } else {
+    document.getElementById('login-page').style.display = 'flex';
+    document.getElementById('main-content').style.display = 'none';
+  }
 });
 
 function init() {
-    const today = new Date().toISOString().split('T')[0];
-    if(!document.getElementById('targetDate').value) document.getElementById('targetDate').value = today;
-    document.getElementById('m_date').value = today;
-    document.getElementById('c_date').value = today;
+  const today = new Date().toISOString().split('T')[0];
+  if (!document.getElementById('targetDate').value) document.getElementById('targetDate').value = today;
+  document.getElementById('m_date').value = today;
+  document.getElementById('c_date').value = today;
 
-    db.ref('settings/permissions').on('value', s => { permissions = s.val() || {}; checkAccess(); loadData(); });
-    db.ref('settings/branches').on('value', s => { branches = s.val() || []; updateBranchDropdowns(); });
-    db.ref('settings/movies_main').on('value', s => { moviesM = s.val()||[]; updateMovieLists(); });
-    db.ref('settings/movies_side').on('value', s => { moviesS = s.val()||[]; updateMovieLists(); });
-    db.ref('settings/movie_systems').on('value', s => { 
-        movieSystems = s.val() || ["2D/TH", "2D/EN", "IMAX", "4DX"];
-        updateSystemLists(); 
-    });
+  db.ref('settings/permissions').on('value', s => { permissions = s.val() || {}; checkAccess(); loadData(); });
+  db.ref('settings/branches').on('value', s => { branches = s.val() || []; updateBranchDropdowns(); });
+  db.ref('settings/movies_main').on('value', s => { moviesM = s.val() || []; updateMovieLists(); });
+  db.ref('settings/movies_side').on('value', s => { moviesS = s.val() || []; updateMovieLists(); });
+  db.ref('settings/movie_systems').on('value', s => {
+    movieSystems = s.val() || ["2D/TH","2D/EN","IMAX","4DX"];
+    updateSystemLists();
+  });
 }
 
 function loadData() {
-    const d = document.getElementById('targetDate').value;
-    db.ref('data/'+d).on('value', s => {
-        const v = s.val()||{};
-        rawP1 = v.p1 || []; 
-        rawP2 = v.p2 || [];
-        renderAll();
-    });
+  const d = document.getElementById('targetDate').value;
+  db.ref('data/' + d).on('value', s => {
+    const v = s.val() || {};
+    rawP1 = v.p1 || [];
+    rawP2 = v.p2 || [];
+    renderAll();
+  });
 }
 
 function renderAll() {
-    let search = document.getElementById('branchInput').value.trim().toUpperCase();
-    if(!isAdmin) search = (myBranches.length > 1) ? document.getElementById('branchDropdown').value.toUpperCase() : (myBranches[0] || "").toUpperCase();
-    const isTotal = (search === "");
-    const tab = document.getElementById('tab1').classList.contains('active') ? 1 : 2;
-    
-    document.getElementById('advancedSummary').style.display = (isAdmin && isTotal) ? 'block' : 'none';
-    document.getElementById('inputBox1').style.display = search !== "" ? 'block' : 'none';
-    document.getElementById('inputBox2').style.display = search !== "" ? 'block' : 'none';
+  let search = document.getElementById('branchInput').value.trim().toUpperCase();
+  if (!isAdmin) {
+    search = (myBranches.length > 1)
+      ? document.getElementById('branchDropdown').value.toUpperCase()
+      : (myBranches[0] || "").toUpperCase();
+  }
+  const isTotal = (search === "");
+  const tab = document.getElementById('tab1').classList.contains('active') ? 1 : 2;
 
-    let h1 = '', h2 = '', summaryData = {};
+  document.getElementById('advancedSummary').style.display = (isAdmin && isTotal) ? 'block' : 'none';
+  document.getElementById('inputBox1').style.display = search !== "" ? 'block' : 'none';
+  document.getElementById('inputBox2').style.display = search !== "" ? 'block' : 'none';
 
-    rawP1.forEach((d, i) => {
-        if(tab === 1) {
-            if(!summaryData[d.n]) summaryData[d.n] = {};
-            summaryData[d.n][d.s] = (summaryData[d.n][d.s] || 0) + (d.m || 0);
-        }
-        if((isAdmin && isTotal) || d.b === search) {
-            const dateTimeDisplay = `${d.dt || ''} ${d.tm || ''}`.trim();
-            h1 += `<tr class="${d.stt==='REAL'?'row-real':'row-pre'}">
-                <td><button onclick="toggleStatus('p1',${i})" style="border:none;background:none;cursor:pointer;font-weight:bold;color:inherit;">${d.stt==='REAL'?'✅ จริง':'⏳ เบื้องต้น'}</button></td>
-                <td>${dateTimeDisplay || '-'}</td>
-                <td>${d.b}</td><td>${d.n}</td><td>${d.s}</td><td>${d.the}</td><td>${(d.m||0).toLocaleString()}</td><td>${(d.seat||0).toLocaleString()}</td>
-                <td><button class="btn-edit" onclick="editRow('p1',${i})">✏️</button> <button class="btn-del" onclick="delItem('p1',${i})">✕</button></td>
-            </tr>`;
-        }
-    });
+  let h1 = '', h2 = '', summaryData = {};
 
-    rawP2.forEach((d, i) => {
-        if(tab === 2) { 
-            if(!summaryData[d.n]) summaryData[d.n] = {};
-            summaryData[d.n][d.s || 'N/A'] = (summaryData[d.n][d.s || 'N/A'] || 0) + (d.i || 0);
-        }
-        if((isAdmin && isTotal) || d.b === search) {
-            const dateTimeDisplay = `${d.dt || ''} ${d.tm || ''}`.trim();
-            h2 += `<tr class="${d.stt==='REAL'?'row-real':'row-pre'}">
-                <td><button onclick="toggleStatus('p2',${i})" style="border:none;background:none;cursor:pointer;font-weight:bold;color:inherit;">${d.stt==='REAL'?'✅ จริง':'⏳ เบื้องต้น'}</button></td>
-                <td>${dateTimeDisplay || '-'}</td>
-                <td>${d.b}</td><td>${d.n}</td><td>${d.s || '-'}</td><td>${d.the}</td><td>${(d.i||0).toLocaleString()}</td><td>${(d.v||0).toLocaleString()}</td>
-                <td><button class="btn-edit" onclick="editRow('p2',${i})">✏️</button> <button class="btn-del" onclick="delItem('p2',${i})">✕</button></td>
-            </tr>`;
-        }
-    });
+  rawP1.forEach((d, i) => {
+    if (tab === 1) {
+      if (!summaryData[d.n]) summaryData[d.n] = {};
+      summaryData[d.n][d.s] = (summaryData[d.n][d.s] || 0) + (d.m || 0);
+    }
+    if ((isAdmin && isTotal) || d.b === search) {
+      const dt = `${d.dt || ''} ${d.tm || ''}`.trim();
+      const isReal = d.stt === 'REAL';
+      h1 += `<tr>
+        <td><button class="status-chip ${isReal?'chip-real':'chip-pre'}" onclick="toggleStatus('p1',${i})">${isReal?'✅ จริง':'⏳ เบื้องต้น'}</button></td>
+        <td style="font-size:11px;color:var(--text-muted)">${dt || '-'}</td>
+        <td><span class="badge-branch">${d.b}</span></td>
+        <td style="font-weight:600">${d.n}</td>
+        <td style="color:var(--text-muted)">${d.s}</td>
+        <td class="num-cell">${d.the}</td>
+        <td class="num-cell" style="color:var(--gold)">${(d.m||0).toLocaleString()}</td>
+        <td class="num-cell">${(d.seat||0).toLocaleString()}</td>
+        <td><div class="action-btns">
+          <button class="btn-action btn-edit-row" onclick="editRow('p1',${i})">✏️</button>
+          <button class="btn-action btn-del-row" onclick="delItem('p1',${i})">✕</button>
+        </div></td>
+      </tr>`;
+    }
+  });
 
-    document.getElementById('tbody1').innerHTML = h1;
-    document.getElementById('tbody2').innerHTML = h2;
-    if(isAdmin) renderSummary(summaryData, tab);
+  rawP2.forEach((d, i) => {
+    if (tab === 2) {
+      if (!summaryData[d.n]) summaryData[d.n] = {};
+      summaryData[d.n][d.s || 'N/A'] = (summaryData[d.n][d.s || 'N/A'] || 0) + (d.i || 0);
+    }
+    if ((isAdmin && isTotal) || d.b === search) {
+      const dt = `${d.dt || ''} ${d.tm || ''}`.trim();
+      const isReal = d.stt === 'REAL';
+      h2 += `<tr>
+        <td><button class="status-chip ${isReal?'chip-real':'chip-pre'}" onclick="toggleStatus('p2',${i})">${isReal?'✅ จริง':'⏳ เบื้องต้น'}</button></td>
+        <td style="font-size:11px;color:var(--text-muted)">${dt || '-'}</td>
+        <td><span class="badge-branch">${d.b}</span></td>
+        <td style="font-weight:600">${d.n}</td>
+        <td style="color:var(--text-muted)">${d.s || '-'}</td>
+        <td class="num-cell">${d.the}</td>
+        <td class="num-cell" style="color:var(--green)">${(d.i||0).toLocaleString()}</td>
+        <td class="num-cell">${(d.v||0).toLocaleString()}</td>
+        <td><div class="action-btns">
+          <button class="btn-action btn-edit-row" onclick="editRow('p2',${i})">✏️</button>
+          <button class="btn-action btn-del-row" onclick="delItem('p2',${i})">✕</button>
+        </div></td>
+      </tr>`;
+    }
+  });
+
+  const empty1 = `<tr><td colspan="9"><div class="empty-state"><div class="empty-icon">🎬</div>ยังไม่มีข้อมูล</div></td></tr>`;
+  const empty2 = `<tr><td colspan="9"><div class="empty-state"><div class="empty-icon">📊</div>ยังไม่มีข้อมูล</div></td></tr>`;
+  document.getElementById('tbody1').innerHTML = h1 || empty1;
+  document.getElementById('tbody2').innerHTML = h2 || empty2;
+  if (isAdmin) renderSummary(summaryData, tab);
 }
 
 function saveData(p) {
-    let b = document.getElementById('branchInput').value.trim().toUpperCase();
-    if(!isAdmin && myBranches.length > 1) b = document.getElementById('branchDropdown').value.toUpperCase();
-    if(!b) return alert("กรุณาเลือกสาขาก่อนบันทึก");
+  let b = document.getElementById('branchInput').value.trim().toUpperCase();
+  if (!isAdmin && myBranches.length > 1) b = document.getElementById('branchDropdown').value.toUpperCase();
+  if (!b) return alert("กรุณาเลือกสาขาก่อนบันทึก");
 
-    if(p === 1) {
-        const d = { 
-            dt: document.getElementById('m_date').value,
-            b, n: document.getElementById('m_name_sel').value, 
-            s: document.getElementById('m_sys_sel').value, 
-            the: document.getElementById('m_the').value, 
-            tm: document.getElementById('m_time').value.trim(), 
-            m: parseFloat(document.getElementById('m_money').value)||0, 
-            seat: parseInt(document.getElementById('m_seat').value)||0, 
-            stt: stt1
-        };
-        if(currentEditIndex !== null) rawP1[currentEditIndex] = d; else rawP1.push(d);
-    } else {
-        const d = { 
-            dt: document.getElementById('c_date').value,
-            b, n: document.getElementById('c_movie_sel').value, 
-            s: document.getElementById('c_sys_sel').value, 
-            the: document.getElementById('c_the').value, 
-            tm: document.getElementById('c_time').value.trim(), 
-            i: parseFloat(document.getElementById('c_income').value)||0, 
-            v: parseInt(document.getElementById('c_view').value)||0, 
-            stt: stt2
-        };
-        if(currentEditIndex !== null) rawP2[currentEditIndex] = d; else rawP2.push(d);
-    }
-    cancelEdit(); sync();
+  if (p === 1) {
+    const d = {
+      dt: document.getElementById('m_date').value, b,
+      n: document.getElementById('m_name_sel').value,
+      s: document.getElementById('m_sys_sel').value,
+      the: document.getElementById('m_the').value,
+      tm: document.getElementById('m_time').value.trim(),
+      m: parseFloat(document.getElementById('m_money').value) || 0,
+      seat: parseInt(document.getElementById('m_seat').value) || 0,
+      stt: stt1
+    };
+    if (currentEditIndex !== null) rawP1[currentEditIndex] = d; else rawP1.push(d);
+  } else {
+    const d = {
+      dt: document.getElementById('c_date').value, b,
+      n: document.getElementById('c_movie_sel').value,
+      s: document.getElementById('c_sys_sel').value,
+      the: document.getElementById('c_the').value,
+      tm: document.getElementById('c_time').value.trim(),
+      i: parseFloat(document.getElementById('c_income').value) || 0,
+      v: parseInt(document.getElementById('c_view').value) || 0,
+      stt: stt2
+    };
+    if (currentEditIndex !== null) rawP2[currentEditIndex] = d; else rawP2.push(d);
+  }
+  cancelEdit(); sync();
 }
 
 function editRow(p, i) {
-    currentEditIndex = i; const d = (p==='p1' ? rawP1[i] : rawP2[i]);
-    if(p==='p1') {
-        document.getElementById('m_date').value = d.dt || document.getElementById('targetDate').value;
-        document.getElementById('m_name_sel').value = d.n; 
-        document.getElementById('m_sys_sel').value = d.s;
-        document.getElementById('m_the').value = d.the; 
-        document.getElementById('m_time').value = d.tm;
-        document.getElementById('m_money').value = d.m; 
-        document.getElementById('m_seat').value = d.seat;
-        setStatus(1, d.stt); document.getElementById('btn_cancel1').style.display = 'block';
-    } else {
-        document.getElementById('c_date').value = d.dt || document.getElementById('targetDate').value;
-        document.getElementById('c_movie_sel').value = d.n; 
-        document.getElementById('c_sys_sel').value = d.s || movieSystems[0];
-        document.getElementById('c_the').value = d.the;
-        document.getElementById('c_time').value = d.tm || ""; 
-        document.getElementById('c_income').value = d.i;
-        document.getElementById('c_view').value = d.v; 
-        setStatus(2, d.stt); document.getElementById('btn_cancel2').style.display = 'block';
-    }
+  currentEditIndex = i;
+  const d = p === 'p1' ? rawP1[i] : rawP2[i];
+  if (p === 'p1') {
+    document.getElementById('m_date').value = d.dt || document.getElementById('targetDate').value;
+    document.getElementById('m_name_sel').value = d.n;
+    document.getElementById('m_sys_sel').value = d.s;
+    document.getElementById('m_the').value = d.the;
+    document.getElementById('m_time').value = d.tm;
+    document.getElementById('m_money').value = d.m;
+    document.getElementById('m_seat').value = d.seat;
+    setStatus(1, d.stt);
+    document.getElementById('btn_cancel1').style.display = 'block';
+    document.getElementById('inputBox1').scrollIntoView({behavior:'smooth'});
+  } else {
+    document.getElementById('c_date').value = d.dt || document.getElementById('targetDate').value;
+    document.getElementById('c_movie_sel').value = d.n;
+    document.getElementById('c_sys_sel').value = d.s || movieSystems[0];
+    document.getElementById('c_the').value = d.the;
+    document.getElementById('c_time').value = d.tm || "";
+    document.getElementById('c_income').value = d.i;
+    document.getElementById('c_view').value = d.v;
+    setStatus(2, d.stt);
+    document.getElementById('btn_cancel2').style.display = 'block';
+    document.getElementById('inputBox2').scrollIntoView({behavior:'smooth'});
+  }
 }
 
-// --- ฟังก์ชันเสริม Admin/Auth (เหมือนเดิม) ---
 function checkAccess() {
-    myBranches = []; 
-    if(!isAdmin) {
-        for (let b in permissions) { if(permissions[b] && permissions[b].toLowerCase() === currentEmail) myBranches.push(b); }
-        const inp = document.getElementById('branchInput');
-        const dd = document.getElementById('branchDropdown');
-        const label = document.getElementById('branchLabel');
-        if(myBranches.length > 0) {
-            if (myBranches.length === 1) {
-                inp.value = myBranches[0]; inp.readOnly = true; dd.style.display = 'none';
-                label.innerText = "🏢 สาขาของคุณ: " + myBranches[0];
-            } else {
-                inp.style.display = 'none'; dd.style.display = 'block';
-                label.innerText = "🏢 เลือกสาขาที่ต้องการจัดการ:";
-                let options = '<option value="">-- กรุณาเลือกสาขา --</option>';
-                myBranches.forEach(b => { options += `<option value="${b}">${b}</option>`; });
-                dd.innerHTML = options;
-            }
-        } else { alert("บัญชีนี้ยังไม่ได้รับสิทธิ์"); logout(); }
+  myBranches = [];
+  if (!isAdmin) {
+    for (let b in permissions) {
+      if (permissions[b] && permissions[b].toLowerCase() === currentEmail) myBranches.push(b);
     }
+    const inp = document.getElementById('branchInput');
+    const dd = document.getElementById('branchDropdown');
+    const label = document.getElementById('branchLabel');
+    if (myBranches.length > 0) {
+      if (myBranches.length === 1) {
+        inp.value = myBranches[0]; inp.readOnly = true; dd.style.display = 'none';
+        label.innerText = "🏢 สาขาของคุณ: " + myBranches[0];
+      } else {
+        inp.style.display = 'none'; dd.style.display = 'block';
+        label.innerText = "🏢 เลือกสาขา";
+        let options = '<option value="">-- กรุณาเลือกสาขา --</option>';
+        myBranches.forEach(b => { options += `<option value="${b}">${b}</option>`; });
+        dd.innerHTML = options;
+      }
+    } else { alert("บัญชีนี้ยังไม่ได้รับสิทธิ์"); logout(); }
+  }
 }
-function sync() { db.ref('data/'+document.getElementById('targetDate').value).set({ p1: rawP1, p2: rawP2 }); }
-function toggleStatus(p, i) { if(p === 'p1') rawP1[i].stt = (rawP1[i].stt === 'REAL' ? 'PRE' : 'REAL'); else rawP2[i].stt = (rawP2[i].stt === 'REAL' ? 'PRE' : 'REAL'); sync(); }
-function updateSystemLists() { const options = movieSystems.map(s => `<option value="${s}">${s}</option>`).join(''); document.getElementById('m_sys_sel').innerHTML = options; document.getElementById('c_sys_sel').innerHTML = options; document.getElementById('list_tags_systems').innerHTML = movieSystems.map((s, i) => `<span class="movie-tag">${s} <b onclick="delSystem(${i})" style="color:red;cursor:pointer">✕</b></span>`).join(''); }
-function addSystem() { const val = document.getElementById('new_system_name').value.trim(); if(val && !movieSystems.includes(val)) { movieSystems.push(val); db.ref('settings/movie_systems').set(movieSystems); document.getElementById('new_system_name').value = ''; } }
-function delSystem(i) { if(confirm("ลบระบบเสียงนี้?")) { movieSystems.splice(i, 1); db.ref('settings/movie_systems').set(movieSystems); } }
-function updateMovieLists() { document.getElementById('m_name_sel').innerHTML = moviesM.map(m => `<option>${m}</option>`).join(''); document.getElementById('c_movie_sel').innerHTML = moviesS.map(m => `<option>${m}</option>`).join(''); document.getElementById('list_tags_main').innerHTML = moviesM.map((m, i) => `<span class="movie-tag">${m} <b onclick="delMovie('main',${i})" style="color:red;cursor:pointer">✕</b></span>`).join(''); document.getElementById('list_tags_side').innerHTML = moviesS.map((m, i) => `<span class="movie-tag">${m} <b onclick="delMovie('side',${i})" style="color:red;cursor:pointer">✕</b></span>`).join(''); }
-function addMovie(t) { const inp = document.getElementById('new_movie_'+t); if(inp.value) { if(t==='main') moviesM.push(inp.value); else moviesS.push(inp.value); db.ref('settings/movies_'+t).set(t==='main'?moviesM:moviesS); inp.value = ''; } }
-function delMovie(t, i) { if(confirm("ลบหนังเรื่องนี้?")) { if(t==='main') moviesM.splice(i,1); else moviesS.splice(i,1); db.ref('settings/movies_'+t).set(t==='main'?moviesM:moviesS); } }
-function cancelEdit() { currentEditIndex = null; ['m_the','m_time','m_money','m_seat','c_the','c_time','c_income','c_view'].forEach(id => { if(document.getElementById(id)) document.getElementById(id).value = ''; }); document.getElementById('btn_cancel1').style.display = 'none'; document.getElementById('btn_cancel2').style.display = 'none'; document.getElementById('m_date').value = document.getElementById('targetDate').value; document.getElementById('c_date').value = document.getElementById('targetDate').value; }
-function delItem(p, i) { if(confirm("ลบข้อมูล?")) { if(p==='p1') rawP1.splice(i,1); else rawP2.splice(i,1); sync(); } }
-function importMasterBranches() { if(confirm("โหลดสาขามาตรฐาน?")) { let updated = [...new Set([...branches, ...masterBranchList])]; branches = updated; db.ref('settings/branches').set(branches); } }
-function addBranch() { const name = document.getElementById('new_branch_name').value.trim().toUpperCase(); if(name && !branches.includes(name)) { branches.push(name); db.ref('settings/branches').set(branches); document.getElementById('new_branch_name').value = ''; } }
-function updateBranchDropdowns() { const list = document.getElementById('branchList'); const dd = document.getElementById('branchDropdown'); const tags = document.getElementById('list_tags_branches'); list.innerHTML = branches.map(b => `<option value="${b}">`).join(''); if(isAdmin) { dd.innerHTML = '<option value="">-- เลือกสาขา (Admin) --</option>' + branches.map(b => `<option value="${b}">${b}</option>`).join(''); tags.innerHTML = branches.map((b, i) => `<div class="branch-tag" onclick="setBranchPerm('${b}')"><b>${b}</b><br><span class="assigned-email">${permissions[b] || 'ไม่มีผู้ดูแล'}</span><span onclick="delBranch(${i}); event.stopPropagation();" style="position:absolute; top:5px; right:8px; color:#ff4444;">✕</span></div>`).join(''); } }
-function setBranchPerm(bName) { const quickEmail = document.getElementById('emailQuickSelect').value.trim().toLowerCase(); let email = quickEmail || prompt(`ระบุ Email:`, permissions[bName] || ""); if(email !== null) { db.ref('settings/permissions/' + bName).set(email.trim().toLowerCase()); } }
-function delBranch(i) { if(confirm("ลบสาขา?")) { const bName = branches[i]; db.ref('settings/permissions/' + bName).remove(); branches.splice(i, 1); db.ref('settings/branches').set(branches); } }
-function resetBranch() { document.getElementById('branchInput').value = ""; document.getElementById('branchDropdown').value = ""; renderAll(); }
+
+function sync() { db.ref('data/' + document.getElementById('targetDate').value).set({ p1: rawP1, p2: rawP2 }); }
+function toggleStatus(p, i) { if (p === 'p1') rawP1[i].stt = rawP1[i].stt === 'REAL' ? 'PRE' : 'REAL'; else rawP2[i].stt = rawP2[i].stt === 'REAL' ? 'PRE' : 'REAL'; sync(); }
+
+function updateSystemLists() {
+  const options = movieSystems.map(s => `<option value="${s}">${s}</option>`).join('');
+  document.getElementById('m_sys_sel').innerHTML = options;
+  document.getElementById('c_sys_sel').innerHTML = options;
+  document.getElementById('list_tags_systems').innerHTML = movieSystems.map((s, i) =>
+    `<span class="movie-tag">${s} <span class="del-tag" onclick="delSystem(${i})">✕</span></span>`
+  ).join('');
+}
+
+function addSystem() {
+  const val = document.getElementById('new_system_name').value.trim();
+  if (val && !movieSystems.includes(val)) {
+    movieSystems.push(val);
+    db.ref('settings/movie_systems').set(movieSystems);
+    document.getElementById('new_system_name').value = '';
+  }
+}
+
+function delSystem(i) {
+  if (confirm("ลบระบบเสียงนี้?")) { movieSystems.splice(i, 1); db.ref('settings/movie_systems').set(movieSystems); }
+}
+
+function updateMovieLists() {
+  document.getElementById('m_name_sel').innerHTML = moviesM.map(m => `<option>${m}</option>`).join('');
+  document.getElementById('c_movie_sel').innerHTML = moviesS.map(m => `<option>${m}</option>`).join('');
+  document.getElementById('list_tags_main').innerHTML = moviesM.map((m, i) =>
+    `<span class="movie-tag">${m} <span class="del-tag" onclick="delMovie('main',${i})">✕</span></span>`
+  ).join('');
+  document.getElementById('list_tags_side').innerHTML = moviesS.map((m, i) =>
+    `<span class="movie-tag">${m} <span class="del-tag" onclick="delMovie('side',${i})">✕</span></span>`
+  ).join('');
+}
+
+function addMovie(t) {
+  const inp = document.getElementById('new_movie_' + t);
+  if (inp.value) {
+    if (t === 'main') moviesM.push(inp.value); else moviesS.push(inp.value);
+    db.ref('settings/movies_' + t).set(t === 'main' ? moviesM : moviesS);
+    inp.value = '';
+  }
+}
+
+function delMovie(t, i) {
+  if (confirm("ลบหนังเรื่องนี้?")) {
+    if (t === 'main') moviesM.splice(i, 1); else moviesS.splice(i, 1);
+    db.ref('settings/movies_' + t).set(t === 'main' ? moviesM : moviesS);
+  }
+}
+
+function cancelEdit() {
+  currentEditIndex = null;
+  ['m_the','m_time','m_money','m_seat','c_the','c_time','c_income','c_view'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.value = '';
+  });
+  document.getElementById('btn_cancel1').style.display = 'none';
+  document.getElementById('btn_cancel2').style.display = 'none';
+  document.getElementById('m_date').value = document.getElementById('targetDate').value;
+  document.getElementById('c_date').value = document.getElementById('targetDate').value;
+}
+
+function delItem(p, i) {
+  if (confirm("ลบข้อมูลนี้?")) { if (p === 'p1') rawP1.splice(i, 1); else rawP2.splice(i, 1); sync(); }
+}
+
+function importMasterBranches() {
+  if (confirm("โหลดสาขามาตรฐาน?")) {
+    branches = [...new Set([...branches, ...masterBranchList])];
+    db.ref('settings/branches').set(branches);
+  }
+}
+
+function addBranch() {
+  const name = document.getElementById('new_branch_name').value.trim().toUpperCase();
+  if (name && !branches.includes(name)) {
+    branches.push(name);
+    db.ref('settings/branches').set(branches);
+    document.getElementById('new_branch_name').value = '';
+  }
+}
+
+function updateBranchDropdowns() {
+  const list = document.getElementById('branchList');
+  const dd = document.getElementById('branchDropdown');
+  const tags = document.getElementById('list_tags_branches');
+  list.innerHTML = branches.map(b => `<option value="${b}">`).join('');
+  if (isAdmin) {
+    dd.innerHTML = '<option value="">-- เลือกสาขา (Admin) --</option>' +
+      branches.map(b => `<option value="${b}">${b}</option>`).join('');
+    if (tags) tags.innerHTML = branches.map((b, i) =>
+      `<div class="branch-tag" onclick="setBranchPerm('${b}')">
+        <b>${b}</b>
+        <span class="assigned-email">${permissions[b] || 'ไม่มีผู้ดูแล'}</span>
+        <span class="del-branch" onclick="delBranch(${i}); event.stopPropagation();">✕</span>
+      </div>`
+    ).join('');
+  }
+}
+
+function setBranchPerm(bName) {
+  const quickEmail = document.getElementById('emailQuickSelect').value.trim().toLowerCase();
+  let email = quickEmail || prompt(`ระบุ Email ผู้ดูแลสาขา "${bName}":`, permissions[bName] || "");
+  if (email !== null) { db.ref('settings/permissions/' + bName).set(email.trim().toLowerCase()); }
+}
+
+function delBranch(i) {
+  if (confirm("ลบสาขานี้?")) {
+    const bName = branches[i];
+    db.ref('settings/permissions/' + bName).remove();
+    branches.splice(i, 1);
+    db.ref('settings/branches').set(branches);
+  }
+}
+
+function resetBranch() {
+  document.getElementById('branchInput').value = "";
+  document.getElementById('branchDropdown').value = "";
+  renderAll();
+}
+
 function syncSearch() { renderAll(); }
 function syncDropdown() { renderAll(); }
-function switchPage(p) { document.getElementById('tab1').classList.toggle('active', p===1); document.getElementById('tab2').classList.toggle('active', p===2); document.getElementById('p1').classList.toggle('active', p===1); document.getElementById('p2').classList.toggle('active', p===2); renderAll(); }
-function setStatus(p, s) { if(p===1) stt1=s; else stt2=s; document.getElementById('st-pre-'+p).classList.toggle('active', s==='PRE'); document.getElementById('st-real-'+p).classList.toggle('active', s==='REAL'); }
-function renderSummary(summaryData, tab) { let sHtml = ''; for(let movie in summaryData) { let movieTotal = 0; for(let sys in summaryData[movie]) { movieTotal += summaryData[movie][sys]; sHtml += `<tr><td>${movie}</td><td>${sys}</td><td style="text-align:right">${summaryData[movie][sys].toLocaleString()}</td></tr>`; } sHtml += `<tr style="background:#222; font-weight:bold"><td colspan="2">รวม ${movie}</td><td style="text-align:right; color:#facc15">${movieTotal.toLocaleString()}</td></tr>`; } document.getElementById('summarySplitBody').innerHTML = sHtml || '<tr><td colspan="3">ไม่มีข้อมูล</td></tr>'; }
+
+function switchPage(p) {
+  document.getElementById('tab1').classList.toggle('active', p === 1);
+  document.getElementById('tab2').classList.toggle('active', p === 2);
+  document.getElementById('p1').classList.toggle('active', p === 1);
+  document.getElementById('p2').classList.toggle('active', p === 2);
+  renderAll();
+}
+
+function setStatus(p, s) {
+  if (p === 1) stt1 = s; else stt2 = s;
+  document.getElementById('st-pre-' + p).classList.toggle('active', s === 'PRE');
+  document.getElementById('st-real-' + p).classList.toggle('active', s === 'REAL');
+}
+
+function renderSummary(summaryData, tab) {
+  let sHtml = '';
+  for (let movie in summaryData) {
+    let movieTotal = 0;
+    for (let sys in summaryData[movie]) {
+      movieTotal += summaryData[movie][sys];
+      sHtml += `<tr>
+        <td>${movie}</td>
+        <td style="color:var(--text-muted)">${sys}</td>
+        <td style="text-align:right;font-family:'Space Mono',monospace">${summaryData[movie][sys].toLocaleString()}</td>
+      </tr>`;
+    }
+    sHtml += `<tr class="movie-total">
+      <td colspan="2" style="font-weight:700">รวม ${movie}</td>
+      <td style="text-align:right;font-family:'Space Mono',monospace;color:var(--gold)">${movieTotal.toLocaleString()}</td>
+    </tr>`;
+  }
+  document.getElementById('summarySplitBody').innerHTML = sHtml || `<tr><td colspan="3" style="text-align:center;color:var(--text-muted);padding:20px">ไม่มีข้อมูล</td></tr>`;
+}
 
 function exportToCSV(tab) {
-    const dateInput = document.getElementById('targetDate');
-    const date = dateInput ? dateInput.value : "Unknown_Date";
-    let dataToExport = (tab === 1) ? rawP1 : rawP2;
-    if (!dataToExport || dataToExport.length === 0) { return alert("⚠️ ไม่พบข้อมูล"); }
-    let csvContent = "\uFEFF"; 
-    let fileName = (tab === 1) ? `Income_Main_${date}.csv` : `Income_Side_${date}.csv`;
-    if (tab === 1) csvContent += "สถานะ,วัน-เวลา,สาขา,ชื่อหนัง,ระบบ,โรง,ยอดเงิน,ที่นั่ง\n";
-    else csvContent += "สถานะ,วัน-เวลา,สาขา,ชื่อหนัง,ระบบ,โรง,รายได้,ผู้ชม\n";
-    dataToExport.forEach(row => {
-        let statusText = row.stt === 'REAL' ? 'จริง' : 'เบื้องต้น';
-        let dtStr = `${row.dt || ''} ${row.tm || ''}`.trim();
-        let line = "";
-        if (tab === 1) line = `"${statusText}","${dtStr}","${row.b}","${row.n}","${row.s}","${row.the}","${row.m}","${row.seat}"`;
-        else line = `"${statusText}","${dtStr}","${row.b}","${row.n}","${row.s || '-'}","${row.the}","${row.i}","${row.v}"`;
-        csvContent += line + "\n";
-    });
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.setAttribute("href", url); link.setAttribute("download", fileName);
-    document.body.appendChild(link); link.click(); document.body.removeChild(link);
+  const date = document.getElementById('targetDate').value || "Unknown_Date";
+  const dataToExport = tab === 1 ? rawP1 : rawP2;
+  if (!dataToExport || dataToExport.length === 0) return alert("⚠️ ไม่พบข้อมูล");
+  let csvContent = "\uFEFF";
+  const fileName = tab === 1 ? `Income_Main_${date}.csv` : `Income_Side_${date}.csv`;
+  if (tab === 1) csvContent += "สถานะ,วัน-เวลา,สาขา,ชื่อหนัง,ระบบ,โรง,ยอดเงิน,ที่นั่ง\n";
+  else csvContent += "สถานะ,วัน-เวลา,สาขา,ชื่อหนัง,ระบบ,โรง,รายได้,ผู้ชม\n";
+  dataToExport.forEach(row => {
+    const s = row.stt === 'REAL' ? 'จริง' : 'เบื้องต้น';
+    const dt = `${row.dt || ''} ${row.tm || ''}`.trim();
+    const line = tab === 1
+      ? `"${s}","${dt}","${row.b}","${row.n}","${row.s}","${row.the}","${row.m}","${row.seat}"`
+      : `"${s}","${dt}","${row.b}","${row.n}","${row.s || '-'}","${row.the}","${row.i}","${row.v}"`;
+    csvContent += line + "\n";
+  });
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = fileName;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
 }
 </script>
+
 </body>
 </html>
