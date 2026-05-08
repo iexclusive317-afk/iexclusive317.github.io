@@ -700,6 +700,56 @@ tr:hover .ts-edit-btn { opacity: 1; }
   transition: all 0.2s;
 }
 .ts-now-btn:hover { background: rgba(250,204,21,0.12); color: var(--gold); }
+/* ===== MISSING BRANCH ALERT ===== */
+.missing-alert {
+  display: none; background: var(--surface);
+  border: 1px solid rgba(239,68,68,0.4); border-radius: var(--radius);
+  padding: 14px 16px; margin-bottom: 14px; animation: fadeUp 0.3s ease;
+}
+.missing-alert-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 0; cursor: pointer; user-select: none;
+}
+.missing-alert-header.open { margin-bottom: 12px; }
+.missing-alert-title {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 13px; font-weight: 700; color: var(--red);
+}
+.missing-count-badge {
+  background: var(--red); color: white; font-size: 11px; font-weight: 700;
+  padding: 1px 7px; border-radius: 20px; font-family: 'Space Mono', monospace;
+  animation: pulse-red 2s infinite;
+}
+@keyframes pulse-red {
+  0%,100% { box-shadow: 0 0 0 0 rgba(239,68,68,0.4); }
+  50% { box-shadow: 0 0 0 5px rgba(239,68,68,0); }
+}
+.missing-chevron { font-size: 12px; color: var(--text-muted); transition: transform 0.2s; }
+.missing-chevron.open { transform: rotate(180deg); }
+.missing-branch-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(175px, 1fr));
+  gap: 7px; max-height: 0; overflow: hidden; transition: max-height 0.35s ease;
+}
+.missing-branch-grid.open { max-height: 600px; overflow-y: auto; }
+.missing-branch-item {
+  display: flex; align-items: flex-start; gap: 8px;
+  background: rgba(239,68,68,0.06); border: 1px solid rgba(239,68,68,0.2);
+  border-radius: var(--radius-sm); padding: 8px 10px; cursor: pointer; transition: all 0.15s;
+}
+.missing-branch-item:hover { background: rgba(239,68,68,0.13); border-color: rgba(239,68,68,0.45); }
+.missing-dot {
+  width: 7px; height: 7px; border-radius: 50%; background: var(--red);
+  flex-shrink: 0; margin-top: 3px; animation: pulse-red 2s infinite;
+}
+.missing-branch-name { font-size: 11px; color: var(--text-dim); font-weight: 700; }
+.missing-branch-sub { font-size: 9px; color: var(--text-muted); margin-top: 1px; }
+.all-ok-bar {
+  display: none; align-items: center; gap: 8px;
+  background: rgba(34,197,94,0.06); border: 1px solid rgba(34,197,94,0.25);
+  border-radius: var(--radius); padding: 10px 14px; margin-bottom: 14px;
+  font-size: 12px; color: var(--green); font-weight: 600;
+}
+.ok-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); flex-shrink: 0; }
 </style>
 
 </head>
@@ -791,6 +841,23 @@ tr:hover .ts-edit-btn { opacity: 1; }
         <tbody id="summarySplitBody"></tbody>
       </table>
     </div>
+  </div>
+
+  <!-- MISSING BRANCH ALERT (Admin only) -->
+
+  <div id="missingAlert" class="missing-alert">
+    <div class="missing-alert-header" id="missingAlertHeader" onclick="toggleMissingPanel()">
+      <div class="missing-alert-title">
+        ⚠️ สาขาที่ยังไม่ได้คีย์ยอด
+        <span class="missing-count-badge" id="missingCount">0</span>
+      </div>
+      <span class="missing-chevron" id="missingChevron">▼</span>
+    </div>
+    <div class="missing-branch-grid" id="missingBranchGrid"></div>
+  </div>
+  <div class="all-ok-bar" id="allOkBar">
+    <div class="ok-dot"></div>
+    ✅ ทุกสาขาคีย์ยอดครบแล้ว
   </div>
 
   <!-- TABS -->
@@ -1198,6 +1265,7 @@ function renderAll() {
   document.getElementById('tbody1').innerHTML = h1 || empty1;
   document.getElementById('tbody2').innerHTML = h2 || empty2;
   if (isAdmin) renderSummary(summaryData, tab);
+  if (isAdmin) renderMissingBranches();
 }
 
 function buildTsCell(p, i, d) {
@@ -1521,6 +1589,65 @@ function saveTsEdit() {
 document.getElementById('tsModal').addEventListener('click', function(e) {
   if (e.target === this) closeTsModal();
 });
+
+function renderMissingBranches() {
+  const alertBox = document.getElementById('missingAlert');
+  const allOkBar = document.getElementById('allOkBar');
+  const grid = document.getElementById('missingBranchGrid');
+  const countBadge = document.getElementById('missingCount');
+
+  if (!alertBox || !branches.length) return;
+
+  // Find branches that have NO data in rawP1 for the selected date
+  const keyedBranches = new Set(rawP1.map(d => d.b));
+  const missing = branches.filter(b => !keyedBranches.has(b));
+
+  if (missing.length === 0) {
+    alertBox.style.display = 'none';
+    allOkBar.style.display = 'flex';
+    return;
+  }
+
+  allOkBar.style.display = 'none';
+  alertBox.style.display = 'block';
+  countBadge.innerText = missing.length;
+
+  grid.innerHTML = missing.map(b => {
+    const email = permissions[b] || null;
+    return `<div class="missing-branch-item" onclick="jumpToBranch('${b}')" title="คลิกเพื่อเลือกสาขานี้">
+      <div class="missing-dot"></div>
+      <div>
+        <div class="missing-branch-name">${b}</div>
+        <div class="missing-branch-sub">${email ? '📧 ' + email : '— ไม่มีผู้ดูแล'}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleMissingPanel() {
+  const grid = document.getElementById('missingBranchGrid');
+  const header = document.getElementById('missingAlertHeader');
+  const chevron = document.getElementById('missingChevron');
+  const isOpen = grid.classList.contains('open');
+  grid.classList.toggle('open', !isOpen);
+  header.classList.toggle('open', !isOpen);
+  chevron.classList.toggle('open', !isOpen);
+}
+
+function jumpToBranch(branchName) {
+  // Set branch input and re-render
+  const inp = document.getElementById('branchInput');
+  const dd = document.getElementById('branchDropdown');
+  inp.value = branchName;
+  dd.value = branchName;
+  renderAll();
+  // Scroll to input panel
+  setTimeout(() => {
+    const panel = document.getElementById('inputBox1');
+    if (panel) panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 100);
+}
+
 
 function exportToCSV(tab) {
   const date = document.getElementById('targetDate').value || "Unknown_Date";
