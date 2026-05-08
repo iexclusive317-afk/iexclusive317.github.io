@@ -612,6 +612,94 @@ tbody tr:hover td { background: var(--surface2); }
 .table-card, .input-panel, .admin-panel, .summary-panel {
   animation: fadeUp 0.3s ease;
 }
+
+/* ===== TIMESTAMP CELL ===== */
+.ts-cell {
+  font-size: 10px;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+.ts-keyed {
+  display: flex; align-items: center; gap: 4px;
+  font-size: 10px; color: var(--text-muted);
+}
+.ts-keyed .ts-date { color: var(--text-dim); }
+.ts-keyed .ts-time {
+  font-family: 'Space Mono', monospace;
+  color: var(--gold-dim); font-size: 11px; font-weight: 700;
+}
+.ts-keyed .ts-edit-btn {
+  background: none; border: none; cursor: pointer;
+  color: var(--text-muted); font-size: 11px; padding: 1px 3px;
+  border-radius: 3px; transition: all 0.15s;
+  opacity: 0;
+}
+tr:hover .ts-edit-btn { opacity: 1; }
+.ts-edit-btn:hover { color: var(--gold); background: rgba(250,204,21,0.1); }
+.ts-none { color: var(--border); font-size: 10px; font-style: italic; }
+
+/* ===== TIMESTAMP EDIT MODAL ===== */
+.ts-modal-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,0.7); backdrop-filter: blur(4px);
+  z-index: 10000; align-items: center; justify-content: center;
+}
+.ts-modal-overlay.open { display: flex; }
+.ts-modal {
+  background: var(--surface);
+  border: 1px solid var(--gold);
+  border-radius: 14px;
+  padding: 24px;
+  width: 320px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.7), 0 0 40px rgba(250,204,21,0.1);
+  animation: fadeUp 0.2s ease;
+}
+.ts-modal h4 {
+  color: var(--gold); font-size: 14px; margin-bottom: 4px;
+  display: flex; align-items: center; gap: 6px;
+}
+.ts-modal .ts-modal-sub {
+  font-size: 11px; color: var(--text-muted); margin-bottom: 18px;
+}
+.ts-modal .ts-field { margin-bottom: 14px; }
+.ts-modal .ts-field label {
+  display: block; font-size: 11px; color: var(--text-muted);
+  text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 6px;
+}
+.ts-modal input[type="date"],
+.ts-modal input[type="time"] {
+  width: 100%; padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--surface2);
+  color: var(--text); font-family: 'Space Mono', monospace;
+  font-size: 13px; outline: none; transition: border-color 0.2s;
+}
+.ts-modal input:focus { border-color: var(--gold); }
+.ts-modal-actions { display: flex; gap: 8px; margin-top: 18px; }
+.ts-btn-save {
+  flex: 1; padding: 10px; background: var(--gold); color: #000;
+  border: none; border-radius: var(--radius-sm);
+  font-weight: 700; font-size: 13px; cursor: pointer;
+  font-family: inherit; transition: opacity 0.2s;
+}
+.ts-btn-save:hover { opacity: 0.85; }
+.ts-btn-cancel {
+  padding: 10px 16px; background: transparent;
+  border: 1px solid var(--border); color: var(--text-muted);
+  border-radius: var(--radius-sm); cursor: pointer;
+  font-family: inherit; font-size: 13px; transition: all 0.2s;
+}
+.ts-btn-cancel:hover { border-color: var(--text-muted); color: var(--text); }
+.ts-now-btn {
+  width: 100%; padding: 8px; margin-top: 6px;
+  background: rgba(250,204,21,0.07);
+  border: 1px dashed rgba(250,204,21,0.3);
+  color: var(--gold-dim); border-radius: var(--radius-sm);
+  cursor: pointer; font-size: 11px; font-family: inherit;
+  transition: all 0.2s;
+}
+.ts-now-btn:hover { background: rgba(250,204,21,0.12); color: var(--gold); }
 </style>
 
 </head>
@@ -835,10 +923,11 @@ tbody tr:hover td { background: var(--surface2); }
           <th>โรง</th>
           <th>เงิน (฿)</th>
           <th>ที่นั่ง</th>
+          <th id="th_keyed1" style="display:none">🕐 คีย์เมื่อ</th>
           <th></th>
         </tr>
       </thead>
-      <tbody id="tbody1"><tr><td colspan="9"><div class="empty-state"><div class="empty-icon">🎬</div>ยังไม่มีข้อมูล</div></td></tr></tbody>
+      <tbody id="tbody1"><tr><td colspan="10"><div class="empty-state"><div class="empty-icon">🎬</div>ยังไม่มีข้อมูล</div></td></tr></tbody>
     </table>
   </div>
 </div>
@@ -903,10 +992,11 @@ tbody tr:hover td { background: var(--surface2); }
           <th>โรง</th>
           <th>รายได้ (฿)</th>
           <th>ผู้ชม</th>
+          <th id="th_keyed2" style="display:none">🕐 คีย์เมื่อ</th>
           <th></th>
         </tr>
       </thead>
-      <tbody id="tbody2"><tr><td colspan="9"><div class="empty-state"><div class="empty-icon">📊</div>ยังไม่มีข้อมูล</div></td></tr></tbody>
+      <tbody id="tbody2"><tr><td colspan="10"><div class="empty-state"><div class="empty-icon">📊</div>ยังไม่มีข้อมูล</div></td></tr></tbody>
     </table>
   </div>
 </div>
@@ -914,6 +1004,28 @@ tbody tr:hover td { background: var(--surface2); }
 
   </div>
 
+</div>
+
+<!-- ===== TIMESTAMP EDIT MODAL ===== -->
+
+<div class="ts-modal-overlay" id="tsModal">
+  <div class="ts-modal">
+    <h4>🕐 แก้ไขเวลาที่คีย์ข้อมูล</h4>
+    <p class="ts-modal-sub" id="tsModalSub">แถวที่ — สาขา —</p>
+    <div class="ts-field">
+      <label>วันที่คีย์</label>
+      <input type="date" id="tsEditDate">
+    </div>
+    <div class="ts-field">
+      <label>เวลาที่คีย์</label>
+      <input type="time" id="tsEditTime">
+      <button class="ts-now-btn" onclick="setTsNow()">⟳ ใช้เวลาปัจจุบัน</button>
+    </div>
+    <div class="ts-modal-actions">
+      <button class="ts-btn-cancel" onclick="closeTsModal()">ยกเลิก</button>
+      <button class="ts-btn-save" onclick="saveTsEdit()">💾 บันทึก</button>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -935,6 +1047,16 @@ const auth = firebase.auth();
 let rawP1 = [], rawP2 = [], moviesM = [], moviesS = [], branches = [], permissions = {}, movieSystems = [];
 let stt1 = 'PRE', stt2 = 'PRE', currentEmail = "", isAdmin = false, myBranches = [];
 let currentEditIndex = null;
+let tsEditTarget = null; // { p, i }
+
+function getNowTs() {
+  const now = new Date();
+  const pad = n => String(n).padStart(2,'0');
+  return {
+    date: `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}`,
+    time: `${pad(now.getHours())}:${pad(now.getMinutes())}`
+  };
+}
 
 const masterBranchList = [
   "ESPLANADE","MAJOR RATCHAYOTHIN","PARAGON CINEPLEX",
@@ -1007,6 +1129,12 @@ function renderAll() {
   document.getElementById('inputBox1').style.display = search !== "" ? 'block' : 'none';
   document.getElementById('inputBox2').style.display = search !== "" ? 'block' : 'none';
 
+  // Show/hide keyed timestamp column for admin only
+  const th1 = document.getElementById('th_keyed1');
+  const th2 = document.getElementById('th_keyed2');
+  if (th1) th1.style.display = isAdmin ? '' : 'none';
+  if (th2) th2.style.display = isAdmin ? '' : 'none';
+
   let h1 = '', h2 = '', summaryData = {};
 
   rawP1.forEach((d, i) => {
@@ -1017,6 +1145,8 @@ function renderAll() {
     if ((isAdmin && isTotal) || d.b === search) {
       const dt = `${d.dt || ''} ${d.tm || ''}`.trim();
       const isReal = d.stt === 'REAL';
+      const tsCell = isAdmin ? buildTsCell('p1', i, d) : '';
+      const colspan = isAdmin ? '' : '';
       h1 += `<tr>
         <td><button class="status-chip ${isReal?'chip-real':'chip-pre'}" onclick="toggleStatus('p1',${i})">${isReal?'✅ จริง':'⏳ เบื้องต้น'}</button></td>
         <td style="font-size:11px;color:var(--text-muted)">${dt || '-'}</td>
@@ -1026,6 +1156,7 @@ function renderAll() {
         <td class="num-cell">${d.the}</td>
         <td class="num-cell" style="color:var(--gold)">${(d.m||0).toLocaleString()}</td>
         <td class="num-cell">${(d.seat||0).toLocaleString()}</td>
+        ${isAdmin ? `<td>${tsCell}</td>` : ''}
         <td><div class="action-btns">
           <button class="btn-action btn-edit-row" onclick="editRow('p1',${i})">✏️</button>
           <button class="btn-action btn-del-row" onclick="delItem('p1',${i})">✕</button>
@@ -1042,6 +1173,7 @@ function renderAll() {
     if ((isAdmin && isTotal) || d.b === search) {
       const dt = `${d.dt || ''} ${d.tm || ''}`.trim();
       const isReal = d.stt === 'REAL';
+      const tsCell = isAdmin ? buildTsCell('p2', i, d) : '';
       h2 += `<tr>
         <td><button class="status-chip ${isReal?'chip-real':'chip-pre'}" onclick="toggleStatus('p2',${i})">${isReal?'✅ จริง':'⏳ เบื้องต้น'}</button></td>
         <td style="font-size:11px;color:var(--text-muted)">${dt || '-'}</td>
@@ -1051,6 +1183,7 @@ function renderAll() {
         <td class="num-cell">${d.the}</td>
         <td class="num-cell" style="color:var(--green)">${(d.i||0).toLocaleString()}</td>
         <td class="num-cell">${(d.v||0).toLocaleString()}</td>
+        ${isAdmin ? `<td>${tsCell}</td>` : ''}
         <td><div class="action-btns">
           <button class="btn-action btn-edit-row" onclick="editRow('p2',${i})">✏️</button>
           <button class="btn-action btn-del-row" onclick="delItem('p2',${i})">✕</button>
@@ -1059,11 +1192,33 @@ function renderAll() {
     }
   });
 
-  const empty1 = `<tr><td colspan="9"><div class="empty-state"><div class="empty-icon">🎬</div>ยังไม่มีข้อมูล</div></td></tr>`;
-  const empty2 = `<tr><td colspan="9"><div class="empty-state"><div class="empty-icon">📊</div>ยังไม่มีข้อมูล</div></td></tr>`;
+  const cols = isAdmin ? 10 : 9;
+  const empty1 = `<tr><td colspan="${cols}"><div class="empty-state"><div class="empty-icon">🎬</div>ยังไม่มีข้อมูล</div></td></tr>`;
+  const empty2 = `<tr><td colspan="${cols}"><div class="empty-state"><div class="empty-icon">📊</div>ยังไม่มีข้อมูล</div></td></tr>`;
   document.getElementById('tbody1').innerHTML = h1 || empty1;
   document.getElementById('tbody2').innerHTML = h2 || empty2;
   if (isAdmin) renderSummary(summaryData, tab);
+}
+
+function buildTsCell(p, i, d) {
+  if (!d.keyedDate && !d.keyedTime) {
+    return `<span class="ts-none">—</span><button class="ts-edit-btn" onclick="openTsModal('${p}',${i})" title="ระบุเวลาที่คีย์">✎</button>`;
+  }
+  const hasUpdate = d.updatedDate && (d.updatedDate !== d.keyedDate || d.updatedTime !== d.keyedTime);
+  return `<div class="ts-keyed">
+    <div>
+      <span class="ts-date">${fmtDate(d.keyedDate)}</span>
+      <span class="ts-time"> ${d.keyedTime || ''}</span>
+      ${hasUpdate ? `<div style="font-size:9px;color:var(--text-muted);margin-top:1px">แก้: ${fmtDate(d.updatedDate)} ${d.updatedTime||''}</div>` : ''}
+    </div>
+    <button class="ts-edit-btn" onclick="openTsModal('${p}',${i})" title="แก้ไขเวลาที่คีย์">✎</button>
+  </div>`;
+}
+
+function fmtDate(dateStr) {
+  if (!dateStr) return '';
+  const [y, m, d] = dateStr.split('-');
+  return `${d}/${m}/${y ? y.slice(2) : ''}`;
 }
 
 function saveData(p) {
@@ -1071,7 +1226,10 @@ function saveData(p) {
   if (!isAdmin && myBranches.length > 1) b = document.getElementById('branchDropdown').value.toUpperCase();
   if (!b) return alert("กรุณาเลือกสาขาก่อนบันทึก");
 
+  const ts = getNowTs();
+
   if (p === 1) {
+    const existing = (currentEditIndex !== null) ? rawP1[currentEditIndex] : {};
     const d = {
       dt: document.getElementById('m_date').value, b,
       n: document.getElementById('m_name_sel').value,
@@ -1080,10 +1238,15 @@ function saveData(p) {
       tm: document.getElementById('m_time').value.trim(),
       m: parseFloat(document.getElementById('m_money').value) || 0,
       seat: parseInt(document.getElementById('m_seat').value) || 0,
-      stt: stt1
+      stt: stt1,
+      keyedDate: existing.keyedDate || ts.date,
+      keyedTime: existing.keyedTime || ts.time,
+      updatedDate: ts.date,
+      updatedTime: ts.time
     };
     if (currentEditIndex !== null) rawP1[currentEditIndex] = d; else rawP1.push(d);
   } else {
+    const existing = (currentEditIndex !== null) ? rawP2[currentEditIndex] : {};
     const d = {
       dt: document.getElementById('c_date').value, b,
       n: document.getElementById('c_movie_sel').value,
@@ -1092,7 +1255,11 @@ function saveData(p) {
       tm: document.getElementById('c_time').value.trim(),
       i: parseFloat(document.getElementById('c_income').value) || 0,
       v: parseInt(document.getElementById('c_view').value) || 0,
-      stt: stt2
+      stt: stt2,
+      keyedDate: existing.keyedDate || ts.date,
+      keyedTime: existing.keyedTime || ts.time,
+      updatedDate: ts.date,
+      updatedTime: ts.time
     };
     if (currentEditIndex !== null) rawP2[currentEditIndex] = d; else rawP2.push(d);
   }
@@ -1310,20 +1477,67 @@ function renderSummary(summaryData, tab) {
   document.getElementById('summarySplitBody').innerHTML = sHtml || `<tr><td colspan="3" style="text-align:center;color:var(--text-muted);padding:20px">ไม่มีข้อมูล</td></tr>`;
 }
 
+function openTsModal(p, i) {
+  if (!isAdmin) return;
+  tsEditTarget = { p, i };
+  const d = p === 'p1' ? rawP1[i] : rawP2[i];
+  const ts = getNowTs();
+  document.getElementById('tsEditDate').value = d.keyedDate || ts.date;
+  document.getElementById('tsEditTime').value = d.keyedTime || ts.time;
+  const label = `${d.b} — ${d.n} — ${d.dt || ''} ${d.tm || ''}`.trim();
+  document.getElementById('tsModalSub').innerText = label;
+  document.getElementById('tsModal').classList.add('open');
+}
+
+function closeTsModal() {
+  document.getElementById('tsModal').classList.remove('open');
+  tsEditTarget = null;
+}
+
+function setTsNow() {
+  const ts = getNowTs();
+  document.getElementById('tsEditDate').value = ts.date;
+  document.getElementById('tsEditTime').value = ts.time;
+}
+
+function saveTsEdit() {
+  if (!tsEditTarget) return;
+  const { p, i } = tsEditTarget;
+  const newDate = document.getElementById('tsEditDate').value;
+  const newTime = document.getElementById('tsEditTime').value;
+  const arr = p === 'p1' ? rawP1 : rawP2;
+  if (!arr[i]) return;
+  arr[i].keyedDate = newDate;
+  arr[i].keyedTime = newTime;
+  // Also update the updatedAt fields
+  const ts = getNowTs();
+  arr[i].updatedDate = ts.date;
+  arr[i].updatedTime = ts.time;
+  closeTsModal();
+  sync();
+}
+
+// Close modal on overlay click
+document.getElementById('tsModal').addEventListener('click', function(e) {
+  if (e.target === this) closeTsModal();
+});
+
 function exportToCSV(tab) {
   const date = document.getElementById('targetDate').value || "Unknown_Date";
   const dataToExport = tab === 1 ? rawP1 : rawP2;
   if (!dataToExport || dataToExport.length === 0) return alert("⚠️ ไม่พบข้อมูล");
   let csvContent = "\uFEFF";
   const fileName = tab === 1 ? `Income_Main_${date}.csv` : `Income_Side_${date}.csv`;
-  if (tab === 1) csvContent += "สถานะ,วัน-เวลา,สาขา,ชื่อหนัง,ระบบ,โรง,ยอดเงิน,ที่นั่ง\n";
-  else csvContent += "สถานะ,วัน-เวลา,สาขา,ชื่อหนัง,ระบบ,โรง,รายได้,ผู้ชม\n";
+  if (tab === 1) csvContent += "สถานะ,วัน-เวลา,สาขา,ชื่อหนัง,ระบบ,โรง,ยอดเงิน,ที่นั่ง,วันที่คีย์,เวลาที่คีย์\n";
+  else csvContent += "สถานะ,วัน-เวลา,สาขา,ชื่อหนัง,ระบบ,โรง,รายได้,ผู้ชม,วันที่คีย์,เวลาที่คีย์\n";
   dataToExport.forEach(row => {
     const s = row.stt === 'REAL' ? 'จริง' : 'เบื้องต้น';
     const dt = `${row.dt || ''} ${row.tm || ''}`.trim();
+    const kd = row.keyedDate || '';
+    const kt = row.keyedTime || '';
     const line = tab === 1
-      ? `"${s}","${dt}","${row.b}","${row.n}","${row.s}","${row.the}","${row.m}","${row.seat}"`
-      : `"${s}","${dt}","${row.b}","${row.n}","${row.s || '-'}","${row.the}","${row.i}","${row.v}"`;
+      ? `"${s}","${dt}","${row.b}","${row.n}","${row.s}","${row.the}","${row.m}","${row.seat}","${kd}","${kt}"`
+      : `"${s}","${dt}","${row.b}","${row.n}","${row.s || '-'}","${row.the}","${row.i}","${row.v}","${kd}","${kt}"`;
     csvContent += line + "\n";
   });
   const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
