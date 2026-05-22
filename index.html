@@ -6,13 +6,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Cinema Management — Multi-Branch</title>
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Noto+Sans+Thai:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-
 <style>
 :root {
   --bg: #0a0a0f;
@@ -35,9 +31,7 @@
   --shadow: 0 4px 24px rgba(0,0,0,0.5);
   --shadow-gold: 0 0 20px rgba(250,204,21,0.12);
 }
-
 * { box-sizing: border-box; margin: 0; padding: 0; }
-
 body {
   font-family: 'Noto Sans Thai', sans-serif;
   background: var(--bg);
@@ -47,8 +41,6 @@ body {
     radial-gradient(ellipse 80% 40% at 50% 0%, rgba(250,204,21,0.04) 0%, transparent 60%),
     radial-gradient(ellipse 40% 60% at 100% 50%, rgba(59,130,246,0.03) 0%, transparent 60%);
 }
-
-/* ===== SCROLLBAR ===== */
 ::-webkit-scrollbar { width: 5px; height: 5px; }
 ::-webkit-scrollbar-track { background: var(--surface); }
 ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
@@ -56,706 +48,482 @@ body {
 
 /* ===== LOGIN ===== */
 #login-page {
-  display: flex; align-items: center; justify-content: center;
-  position: fixed; inset: 0;
-  background: var(--bg);
-  z-index: 9999;
+display: flex; align-items: center; justify-content: center;
+position: fixed; inset: 0; background: var(–bg); z-index: 9999;
 }
-
-.login-wrap {
-  display: flex; flex-direction: column; align-items: center; gap: 32px;
-}
-
-.login-logo {
-  display: flex; flex-direction: column; align-items: center; gap: 8px;
-}
-
+.login-wrap { display: flex; flex-direction: column; align-items: center; gap: 32px; }
+.login-logo { display: flex; flex-direction: column; align-items: center; gap: 8px; }
 .login-logo .logo-icon {
-  width: 64px; height: 64px;
-  background: linear-gradient(135deg, var(--gold) 0%, #f59e0b 100%);
-  border-radius: 18px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 28px;
-  box-shadow: 0 8px 32px rgba(250,204,21,0.3);
+width: 64px; height: 64px;
+background: linear-gradient(135deg, var(–gold) 0%, #f59e0b 100%);
+border-radius: 18px;
+display: flex; align-items: center; justify-content: center;
+font-size: 28px; box-shadow: 0 8px 32px rgba(250,204,21,0.3);
 }
-
-.login-logo h1 {
-  font-family: 'Space Mono', monospace;
-  font-size: 22px; letter-spacing: 2px; color: var(--gold);
-}
-
-.login-logo p { font-size: 12px; color: var(--text-muted); letter-spacing: 1px; }
-
+.login-logo h1 { font-family: ‘Space Mono’, monospace; font-size: 22px; letter-spacing: 2px; color: var(–gold); }
+.login-logo p { font-size: 12px; color: var(–text-muted); letter-spacing: 1px; }
 .login-box {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 32px;
-  width: 340px;
-  box-shadow: var(--shadow), var(--shadow-gold);
+background: var(–surface); border: 1px solid var(–border);
+border-radius: 16px; padding: 32px; width: 340px;
+box-shadow: var(–shadow), var(–shadow-gold);
 }
-
 .login-box .field { margin-bottom: 14px; }
-.login-box .field label { display: block; font-size: 11px; color: var(--text-muted); margin-bottom: 6px; letter-spacing: 0.5px; text-transform: uppercase; }
-
+.login-box .field label { display: block; font-size: 11px; color: var(–text-muted); margin-bottom: 6px; letter-spacing: 0.5px; text-transform: uppercase; }
 .login-box input {
-  width: 100%; padding: 12px 14px;
-  border-radius: var(--radius-sm);
-  background: var(--surface2);
-  border: 1px solid var(--border);
-  color: var(--text);
-  font-size: 14px;
-  font-family: inherit;
-  transition: border-color 0.2s;
-  outline: none;
+width: 100%; padding: 12px 14px; border-radius: var(–radius-sm);
+background: var(–surface2); border: 1px solid var(–border);
+color: var(–text); font-size: 14px; font-family: inherit;
+transition: border-color 0.2s; outline: none;
 }
-
-.login-box input:focus { border-color: var(--gold); }
-
+.login-box input:focus { border-color: var(–gold); }
 .btn-login {
-  width: 100%; padding: 13px;
-  background: var(--gold);
-  color: #000;
-  border: none; border-radius: var(--radius-sm);
-  font-weight: 700; font-size: 14px;
-  cursor: pointer; margin-top: 8px;
-  font-family: inherit;
-  letter-spacing: 0.5px;
-  transition: opacity 0.2s, transform 0.1s;
+width: 100%; padding: 13px; background: var(–gold); color: #000;
+border: none; border-radius: var(–radius-sm);
+font-weight: 700; font-size: 14px; cursor: pointer; margin-top: 8px;
+font-family: inherit; letter-spacing: 0.5px; transition: opacity 0.2s, transform 0.1s;
 }
-
 .btn-login:hover { opacity: 0.9; }
 .btn-login:active { transform: scale(0.98); }
+#loginError { font-size: 12px; color: var(–red); margin-top: 10px; text-align: center; min-height: 18px; }
 
-#loginError { font-size: 12px; color: var(--red); margin-top: 10px; text-align: center; min-height: 18px; }
-
-/* ===== MAIN CONTENT ===== */
+/* ===== MAIN ===== */
 #main-content { display: none; max-width: 900px; margin: 0 auto; padding: 16px; }
-
-/* ===== TOP BAR ===== */
 .top-bar {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 10px 16px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  margin-bottom: 16px;
+display: flex; align-items: center; justify-content: space-between;
+padding: 10px 16px; background: var(–surface);
+border: 1px solid var(–border); border-radius: var(–radius); margin-bottom: 16px;
 }
-
 .top-bar-left { display: flex; align-items: center; gap: 10px; }
-
 .logo-small {
-  width: 32px; height: 32px;
-  background: var(--gold);
-  border-radius: 8px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 16px; flex-shrink: 0;
+width: 32px; height: 32px; background: var(–gold); border-radius: 8px;
+display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0;
 }
-
-.top-bar-title { font-family: 'Space Mono', monospace; font-size: 14px; color: var(--gold); letter-spacing: 1px; }
-.top-bar-sub { font-size: 11px; color: var(--text-muted); }
-
-.user-badge {
-  display: flex; align-items: center; gap: 8px;
-}
-
+.top-bar-title { font-family: ‘Space Mono’, monospace; font-size: 14px; color: var(–gold); letter-spacing: 1px; }
+.top-bar-sub { font-size: 11px; color: var(–text-muted); }
+.user-badge { display: flex; align-items: center; gap: 8px; }
 .user-email {
-  font-size: 12px; color: var(--text-dim);
-  background: var(--surface2);
-  padding: 4px 10px; border-radius: 20px;
-  border: 1px solid var(--border);
+font-size: 12px; color: var(–text-dim); background: var(–surface2);
+padding: 4px 10px; border-radius: 20px; border: 1px solid var(–border);
 }
-
-.user-email .admin-tag {
-  color: var(--gold); font-size: 10px; margin-left: 4px;
-  font-family: 'Space Mono', monospace;
-}
-
+.user-email .admin-tag { color: var(–gold); font-size: 10px; margin-left: 4px; font-family: ‘Space Mono’, monospace; }
 .btn-logout {
-  background: transparent; color: var(--text-muted);
-  border: 1px solid var(--border);
-  padding: 5px 12px; border-radius: 20px;
-  cursor: pointer; font-size: 12px;
-  transition: all 0.2s; font-family: inherit;
+background: transparent; color: var(–text-muted); border: 1px solid var(–border);
+padding: 5px 12px; border-radius: 20px; cursor: pointer; font-size: 12px;
+transition: all 0.2s; font-family: inherit;
 }
+.btn-logout:hover { border-color: var(–red); color: var(–red); }
 
-.btn-logout:hover { border-color: var(--red); color: var(--red); }
-
-/* ===== HERO FILTER SECTION ===== */
+/* ===== HERO FILTER ===== */
 .hero-filter {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 18px;
-  margin-bottom: 14px;
+background: var(–surface); border: 1px solid var(–border);
+border-radius: var(–radius); padding: 18px; margin-bottom: 14px;
 }
-
-.hero-filter-top {
-  display: grid; grid-template-columns: 1fr auto;
-  gap: 12px; align-items: end; margin-bottom: 12px;
-}
-
-.date-field { }
-.date-field label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 6px; }
-
-.branch-row {
-  display: grid; grid-template-columns: 1fr 1fr;
-  gap: 10px;
-}
-
+.hero-filter-top { display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: end; margin-bottom: 12px; }
+.date-field label { font-size: 11px; color: var(–text-muted); text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 6px; }
+.branch-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 input, select {
-  width: 100%; padding: 10px 12px;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border);
-  background: var(--surface2);
-  color: var(--text);
-  font-size: 13px;
-  font-family: inherit;
-  outline: none;
-  transition: border-color 0.2s;
+width: 100%; padding: 10px 12px; border-radius: var(–radius-sm);
+border: 1px solid var(–border); background: var(–surface2);
+color: var(–text); font-size: 13px; font-family: inherit;
+outline: none; transition: border-color 0.2s;
 }
-
-input:focus, select:focus { border-color: var(--gold); }
-input::placeholder { color: var(--text-muted); }
-
-select option { background: var(--surface2); }
-
+input:focus, select:focus { border-color: var(–gold); }
+input::placeholder { color: var(–text-muted); }
+select option { background: var(–surface2); }
 .btn-reset-branch {
-  background: transparent;
-  border: 1px dashed var(--gold-dim);
-  color: var(--gold);
-  padding: 8px 14px;
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  font-size: 12px;
-  font-family: inherit;
-  transition: all 0.2s;
-  white-space: nowrap;
+background: transparent; border: 1px dashed var(–gold-dim); color: var(–gold);
+padding: 8px 14px; border-radius: var(–radius-sm); cursor: pointer;
+font-size: 12px; font-family: inherit; transition: all 0.2s; white-space: nowrap;
 }
-
 .btn-reset-branch:hover { background: rgba(250,204,21,0.06); }
 
-/* ===== SUMMARY PANEL ===== */
+/* ===== SUMMARY ===== */
 .summary-panel {
-  background: var(--surface);
-  border: 1px solid rgba(250,204,21,0.3);
-  border-radius: var(--radius);
-  padding: 16px;
-  margin-bottom: 14px;
-  display: none;
+background: var(–surface); border: 1px solid rgba(250,204,21,0.3);
+border-radius: var(–radius); padding: 16px; margin-bottom: 14px; display: none;
 }
-
-.summary-panel h4 {
-  color: var(--gold);
-  font-size: 13px;
-  margin-bottom: 12px;
-  display: flex; align-items: center; gap: 6px;
-}
-
+.summary-panel h4 { color: var(–gold); font-size: 13px; margin-bottom: 12px; display: flex; align-items: center; gap: 6px; }
 .summary-table-wrap { overflow-x: auto; }
-
-.summary-table {
-  width: 100%; border-collapse: collapse; font-size: 12px;
-  min-width: 440px;
-}
-
+.summary-table { width: 100%; border-collapse: collapse; font-size: 12px; min-width: 440px; }
 .summary-table th {
-  background: var(--surface2);
-  color: var(--text-muted);
-  padding: 8px 10px;
-  text-align: left;
-  border-bottom: 1px solid var(--border);
-  font-weight: 600;
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+background: var(–surface2); color: var(–text-muted); padding: 8px 10px;
+text-align: left; border-bottom: 1px solid var(–border);
+font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;
 }
-
-.summary-table td {
-  padding: 8px 10px;
-  border-bottom: 1px solid var(--border);
-  color: var(--text);
-}
-
-.summary-table .movie-total td {
-  background: var(--surface2);
-  font-weight: 700;
-  color: var(--gold);
-}
+.summary-table td { padding: 8px 10px; border-bottom: 1px solid var(–border); color: var(–text); }
+.summary-table .movie-total td { background: var(–surface2); font-weight: 700; color: var(–gold); }
 
 /* ===== TABS ===== */
 .tabs {
-  display: flex; gap: 4px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 4px;
-  margin-bottom: 14px;
+display: flex; gap: 4px; background: var(–surface);
+border: 1px solid var(–border); border-radius: var(–radius);
+padding: 4px; margin-bottom: 14px;
 }
-
 .tab-btn {
-  flex: 1; padding: 10px;
-  border: none; border-radius: var(--radius-sm);
-  background: transparent;
-  color: var(--text-muted);
-  cursor: pointer;
-  font-weight: 600; font-size: 13px;
-  font-family: inherit;
-  transition: all 0.2s;
+flex: 1; padding: 10px; border: none; border-radius: var(–radius-sm);
+background: transparent; color: var(–text-muted); cursor: pointer;
+font-weight: 600; font-size: 13px; font-family: inherit; transition: all 0.2s;
 }
+.tab-btn.active { background: var(–gold); color: #000; }
+.tab-btn:not(.active):hover { color: var(–text); background: var(–surface2); }
 
-.tab-btn.active { background: var(--gold); color: #000; }
-.tab-btn:not(.active):hover { color: var(--text); background: var(--surface2); }
-
-/* ===== PAGES ===== */
 .page { display: none; }
 .page.active { display: block; }
 
 /* ===== INPUT PANEL ===== */
 .input-panel {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 16px;
-  margin-bottom: 14px;
-  display: none;
+background: var(–surface); border: 1px solid var(–border);
+border-radius: var(–radius); padding: 16px; margin-bottom: 14px; display: none;
 }
-
-.input-panel h4 { font-size: 13px; color: var(--text-dim); margin-bottom: 14px; }
-
-.status-selector {
-  display: flex; gap: 6px; margin-bottom: 14px;
-}
-
+.input-panel h4 { font-size: 13px; color: var(–text-dim); margin-bottom: 14px; }
+.status-selector { display: flex; gap: 6px; margin-bottom: 14px; }
 .status-btn {
-  flex: 1; padding: 9px;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border);
-  cursor: pointer;
-  text-align: center;
-  font-weight: 700;
-  font-size: 12px;
-  font-family: inherit;
-  background: var(--surface2);
-  color: var(--text-muted);
-  transition: all 0.2s;
+flex: 1; padding: 9px; border-radius: var(–radius-sm); border: 1px solid var(–border);
+cursor: pointer; text-align: center; font-weight: 700; font-size: 12px;
+font-family: inherit; background: var(–surface2); color: var(–text-muted); transition: all 0.2s;
 }
-
-.status-btn.active.pre {
-  background: rgba(239,68,68,0.1);
-  border-color: var(--red);
-  color: var(--red);
-}
-
-.status-btn.active.real {
-  background: rgba(34,197,94,0.1);
-  border-color: var(--green);
-  color: var(--green);
-}
-
-.form-grid {
-  display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px;
-}
-
+.status-btn.active.pre { background: rgba(239,68,68,0.1); border-color: var(–red); color: var(–red); }
+.status-btn.active.real { background: rgba(34,197,94,0.1); border-color: var(–green); color: var(–green); }
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
 .form-grid .span2 { grid-column: span 2; }
-
-.form-group label {
-  display: block; font-size: 11px; color: var(--text-muted);
-  margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.4px;
-}
-
+.form-group label { display: block; font-size: 11px; color: var(–text-muted); margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.4px; }
 .btn-save {
-  width: 100%; padding: 12px;
-  border: none; border-radius: var(--radius-sm);
-  font-weight: 700; font-size: 13px;
-  cursor: pointer; font-family: inherit;
-  letter-spacing: 0.3px;
-  transition: all 0.2s;
+width: 100%; padding: 12px; border: none; border-radius: var(–radius-sm);
+font-weight: 700; font-size: 13px; cursor: pointer; font-family: inherit;
+letter-spacing: 0.3px; transition: all 0.2s;
 }
-
 .btn-save:hover { opacity: 0.88; }
-
-.btn-save-1 { background: var(--blue); color: white; }
-.btn-save-2 { background: var(--green); color: white; }
-
+.btn-save-1 { background: var(–blue); color: white; }
+.btn-save-2 { background: var(–green); color: white; }
 .btn-cancel-edit {
-  display: none; width: 100%; padding: 10px;
-  background: transparent; border: 1px solid var(--border);
-  color: var(--text-muted); border-radius: var(--radius-sm);
-  cursor: pointer; font-family: inherit; font-size: 13px;
-  margin-top: 6px; transition: all 0.2s;
+display: none; width: 100%; padding: 10px; background: transparent;
+border: 1px solid var(–border); color: var(–text-muted); border-radius: var(–radius-sm);
+cursor: pointer; font-family: inherit; font-size: 13px; margin-top: 6px; transition: all 0.2s;
 }
+.btn-cancel-edit:hover { border-color: var(–text-muted); color: var(–text); }
 
-.btn-cancel-edit:hover { border-color: var(--text-muted); color: var(--text); }
-
-/* ===== DATA TABLE ===== */
-.table-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  overflow: hidden;
-}
-
+/* ===== TABLE ===== */
+.table-card { background: var(–surface); border: 1px solid var(–border); border-radius: var(–radius); overflow: hidden; }
 .table-scroll { overflow-x: auto; }
-
-table {
-  width: 100%; border-collapse: collapse;
-  font-size: 12px; min-width: 780px;
-}
-
+table { width: 100%; border-collapse: collapse; font-size: 12px; min-width: 780px; }
 thead th {
-  background: var(--surface2);
-  color: var(--text-muted);
-  padding: 10px 12px;
-  text-align: left;
-  border-bottom: 1px solid var(--border);
-  font-size: 11px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  white-space: nowrap;
+background: var(–surface2); color: var(–text-muted); padding: 10px 12px;
+text-align: left; border-bottom: 1px solid var(–border);
+font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap;
 }
-
-tbody td {
-  padding: 10px 12px;
-  border-bottom: 1px solid var(--border);
-  text-align: left;
-  color: var(--text);
-}
-
+tbody td { padding: 10px 12px; border-bottom: 1px solid var(–border); text-align: left; color: var(–text); }
 tbody tr:last-child td { border-bottom: none; }
-
-tbody tr:hover td { background: var(--surface2); }
-
+tbody tr:hover td { background: var(–surface2); }
 .status-chip {
-  display: inline-flex; align-items: center; gap: 5px;
-  padding: 3px 8px; border-radius: 20px;
-  font-size: 11px; font-weight: 700;
-  cursor: pointer; border: none; font-family: inherit;
-  transition: all 0.2s;
+display: inline-flex; align-items: center; gap: 5px;
+padding: 3px 8px; border-radius: 20px; font-size: 11px; font-weight: 700;
+cursor: pointer; border: none; font-family: inherit; transition: all 0.2s;
 }
-
-.chip-pre { background: rgba(239,68,68,0.1); color: var(--red); border: 1px solid rgba(239,68,68,0.3); }
-.chip-real { background: rgba(34,197,94,0.1); color: var(--green); border: 1px solid rgba(34,197,94,0.3); }
-
-.num-cell { font-family: 'Space Mono', monospace; font-size: 12px; }
-
+.chip-pre { background: rgba(239,68,68,0.1); color: var(–red); border: 1px solid rgba(239,68,68,0.3); }
+.chip-real { background: rgba(34,197,94,0.1); color: var(–green); border: 1px solid rgba(34,197,94,0.3); }
+.num-cell { font-family: ‘Space Mono’, monospace; font-size: 12px; }
 .badge-branch {
-  background: var(--surface2);
-  border: 1px solid var(--border);
-  padding: 2px 8px; border-radius: 4px;
-  font-size: 11px; color: var(--text-dim);
-  white-space: nowrap;
+background: var(–surface2); border: 1px solid var(–border);
+padding: 2px 8px; border-radius: 4px; font-size: 11px; color: var(–text-dim); white-space: nowrap;
 }
-
-.empty-state {
-  text-align: center; padding: 48px 20px;
-  color: var(--text-muted); font-size: 13px;
-}
-
+.empty-state { text-align: center; padding: 48px 20px; color: var(–text-muted); font-size: 13px; }
 .empty-icon { font-size: 36px; margin-bottom: 10px; opacity: 0.5; }
-
-/* ===== ACTION BUTTONS ===== */
 .action-btns { display: flex; gap: 4px; }
-
-.btn-action {
-  padding: 5px 9px; border-radius: 5px;
-  border: none; cursor: pointer; font-size: 12px;
-  transition: all 0.2s; font-family: inherit;
-}
-
-.btn-edit-row { background: rgba(245,158,11,0.12); color: var(--amber); border: 1px solid rgba(245,158,11,0.3); }
+.btn-action { padding: 5px 9px; border-radius: 5px; border: none; cursor: pointer; font-size: 12px; transition: all 0.2s; font-family: inherit; }
+.btn-edit-row { background: rgba(245,158,11,0.12); color: var(–amber); border: 1px solid rgba(245,158,11,0.3); }
 .btn-edit-row:hover { background: rgba(245,158,11,0.2); }
-.btn-del-row { background: rgba(239,68,68,0.1); color: var(--red); border: 1px solid rgba(239,68,68,0.25); }
+.btn-del-row { background: rgba(239,68,68,0.1); color: var(–red); border: 1px solid rgba(239,68,68,0.25); }
 .btn-del-row:hover { background: rgba(239,68,68,0.2); }
 
 /* ===== ADMIN PANEL ===== */
 .admin-panel {
-  background: var(--surface);
-  border: 1px solid rgba(250,204,21,0.25);
-  border-radius: var(--radius);
-  padding: 18px;
-  margin-bottom: 14px;
-  display: none;
+background: var(–surface); border: 1px solid rgba(250,204,21,0.25);
+border-radius: var(–radius); padding: 18px; margin-bottom: 14px; display: none;
 }
-
-.admin-panel-header {
-  display: flex; align-items: center; gap: 8px;
-  margin-bottom: 18px;
-}
-
-.admin-panel-header h4 { color: var(--gold); font-size: 14px; }
-.admin-badge {
-  font-family: 'Space Mono', monospace;
-  font-size: 9px;
-  background: var(--gold);
-  color: #000;
-  padding: 2px 6px; border-radius: 3px;
-}
-
-.admin-section {
-  background: var(--surface2);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  padding: 14px;
-  margin-bottom: 12px;
-}
-
-.admin-section h5 {
-  font-size: 12px; color: var(--text-muted);
-  text-transform: uppercase; letter-spacing: 0.5px;
-  margin-bottom: 10px;
-}
-
-.export-grid {
-  display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
-}
-
-.btn-export {
-  padding: 10px; border: none; border-radius: var(--radius-sm);
-  font-weight: 700; font-size: 12px; cursor: pointer;
-  font-family: inherit; transition: all 0.2s; letter-spacing: 0.3px;
-}
-
-.btn-export-1 { background: rgba(59,130,246,0.15); color: var(--blue); border: 1px solid rgba(59,130,246,0.3); }
+.admin-panel-header { display: flex; align-items: center; gap: 8px; margin-bottom: 18px; }
+.admin-panel-header h4 { color: var(–gold); font-size: 14px; }
+.admin-badge { font-family: ‘Space Mono’, monospace; font-size: 9px; background: var(–gold); color: #000; padding: 2px 6px; border-radius: 3px; }
+.admin-section { background: var(–surface2); border: 1px solid var(–border); border-radius: var(–radius-sm); padding: 14px; margin-bottom: 12px; }
+.admin-section h5 { font-size: 12px; color: var(–text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; }
+.export-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.btn-export { padding: 10px; border: none; border-radius: var(–radius-sm); font-weight: 700; font-size: 12px; cursor: pointer; font-family: inherit; transition: all 0.2s; letter-spacing: 0.3px; }
+.btn-export-1 { background: rgba(59,130,246,0.15); color: var(–blue); border: 1px solid rgba(59,130,246,0.3); }
 .btn-export-1:hover { background: rgba(59,130,246,0.25); }
-.btn-export-2 { background: rgba(34,197,94,0.12); color: var(--green); border: 1px solid rgba(34,197,94,0.3); }
+.btn-export-2 { background: rgba(34,197,94,0.12); color: var(–green); border: 1px solid rgba(34,197,94,0.3); }
 .btn-export-2:hover { background: rgba(34,197,94,0.22); }
-
 .input-row { display: flex; gap: 6px; margin-bottom: 8px; }
 .input-row input { flex: 1; }
-
 .btn-add-item {
-  padding: 8px 14px; border: none; border-radius: var(--radius-sm);
-  background: var(--gold); color: #000;
-  font-weight: 700; font-size: 12px; cursor: pointer;
-  font-family: inherit; white-space: nowrap;
-  transition: opacity 0.2s;
+padding: 8px 14px; border: none; border-radius: var(–radius-sm);
+background: var(–gold); color: #000; font-weight: 700; font-size: 12px;
+cursor: pointer; font-family: inherit; white-space: nowrap; transition: opacity 0.2s;
 }
-
 .btn-add-item:hover { opacity: 0.85; }
-
 .btn-import {
-  padding: 8px 10px; border: 1px solid var(--border); border-radius: var(--radius-sm);
-  background: transparent; color: var(--text-muted);
-  font-size: 11px; cursor: pointer; font-family: inherit;
-  transition: all 0.2s; white-space: nowrap;
+padding: 8px 10px; border: 1px solid var(–border); border-radius: var(–radius-sm);
+background: transparent; color: var(–text-muted); font-size: 11px;
+cursor: pointer; font-family: inherit; transition: all 0.2s; white-space: nowrap;
 }
-
-.btn-import:hover { border-color: var(--text-muted); color: var(--text); }
-
+.btn-import:hover { border-color: var(–text-muted); color: var(–text); }
 .tags-wrap {
-  display: flex; flex-wrap: wrap; gap: 5px;
-  max-height: 160px; overflow-y: auto;
-  padding: 8px; background: var(--bg);
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border);
+display: flex; flex-wrap: wrap; gap: 5px;
+max-height: 160px; overflow-y: auto; padding: 8px;
+background: var(–bg); border-radius: var(–radius-sm); border: 1px solid var(–border);
 }
-
 .movie-tag {
-  display: inline-flex; align-items: center; gap: 5px;
-  padding: 4px 10px; border-radius: 20px;
-  background: var(--surface2);
-  border: 1px solid var(--border);
-  font-size: 11px; color: var(--text-dim);
+display: inline-flex; align-items: center; gap: 5px;
+padding: 4px 10px; border-radius: 20px;
+background: var(–surface2); border: 1px solid var(–border);
+font-size: 11px; color: var(–text-dim);
 }
-
-.movie-tag .del-tag { color: var(--red); cursor: pointer; font-weight: bold; font-size: 13px; line-height: 1; }
-
+.movie-tag .del-tag { color: var(–red); cursor: pointer; font-weight: bold; font-size: 13px; line-height: 1; }
 .branch-tag {
-  display: flex; flex-direction: column; gap: 2px;
-  padding: 7px 10px; border-radius: 7px;
-  background: var(--surface2);
-  border: 1px solid var(--border);
-  font-size: 11px; cursor: pointer; color: var(--text);
-  position: relative; width: 190px;
-  transition: border-color 0.2s;
+display: flex; flex-direction: column; gap: 2px; padding: 7px 10px;
+border-radius: 7px; background: var(–surface2); border: 1px solid var(–border);
+font-size: 11px; cursor: pointer; color: var(–text); position: relative;
+width: 190px; transition: border-color 0.2s;
 }
-
-.branch-tag:hover { border-color: var(--gold-dim); }
+.branch-tag:hover { border-color: var(–gold-dim); }
 .branch-tag b { font-size: 11px; }
-.branch-tag .assigned-email { color: var(--gold-dim); font-size: 10px; font-style: italic; }
-.branch-tag .del-branch {
-  position: absolute; top: 5px; right: 8px;
-  color: var(--red); font-size: 14px; font-weight: bold; line-height: 1;
-}
-
+.branch-tag .assigned-email { color: var(–gold-dim); font-size: 10px; font-style: italic; }
+.branch-tag .del-branch { position: absolute; top: 5px; right: 8px; color: var(–red); font-size: 14px; font-weight: bold; line-height: 1; }
 .email-section {
-  background: rgba(250,204,21,0.04);
-  border: 1px dashed rgba(250,204,21,0.25);
-  border-radius: var(--radius-sm);
-  padding: 10px; margin-bottom: 10px;
+background: rgba(250,204,21,0.04); border: 1px dashed rgba(250,204,21,0.25);
+border-radius: var(–radius-sm); padding: 10px; margin-bottom: 10px;
 }
+.email-section label { font-size: 11px; color: var(–gold-dim); display: block; margin-bottom: 6px; }
+.divider { border: none; border-top: 1px solid var(–border); margin: 14px 0; }
 
-.email-section label { font-size: 11px; color: var(--gold-dim); display: block; margin-bottom: 6px; }
-
-/* ===== DIVIDER ===== */
-.divider { border: none; border-top: 1px solid var(--border); margin: 14px 0; }
-
-/* ===== MOBILE ===== */
-@media (max-width: 600px) {
-  #main-content { padding: 10px; }
-  .top-bar { padding: 8px 12px; }
-  .branch-row { grid-template-columns: 1fr; }
-  .form-grid { grid-template-columns: 1fr; }
-  .form-grid .span2 { grid-column: span 1; }
-  .export-grid { grid-template-columns: 1fr; }
-  .top-bar-title { font-size: 12px; }
-}
-
-/* ===== FADE IN ===== */
-@keyframes fadeUp {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.table-card, .input-panel, .admin-panel, .summary-panel {
-  animation: fadeUp 0.3s ease;
-}
-
-/* ===== TIMESTAMP CELL ===== */
-.ts-cell {
-  font-size: 10px;
-  color: var(--text-muted);
-  line-height: 1.5;
-}
-.ts-keyed {
-  display: flex; align-items: center; gap: 4px;
-  font-size: 10px; color: var(--text-muted);
-}
-.ts-keyed .ts-date { color: var(--text-dim); }
-.ts-keyed .ts-time {
-  font-family: 'Space Mono', monospace;
-  color: var(--gold-dim); font-size: 11px; font-weight: 700;
-}
-.ts-keyed .ts-edit-btn {
-  background: none; border: none; cursor: pointer;
-  color: var(--text-muted); font-size: 11px; padding: 1px 3px;
-  border-radius: 3px; transition: all 0.15s;
-  opacity: 0;
-}
-tr:hover .ts-edit-btn { opacity: 1; }
-.ts-edit-btn:hover { color: var(--gold); background: rgba(250,204,21,0.1); }
-.ts-none { color: var(--border); font-size: 10px; font-style: italic; }
-
-/* ===== TIMESTAMP EDIT MODAL ===== */
-.ts-modal-overlay {
-  display: none; position: fixed; inset: 0;
-  background: rgba(0,0,0,0.7); backdrop-filter: blur(4px);
-  z-index: 10000; align-items: center; justify-content: center;
-}
-.ts-modal-overlay.open { display: flex; }
-.ts-modal {
-  background: var(--surface);
-  border: 1px solid var(--gold);
-  border-radius: 14px;
-  padding: 24px;
-  width: 320px;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.7), 0 0 40px rgba(250,204,21,0.1);
-  animation: fadeUp 0.2s ease;
-}
-.ts-modal h4 {
-  color: var(--gold); font-size: 14px; margin-bottom: 4px;
-  display: flex; align-items: center; gap: 6px;
-}
-.ts-modal .ts-modal-sub {
-  font-size: 11px; color: var(--text-muted); margin-bottom: 18px;
-}
-.ts-modal .ts-field { margin-bottom: 14px; }
-.ts-modal .ts-field label {
-  display: block; font-size: 11px; color: var(--text-muted);
-  text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 6px;
-}
-.ts-modal input[type="date"],
-.ts-modal input[type="time"] {
-  width: 100%; padding: 10px 12px;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border);
-  background: var(--surface2);
-  color: var(--text); font-family: 'Space Mono', monospace;
-  font-size: 13px; outline: none; transition: border-color 0.2s;
-}
-.ts-modal input:focus { border-color: var(--gold); }
-.ts-modal-actions { display: flex; gap: 8px; margin-top: 18px; }
-.ts-btn-save {
-  flex: 1; padding: 10px; background: var(--gold); color: #000;
-  border: none; border-radius: var(--radius-sm);
-  font-weight: 700; font-size: 13px; cursor: pointer;
-  font-family: inherit; transition: opacity 0.2s;
-}
-.ts-btn-save:hover { opacity: 0.85; }
-.ts-btn-cancel {
-  padding: 10px 16px; background: transparent;
-  border: 1px solid var(--border); color: var(--text-muted);
-  border-radius: var(--radius-sm); cursor: pointer;
-  font-family: inherit; font-size: 13px; transition: all 0.2s;
-}
-.ts-btn-cancel:hover { border-color: var(--text-muted); color: var(--text); }
-.ts-now-btn {
-  width: 100%; padding: 8px; margin-top: 6px;
-  background: rgba(250,204,21,0.07);
-  border: 1px dashed rgba(250,204,21,0.3);
-  color: var(--gold-dim); border-radius: var(--radius-sm);
-  cursor: pointer; font-size: 11px; font-family: inherit;
-  transition: all 0.2s;
-}
-.ts-now-btn:hover { background: rgba(250,204,21,0.12); color: var(--gold); }
-/* ===== MISSING BRANCH ALERT ===== */
+/* ===== MISSING BRANCH ===== */
 .missing-alert {
-  display: none; background: var(--surface);
-  border: 1px solid rgba(239,68,68,0.4); border-radius: var(--radius);
-  padding: 14px 16px; margin-bottom: 14px; animation: fadeUp 0.3s ease;
+display: none; background: var(–surface);
+border: 1px solid rgba(239,68,68,0.4); border-radius: var(–radius);
+padding: 14px 16px; margin-bottom: 14px; animation: fadeUp 0.3s ease;
 }
-.missing-alert-header {
-  display: flex; align-items: center; justify-content: space-between;
-  margin-bottom: 0; cursor: pointer; user-select: none;
-}
+.missing-alert-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0; cursor: pointer; user-select: none; }
 .missing-alert-header.open { margin-bottom: 12px; }
-.missing-alert-title {
-  display: flex; align-items: center; gap: 8px;
-  font-size: 13px; font-weight: 700; color: var(--red);
-}
+.missing-alert-title { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 700; color: var(–red); }
 .missing-count-badge {
-  background: var(--red); color: white; font-size: 11px; font-weight: 700;
-  padding: 1px 7px; border-radius: 20px; font-family: 'Space Mono', monospace;
-  animation: pulse-red 2s infinite;
+background: var(–red); color: white; font-size: 11px; font-weight: 700;
+padding: 1px 7px; border-radius: 20px; font-family: ‘Space Mono’, monospace;
+animation: pulse-red 2s infinite;
 }
 @keyframes pulse-red {
-  0%,100% { box-shadow: 0 0 0 0 rgba(239,68,68,0.4); }
-  50% { box-shadow: 0 0 0 5px rgba(239,68,68,0); }
+0%,100% { box-shadow: 0 0 0 0 rgba(239,68,68,0.4); }
+50% { box-shadow: 0 0 0 5px rgba(239,68,68,0); }
 }
-.missing-chevron { font-size: 12px; color: var(--text-muted); transition: transform 0.2s; }
+.missing-chevron { font-size: 12px; color: var(–text-muted); transition: transform 0.2s; }
 .missing-chevron.open { transform: rotate(180deg); }
 .missing-branch-grid {
-  display: grid; grid-template-columns: repeat(auto-fill, minmax(175px, 1fr));
-  gap: 7px; max-height: 0; overflow: hidden; transition: max-height 0.35s ease;
+display: grid; grid-template-columns: repeat(auto-fill, minmax(175px, 1fr));
+gap: 7px; max-height: 0; overflow: hidden; transition: max-height 0.35s ease;
 }
 .missing-branch-grid.open { max-height: 600px; overflow-y: auto; }
 .missing-branch-item {
-  display: flex; align-items: flex-start; gap: 8px;
-  background: rgba(239,68,68,0.06); border: 1px solid rgba(239,68,68,0.2);
-  border-radius: var(--radius-sm); padding: 8px 10px; cursor: pointer; transition: all 0.15s;
+display: flex; align-items: flex-start; gap: 8px;
+background: rgba(239,68,68,0.06); border: 1px solid rgba(239,68,68,0.2);
+border-radius: var(–radius-sm); padding: 8px 10px; cursor: pointer; transition: all 0.15s;
 }
 .missing-branch-item:hover { background: rgba(239,68,68,0.13); border-color: rgba(239,68,68,0.45); }
-.missing-dot {
-  width: 7px; height: 7px; border-radius: 50%; background: var(--red);
-  flex-shrink: 0; margin-top: 3px; animation: pulse-red 2s infinite;
-}
-.missing-branch-name { font-size: 11px; color: var(--text-dim); font-weight: 700; }
-.missing-branch-sub { font-size: 9px; color: var(--text-muted); margin-top: 1px; }
+.missing-dot { width: 7px; height: 7px; border-radius: 50%; background: var(–red); flex-shrink: 0; margin-top: 3px; animation: pulse-red 2s infinite; }
+.missing-branch-name { font-size: 11px; color: var(–text-dim); font-weight: 700; }
+.missing-branch-sub { font-size: 9px; color: var(–text-muted); margin-top: 1px; }
 .all-ok-bar {
-  display: none; align-items: center; gap: 8px;
-  background: rgba(34,197,94,0.06); border: 1px solid rgba(34,197,94,0.25);
-  border-radius: var(--radius); padding: 10px 14px; margin-bottom: 14px;
-  font-size: 12px; color: var(--green); font-weight: 600;
+display: none; align-items: center; gap: 8px;
+background: rgba(34,197,94,0.06); border: 1px solid rgba(34,197,94,0.25);
+border-radius: var(–radius); padding: 10px 14px; margin-bottom: 14px;
+font-size: 12px; color: var(–green); font-weight: 600;
 }
-.ok-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); flex-shrink: 0; }
+.ok-dot { width: 7px; height: 7px; border-radius: 50%; background: var(–green); flex-shrink: 0; }
+
+/* ===== NO-SHOW (BRANCH LEVEL) ===== */
+.noshow-toggle-wrap { display: flex; gap: 6px; margin-top: 8px; }
+.btn-no-show {
+flex: 1; padding: 9px 12px; background: transparent;
+border: 1px dashed rgba(239,68,68,0.4); color: var(–red);
+border-radius: var(–radius-sm); cursor: pointer; font-family: inherit;
+font-size: 12px; font-weight: 700; transition: all 0.2s;
+display: flex; align-items: center; justify-content: center; gap: 6px;
+}
+.btn-no-show:hover { background: rgba(239,68,68,0.08); border-color: var(–red); }
+.btn-no-show.active { background: rgba(239,68,68,0.15); border-style: solid; border-color: var(–red); }
+.btn-back-show {
+flex: 1; padding: 9px 12px; background: transparent;
+border: 1px dashed rgba(34,197,94,0.35); color: var(–green);
+border-radius: var(–radius-sm); cursor: pointer; font-family: inherit;
+font-size: 12px; font-weight: 700; transition: all 0.2s;
+display: none; align-items: center; justify-content: center; gap: 6px;
+}
+.btn-back-show:hover { background: rgba(34,197,94,0.08); border-color: var(–green); border-style: solid; }
+.noshow-active-badge {
+display: none; align-items: center; gap: 8px;
+background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.3);
+border-radius: var(–radius-sm); padding: 8px 12px; margin-top: 8px;
+font-size: 12px; color: var(–red); font-weight: 600;
+}
+.no-show-banner {
+display: none; background: var(–surface);
+border: 1px solid rgba(239,68,68,0.35); border-radius: var(–radius);
+padding: 14px 16px; margin-bottom: 14px; animation: fadeUp 0.25s ease;
+}
+.no-show-banner-header { display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none; margin-bottom: 0; }
+.no-show-banner-header.open { margin-bottom: 12px; }
+.no-show-banner-title { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 700; color: var(–red); }
+.no-show-badge { background: var(–red); color: white; font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 20px; font-family: ‘Space Mono’, monospace; }
+.no-show-chevron { font-size: 12px; color: var(–text-muted); transition: transform 0.2s; }
+.no-show-chevron.open { transform: rotate(180deg); }
+.no-show-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 7px; max-height: 0; overflow: hidden; transition: max-height 0.35s ease; }
+.no-show-grid.open { max-height: 500px; overflow-y: auto; }
+.no-show-card {
+display: flex; align-items: flex-start; gap: 8px;
+background: rgba(239,68,68,0.06); border: 1px solid rgba(239,68,68,0.2);
+border-radius: var(–radius-sm); padding: 8px 10px;
+}
+.no-show-dot { width: 7px; height: 7px; border-radius: 50%; background: var(–red); flex-shrink: 0; margin-top: 3px; }
+.no-show-card-name { font-size: 11px; color: var(–red); font-weight: 700; }
+.no-show-card-meta { font-size: 9px; color: var(–text-muted); margin-top: 2px; }
+.btn-undo-noshow {
+display: block; width: 100%; margin-top: 5px; background: transparent;
+border: 1px solid rgba(34,197,94,0.3); color: var(–green);
+padding: 3px 8px; border-radius: 4px; font-size: 10px; cursor: pointer;
+font-family: inherit; transition: all 0.2s; text-align: center;
+}
+.btn-undo-noshow:hover { background: rgba(34,197,94,0.1); border-color: var(–green); }
+
+/* ===== MOVIE NO-SHOW (NEW) ===== */
+.movie-noshow-section {
+margin-top: 12px;
+border-top: 1px solid var(–border);
+padding-top: 12px;
+}
+.movie-noshow-title {
+font-size: 11px; color: var(–text-muted); text-transform: uppercase;
+letter-spacing: 0.5px; margin-bottom: 8px;
+display: flex; align-items: center; gap: 6px;
+}
+.movie-noshow-grid {
+display: flex; flex-wrap: wrap; gap: 6px;
+}
+.movie-noshow-chip {
+display: inline-flex; align-items: center; gap: 6px;
+padding: 5px 11px; border-radius: 20px; font-size: 11px; font-weight: 600;
+cursor: pointer; border: none; font-family: inherit; transition: all 0.2s;
+background: var(–surface2); border: 1px solid var(–border); color: var(–text-dim);
+user-select: none;
+}
+.movie-noshow-chip:hover { border-color: var(–red); color: var(–text); }
+.movie-noshow-chip.active {
+background: rgba(239,68,68,0.12); border-color: var(–red); color: var(–red);
+text-decoration: line-through; opacity: 0.8;
+}
+.movie-noshow-chip .chip-icon { font-size: 12px; }
+
+/* dropdown option disabled style */
+select option.movie-noshow-opt {
+color: #555 !important;
+font-style: italic;
+}
+
+/* noshow movie banner (Admin) */
+.movie-noshow-banner {
+display: none; background: var(–surface);
+border: 1px solid rgba(239,68,68,0.28); border-radius: var(–radius);
+padding: 14px 16px; margin-bottom: 14px; animation: fadeUp 0.25s ease;
+}
+.movie-noshow-banner-header {
+display: flex; align-items: center; justify-content: space-between;
+cursor: pointer; user-select: none; margin-bottom: 0;
+}
+.movie-noshow-banner-header.open { margin-bottom: 12px; }
+.movie-noshow-banner-title { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 700; color: var(–red); }
+.movie-noshow-count-badge { background: var(–red); color: white; font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 20px; font-family: ‘Space Mono’, monospace; }
+.movie-noshow-chevron { font-size: 12px; color: var(–text-muted); transition: transform 0.2s; }
+.movie-noshow-chevron.open { transform: rotate(180deg); }
+.movie-noshow-grid-admin {
+display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+gap: 7px; max-height: 0; overflow: hidden; transition: max-height 0.35s ease;
+}
+.movie-noshow-grid-admin.open { max-height: 600px; overflow-y: auto; }
+.movie-noshow-card {
+display: flex; flex-direction: column; gap: 3px;
+background: rgba(239,68,68,0.06); border: 1px solid rgba(239,68,68,0.2);
+border-radius: var(–radius-sm); padding: 8px 10px;
+}
+.movie-noshow-card-branch { font-size: 11px; color: var(–text-dim); font-weight: 700; }
+.movie-noshow-card-movie { font-size: 10px; color: var(–red); font-weight: 600; margin-top: 1px; }
+.movie-noshow-card-meta { font-size: 9px; color: var(–text-muted); }
+.btn-restore-movie {
+display: block; width: 100%; margin-top: 5px; background: transparent;
+border: 1px solid rgba(34,197,94,0.3); color: var(–green);
+padding: 3px 8px; border-radius: 4px; font-size: 10px; cursor: pointer;
+font-family: inherit; transition: all 0.2s; text-align: center;
+}
+.btn-restore-movie:hover { background: rgba(34,197,94,0.1); border-color: var(–green); }
+
+/* ===== TIMESTAMP ===== */
+.ts-cell { font-size: 10px; color: var(–text-muted); line-height: 1.5; }
+.ts-keyed { display: flex; align-items: center; gap: 4px; font-size: 10px; color: var(–text-muted); }
+.ts-keyed .ts-date { color: var(–text-dim); }
+.ts-keyed .ts-time { font-family: ‘Space Mono’, monospace; color: var(–gold-dim); font-size: 11px; font-weight: 700; }
+.ts-keyed .ts-edit-btn { background: none; border: none; cursor: pointer; color: var(–text-muted); font-size: 11px; padding: 1px 3px; border-radius: 3px; transition: all 0.15s; opacity: 0; }
+tr:hover .ts-edit-btn { opacity: 1; }
+.ts-edit-btn:hover { color: var(–gold); background: rgba(250,204,21,0.1); }
+.ts-none { color: var(–border); font-size: 10px; font-style: italic; }
+
+/* ===== TS MODAL ===== */
+.ts-modal-overlay {
+display: none; position: fixed; inset: 0;
+background: rgba(0,0,0,0.7); backdrop-filter: blur(4px);
+z-index: 10000; align-items: center; justify-content: center;
+}
+.ts-modal-overlay.open { display: flex; }
+.ts-modal {
+background: var(–surface); border: 1px solid var(–gold); border-radius: 14px;
+padding: 24px; width: 320px;
+box-shadow: 0 20px 60px rgba(0,0,0,0.7), 0 0 40px rgba(250,204,21,0.1);
+animation: fadeUp 0.2s ease;
+}
+.ts-modal h4 { color: var(–gold); font-size: 14px; margin-bottom: 4px; display: flex; align-items: center; gap: 6px; }
+.ts-modal .ts-modal-sub { font-size: 11px; color: var(–text-muted); margin-bottom: 18px; }
+.ts-modal .ts-field { margin-bottom: 14px; }
+.ts-modal .ts-field label { display: block; font-size: 11px; color: var(–text-muted); text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 6px; }
+.ts-modal input[type=“date”], .ts-modal input[type=“time”] {
+width: 100%; padding: 10px 12px; border-radius: var(–radius-sm);
+border: 1px solid var(–border); background: var(–surface2);
+color: var(–text); font-family: ‘Space Mono’, monospace;
+font-size: 13px; outline: none; transition: border-color 0.2s;
+}
+.ts-modal input:focus { border-color: var(–gold); }
+.ts-modal-actions { display: flex; gap: 8px; margin-top: 18px; }
+.ts-btn-save { flex: 1; padding: 10px; background: var(–gold); color: #000; border: none; border-radius: var(–radius-sm); font-weight: 700; font-size: 13px; cursor: pointer; font-family: inherit; transition: opacity 0.2s; }
+.ts-btn-save:hover { opacity: 0.85; }
+.ts-btn-cancel { padding: 10px 16px; background: transparent; border: 1px solid var(–border); color: var(–text-muted); border-radius: var(–radius-sm); cursor: pointer; font-family: inherit; font-size: 13px; transition: all 0.2s; }
+.ts-btn-cancel:hover { border-color: var(–text-muted); color: var(–text); }
+.ts-now-btn { width: 100%; padding: 8px; margin-top: 6px; background: rgba(250,204,21,0.07); border: 1px dashed rgba(250,204,21,0.3); color: var(–gold-dim); border-radius: var(–radius-sm); cursor: pointer; font-size: 11px; font-family: inherit; transition: all 0.2s; }
+.ts-now-btn:hover { background: rgba(250,204,21,0.12); color: var(–gold); }
+
+/* ===== MOBILE ===== */
+@media (max-width: 600px) {
+#main-content { padding: 10px; }
+.top-bar { padding: 8px 12px; }
+.branch-row { grid-template-columns: 1fr; }
+.form-grid { grid-template-columns: 1fr; }
+.form-grid .span2 { grid-column: span 1; }
+.export-grid { grid-template-columns: 1fr; }
+.top-bar-title { font-size: 12px; }
+}
+
+@keyframes fadeUp {
+from { opacity: 0; transform: translateY(10px); }
+to { opacity: 1; transform: translateY(0); }
+}
+.table-card, .input-panel, .admin-panel, .summary-panel { animation: fadeUp 0.3s ease; }
 </style>
 
 </head>
 <body>
 
-<!-- ===== LOGIN ===== -->
+<!-- LOGIN -->
 
 <div id="login-page">
   <div class="login-wrap">
@@ -779,7 +547,7 @@ tr:hover .ts-edit-btn { opacity: 1; }
   </div>
 </div>
 
-<!-- ===== MAIN ===== -->
+<!-- MAIN -->
 
 <div id="main-content">
 
@@ -843,7 +611,7 @@ tr:hover .ts-edit-btn { opacity: 1; }
     </div>
   </div>
 
-  <!-- MISSING BRANCH ALERT (Admin only) -->
+  <!-- MISSING BRANCH ALERT (Admin) -->
 
   <div id="missingAlert" class="missing-alert">
     <div class="missing-alert-header" id="missingAlertHeader" onclick="toggleMissingPanel()">
@@ -858,6 +626,32 @@ tr:hover .ts-edit-btn { opacity: 1; }
   <div class="all-ok-bar" id="allOkBar">
     <div class="ok-dot"></div>
     ✅ ทุกสาขาคีย์ยอดครบแล้ว
+  </div>
+
+  <!-- BRANCH NO-SHOW BANNER (Admin) -->
+
+  <div class="no-show-banner" id="noShowBanner">
+    <div class="no-show-banner-header" id="noShowBannerHeader" onclick="toggleNoShowPanel()">
+      <div class="no-show-banner-title">
+        🚫 สาขาที่แจ้งหนังไม่เข้าฉาย (ทั้งสาขา)
+        <span class="no-show-badge" id="noShowCount">0</span>
+      </div>
+      <span class="no-show-chevron" id="noShowChevron">▼</span>
+    </div>
+    <div class="no-show-grid" id="noShowGrid"></div>
+  </div>
+
+  <!-- MOVIE NO-SHOW BANNER (Admin) -->
+
+  <div class="movie-noshow-banner" id="movieNoShowBanner">
+    <div class="movie-noshow-banner-header" id="movieNoShowBannerHeader" onclick="toggleMovieNoShowPanel()">
+      <div class="movie-noshow-banner-title">
+        🎬 หนังที่แจ้งว่าไม่เข้าฉาย (รายเรื่อง)
+        <span class="movie-noshow-count-badge" id="movieNoShowCount">0</span>
+      </div>
+      <span class="movie-noshow-chevron" id="movieNoShowChevron">▼</span>
+    </div>
+    <div class="movie-noshow-grid-admin" id="movieNoShowGridAdmin"></div>
   </div>
 
   <!-- TABS -->
@@ -876,7 +670,6 @@ tr:hover .ts-edit-btn { opacity: 1; }
     </div>
 
 ```
-<!-- Export -->
 <div class="admin-section">
   <h5>📥 ส่งออกข้อมูล CSV</h5>
   <div class="export-grid">
@@ -885,7 +678,6 @@ tr:hover .ts-edit-btn { opacity: 1; }
   </div>
 </div>
 
-<!-- Branch Management -->
 <div class="admin-section">
   <h5>🏢 จัดการสาขา</h5>
   <div class="email-section">
@@ -903,7 +695,6 @@ tr:hover .ts-edit-btn { opacity: 1; }
 
 <hr class="divider">
 
-<!-- Systems -->
 <div class="admin-section">
   <h5>🔊 ระบบ / เสียง</h5>
   <div class="input-row">
@@ -915,7 +706,6 @@ tr:hover .ts-edit-btn { opacity: 1; }
 
 <hr class="divider">
 
-<!-- Movies -->
 <div class="admin-section">
   <h5>🎬 รายชื่อหนัง</h5>
   <div class="input-row" style="margin-bottom:10px;">
@@ -933,7 +723,7 @@ tr:hover .ts-edit-btn { opacity: 1; }
 
   </div>
 
-  <!-- ===== PAGE 1: รายได้หลัก ===== -->
+  <!-- PAGE 1: รายได้หลัก -->
 
   <div id="p1" class="page active">
     <div id="inputBox1" class="input-panel">
@@ -974,9 +764,27 @@ tr:hover .ts-edit-btn { opacity: 1; }
       </div>
       <button id="btn_save1" class="btn-save btn-save-1" onclick="saveData(1)">💾 บันทึกรายได้หลัก</button>
       <button id="btn_cancel1" class="btn-cancel-edit" onclick="cancelEdit()">ยกเลิก</button>
-    </div>
 
 ```
+  <!-- BRANCH NO-SHOW -->
+  <div class="noshow-active-badge" id="nosShowActiveBadge1">
+    🚫 สาขานี้แจ้งว่า <b>หนังไม่เข้าฉาย</b> วันนี้ (ทั้งสาขา)
+  </div>
+  <div class="noshow-toggle-wrap">
+    <button class="btn-no-show" id="btnNoShow1" onclick="markNoShow()">🚫 แจ้งหนังไม่เข้าฉาย (ทั้งสาขา)</button>
+    <button class="btn-back-show" id="btnBackShow1" onclick="cancelNoShow()">✅ หนังกลับมาฉาย (ทั้งสาขา)</button>
+  </div>
+
+  <!-- MOVIE-LEVEL NO-SHOW (NEW) -->
+  <div class="movie-noshow-section" id="movieNoShowSection1">
+    <div class="movie-noshow-title">
+      🎬 ติ๊กหนังที่ <span style="color:var(--red)">ไม่เข้าฉาย</span> รายเรื่อง
+      <span style="color:var(--text-muted);font-weight:400">(คลิกเพื่อ on/off)</span>
+    </div>
+    <div class="movie-noshow-grid" id="movieNoShowChips1"></div>
+  </div>
+</div>
+
 <div class="table-card">
   <div class="table-scroll">
     <table>
@@ -1002,7 +810,7 @@ tr:hover .ts-edit-btn { opacity: 1; }
 
   </div>
 
-  <!-- ===== PAGE 2: ยอดข้างเคียง ===== -->
+  <!-- PAGE 2: ยอดข้างเคียง -->
 
   <div id="p2" class="page">
     <div id="inputBox2" class="input-panel">
@@ -1043,9 +851,18 @@ tr:hover .ts-edit-btn { opacity: 1; }
       </div>
       <button id="btn_save2" class="btn-save btn-save-2" onclick="saveData(2)">💾 บันทึกยอดข้างเคียง</button>
       <button id="btn_cancel2" class="btn-cancel-edit" onclick="cancelEdit()">ยกเลิก</button>
-    </div>
 
 ```
+  <!-- MOVIE-LEVEL NO-SHOW for page 2 -->
+  <div class="movie-noshow-section" id="movieNoShowSection2">
+    <div class="movie-noshow-title">
+      🎬 ติ๊กหนังที่ <span style="color:var(--red)">ไม่เข้าฉาย</span> รายเรื่อง
+      <span style="color:var(--text-muted);font-weight:400">(คลิกเพื่อ on/off)</span>
+    </div>
+    <div class="movie-noshow-grid" id="movieNoShowChips2"></div>
+  </div>
+</div>
+
 <div class="table-card">
   <div class="table-scroll">
     <table>
@@ -1073,7 +890,7 @@ tr:hover .ts-edit-btn { opacity: 1; }
 
 </div>
 
-<!-- ===== TIMESTAMP EDIT MODAL ===== -->
+<!-- TIMESTAMP MODAL -->
 
 <div class="ts-modal-overlay" id="tsModal">
   <div class="ts-modal">
@@ -1114,7 +931,9 @@ const auth = firebase.auth();
 let rawP1 = [], rawP2 = [], moviesM = [], moviesS = [], branches = [], permissions = {}, movieSystems = [];
 let stt1 = 'PRE', stt2 = 'PRE', currentEmail = "", isAdmin = false, myBranches = [];
 let currentEditIndex = null;
-let tsEditTarget = null; // { p, i }
+let tsEditTarget = null;
+let noShowData = {};       // branch-level: { branchName: { by, at } }
+let movieNoShowData = {};  // movie-level:  { branchName: { movieKey: { by, at } } }
 
 function getNowTs() {
   const now = new Date();
@@ -1180,8 +999,158 @@ function loadData() {
     rawP2 = v.p2 || [];
     renderAll();
   });
+  loadNoShow(d);
+  loadMovieNoShow(d);
 }
 
+function loadNoShow(date) {
+  db.ref('noshow/' + date).on('value', s => {
+    noShowData = s.val() || {};
+    renderAll();
+  });
+}
+
+// ===== MOVIE-LEVEL NO-SHOW =====
+function loadMovieNoShow(date) {
+  db.ref('noshow_movies/' + date).on('value', s => {
+    movieNoShowData = s.val() || {};
+    renderAll();
+  });
+}
+
+// Toggle a single movie's no-show for the current branch
+function toggleMovieNoShow(movieName, pageType) {
+  let b = getCurrentBranch();
+  if (!b) return alert("กรุณาเลือกสาขาก่อน");
+
+  const date = document.getElementById('targetDate').value;
+  // Use a safe key (replace slashes/spaces)
+  const movieKey = movieName.replace(/[.#$[\]/]/g, '_');
+  const path = `noshow_movies/${date}/${b}/${movieKey}`;
+
+  const branchData = movieNoShowData[b] || {};
+  const isCurrentlyNoShow = !!branchData[movieKey];
+
+  if (isCurrentlyNoShow) {
+    // Restore: remove
+    db.ref(path).remove();
+  } else {
+    // Mark no-show
+    const ts = getNowTs();
+    db.ref(path).set({ movie: movieName, by: currentEmail, at: ts.date + ' ' + ts.time });
+  }
+}
+
+// Admin: restore a specific movie no-show for a branch
+function adminRestoreMovieNoShow(branchName, movieKey) {
+  const date = document.getElementById('targetDate').value;
+  if (!confirm(`ยืนยันให้หนัง "${movieKey}" กลับมาฉายที่สาขา "${branchName}"?`)) return;
+  db.ref(`noshow_movies/${date}/${branchName}/${movieKey}`).remove();
+}
+
+function getCurrentBranch() {
+  let b = document.getElementById('branchInput').value.trim().toUpperCase();
+  if (!isAdmin && myBranches.length > 1) b = document.getElementById('branchDropdown').value.toUpperCase();
+  return b;
+}
+
+// Build chip list for movie no-show
+function renderMovieNoShowChips(pageType) {
+  const movieList = pageType === 1 ? moviesM : moviesS;
+  const b = getCurrentBranch();
+  const branchNoShows = b ? (movieNoShowData[b] || {}) : {};
+
+  const container = document.getElementById(`movieNoShowChips${pageType}`);
+  if (!container) return;
+
+  if (!movieList.length) {
+    container.innerHTML = `<span style="font-size:11px;color:var(--text-muted)">ยังไม่มีรายชื่อหนัง</span>`;
+    return;
+  }
+
+  container.innerHTML = movieList.map(movie => {
+    const movieKey = movie.replace(/[.#$[\]/]/g, '_');
+    const isNoShow = !!branchNoShows[movieKey];
+    return `<button
+      class="movie-noshow-chip ${isNoShow ? 'active' : ''}"
+      onclick="toggleMovieNoShow('${movie.replace(/'/g, "\\'")}', ${pageType})"
+      title="${isNoShow ? 'คลิกเพื่อให้หนังกลับมาฉาย' : 'คลิกเพื่อแจ้งว่าหนังไม่เข้าฉาย'}"
+    >
+      <span class="chip-icon">${isNoShow ? '🚫' : '🎬'}</span>
+      ${movie}
+      ${isNoShow ? '<span style="font-size:10px;opacity:0.7">✕</span>' : ''}
+    </button>`;
+  }).join('');
+}
+
+// Filter movie dropdowns: remove no-show movies from selects
+function applyMovieNoShowToDropdowns() {
+  const b = getCurrentBranch();
+  const branchNoShows = b ? (movieNoShowData[b] || {}) : {};
+
+  // Page 1: main movies
+  const sel1 = document.getElementById('m_name_sel');
+  if (sel1) {
+    sel1.innerHTML = moviesM.map(m => {
+      const movieKey = m.replace(/[.#$[\]/]/g, '_');
+      const isNoShow = !!branchNoShows[movieKey];
+      return `<option value="${m}" ${isNoShow ? 'disabled class="movie-noshow-opt"' : ''}>${isNoShow ? '🚫 ' + m + ' (ไม่เข้าฉาย)' : m}</option>`;
+    }).join('');
+  }
+
+  // Page 2: side movies
+  const sel2 = document.getElementById('c_movie_sel');
+  if (sel2) {
+    sel2.innerHTML = moviesS.map(m => {
+      const movieKey = m.replace(/[.#$[\]/]/g, '_');
+      const isNoShow = !!branchNoShows[movieKey];
+      return `<option value="${m}" ${isNoShow ? 'disabled class="movie-noshow-opt"' : ''}>${isNoShow ? '🚫 ' + m + ' (ไม่เข้าฉาย)' : m}</option>`;
+    }).join('');
+  }
+}
+
+// Admin: render movie no-show banner
+function renderMovieNoShowBanner() {
+  const banner = document.getElementById('movieNoShowBanner');
+  const grid = document.getElementById('movieNoShowGridAdmin');
+  const count = document.getElementById('movieNoShowCount');
+  if (!banner || !isAdmin) { if (banner) banner.style.display = 'none'; return; }
+
+  // Collect all entries
+  let entries = [];
+  for (const [branchName, movies] of Object.entries(movieNoShowData)) {
+    for (const [movieKey, info] of Object.entries(movies)) {
+      entries.push({ branchName, movieKey, info });
+    }
+  }
+
+  if (entries.length === 0) { banner.style.display = 'none'; return; }
+
+  banner.style.display = 'block';
+  count.innerText = entries.length;
+
+  grid.innerHTML = entries.map(({ branchName, movieKey, info }) =>
+    `<div class="movie-noshow-card">
+      <div class="movie-noshow-card-branch">🏢 ${branchName}</div>
+      <div class="movie-noshow-card-movie">🚫 ${info.movie || movieKey}</div>
+      <div class="movie-noshow-card-meta">แจ้งโดย: ${info.by || '—'}</div>
+      <div class="movie-noshow-card-meta">เวลา: ${info.at || '—'}</div>
+      <button class="btn-restore-movie" onclick="adminRestoreMovieNoShow('${branchName}','${movieKey}')">✅ หนังกลับมาฉายแล้ว</button>
+    </div>`
+  ).join('');
+}
+
+function toggleMovieNoShowPanel() {
+  const grid = document.getElementById('movieNoShowGridAdmin');
+  const header = document.getElementById('movieNoShowBannerHeader');
+  const chevron = document.getElementById('movieNoShowChevron');
+  const isOpen = grid.classList.contains('open');
+  grid.classList.toggle('open', !isOpen);
+  header.classList.toggle('open', !isOpen);
+  chevron.classList.toggle('open', !isOpen);
+}
+
+// ===== RENDER ALL =====
 function renderAll() {
   let search = document.getElementById('branchInput').value.trim().toUpperCase();
   if (!isAdmin) {
@@ -1196,11 +1165,17 @@ function renderAll() {
   document.getElementById('inputBox1').style.display = search !== "" ? 'block' : 'none';
   document.getElementById('inputBox2').style.display = search !== "" ? 'block' : 'none';
 
-  // Show/hide keyed timestamp column for admin only
   const th1 = document.getElementById('th_keyed1');
   const th2 = document.getElementById('th_keyed2');
   if (th1) th1.style.display = isAdmin ? '' : 'none';
   if (th2) th2.style.display = isAdmin ? '' : 'none';
+
+  // Render movie no-show chips & apply to dropdowns
+  if (search !== "") {
+    renderMovieNoShowChips(1);
+    renderMovieNoShowChips(2);
+    applyMovieNoShowToDropdowns();
+  }
 
   let h1 = '', h2 = '', summaryData = {};
 
@@ -1213,7 +1188,6 @@ function renderAll() {
       const dt = `${d.dt || ''} ${d.tm || ''}`.trim();
       const isReal = d.stt === 'REAL';
       const tsCell = isAdmin ? buildTsCell('p1', i, d) : '';
-      const colspan = isAdmin ? '' : '';
       h1 += `<tr>
         <td><button class="status-chip ${isReal?'chip-real':'chip-pre'}" onclick="toggleStatus('p1',${i})">${isReal?'✅ จริง':'⏳ เบื้องต้น'}</button></td>
         <td style="font-size:11px;color:var(--text-muted)">${dt || '-'}</td>
@@ -1266,6 +1240,7 @@ function renderAll() {
   document.getElementById('tbody2').innerHTML = h2 || empty2;
   if (isAdmin) renderSummary(summaryData, tab);
   if (isAdmin) renderMissingBranches();
+  if (isAdmin) renderMovieNoShowBanner();
 }
 
 function buildTsCell(p, i, d) {
@@ -1293,9 +1268,7 @@ function saveData(p) {
   let b = document.getElementById('branchInput').value.trim().toUpperCase();
   if (!isAdmin && myBranches.length > 1) b = document.getElementById('branchDropdown').value.toUpperCase();
   if (!b) return alert("กรุณาเลือกสาขาก่อนบันทึก");
-
   const ts = getNowTs();
-
   if (p === 1) {
     const existing = (currentEditIndex !== null) ? rawP1[currentEditIndex] : {};
     const d = {
@@ -1412,14 +1385,19 @@ function delSystem(i) {
 }
 
 function updateMovieLists() {
-  document.getElementById('m_name_sel').innerHTML = moviesM.map(m => `<option>${m}</option>`).join('');
-  document.getElementById('c_movie_sel').innerHTML = moviesS.map(m => `<option>${m}</option>`).join('');
+  // Apply no-show filter to dropdowns too
+  applyMovieNoShowToDropdowns();
+
   document.getElementById('list_tags_main').innerHTML = moviesM.map((m, i) =>
     `<span class="movie-tag">${m} <span class="del-tag" onclick="delMovie('main',${i})">✕</span></span>`
   ).join('');
   document.getElementById('list_tags_side').innerHTML = moviesS.map((m, i) =>
     `<span class="movie-tag">${m} <span class="del-tag" onclick="delMovie('side',${i})">✕</span></span>`
   ).join('');
+
+  // Also re-render chips
+  renderMovieNoShowChips(1);
+  renderMovieNoShowChips(2);
 }
 
 function addMovie(t) {
@@ -1545,6 +1523,7 @@ function renderSummary(summaryData, tab) {
   document.getElementById('summarySplitBody').innerHTML = sHtml || `<tr><td colspan="3" style="text-align:center;color:var(--text-muted);padding:20px">ไม่มีข้อมูล</td></tr>`;
 }
 
+// ===== TIMESTAMP MODAL =====
 function openTsModal(p, i) {
   if (!isAdmin) return;
   tsEditTarget = { p, i };
@@ -1577,7 +1556,6 @@ function saveTsEdit() {
   if (!arr[i]) return;
   arr[i].keyedDate = newDate;
   arr[i].keyedTime = newTime;
-  // Also update the updatedAt fields
   const ts = getNowTs();
   arr[i].updatedDate = ts.date;
   arr[i].updatedTime = ts.time;
@@ -1585,33 +1563,104 @@ function saveTsEdit() {
   sync();
 }
 
-// Close modal on overlay click
 document.getElementById('tsModal').addEventListener('click', function(e) {
   if (e.target === this) closeTsModal();
 });
+
+// ===== BRANCH-LEVEL NO-SHOW =====
+function markNoShow() {
+  let b = getCurrentBranch();
+  if (!b) return alert("กรุณาเลือกสาขาก่อน");
+  const date = document.getElementById('targetDate').value;
+  if (!confirm(`ยืนยันว่าสาขา "${b}" \nหนังไม่เข้าฉายวันที่ ${date}? (ทั้งสาขา)`)) return;
+  const ts = getNowTs();
+  db.ref('noshow/' + date + '/' + b).set({ by: currentEmail, at: ts.date + ' ' + ts.time });
+}
+
+function cancelNoShow() {
+  let b = getCurrentBranch();
+  if (!b) return;
+  const date = document.getElementById('targetDate').value;
+  if (!confirm(`ยืนยันว่าสาขา "${b}" \nหนังกลับมาฉายแล้ว?`)) return;
+  db.ref('noshow/' + date + '/' + b).remove();
+}
+
+function adminCancelNoShow(branchName) {
+  const date = document.getElementById('targetDate').value;
+  if (!confirm(`ยกเลิก "หนังไม่เข้าฉาย" ของสาขา "${branchName}"?`)) return;
+  db.ref('noshow/' + date + '/' + branchName).remove();
+}
+
+function updateNoShowButtons() {
+  let b = getCurrentBranch();
+  if (!b) return;
+  const isNoShow = !!noShowData[b];
+  const btnNo = document.getElementById('btnNoShow1');
+  const btnBack = document.getElementById('btnBackShow1');
+  const badge = document.getElementById('nosShowActiveBadge1');
+  if (btnNo) { btnNo.style.display = isNoShow ? 'none' : 'flex'; }
+  if (btnBack) btnBack.style.display = isNoShow ? 'flex' : 'none';
+  if (badge) badge.style.display = isNoShow ? 'flex' : 'none';
+}
+
+function renderNoShowBanner() {
+  const banner = document.getElementById('noShowBanner');
+  const grid = document.getElementById('noShowGrid');
+  const count = document.getElementById('noShowCount');
+  if (!banner) return;
+  const entries = Object.entries(noShowData);
+  if (!isAdmin || entries.length === 0) { banner.style.display = 'none'; return; }
+  banner.style.display = 'block';
+  count.innerText = entries.length;
+  grid.innerHTML = entries.map(([b, info]) => {
+    const email = permissions[b] || '';
+    return `<div class="no-show-card">
+      <div class="no-show-dot"></div>
+      <div style="flex:1">
+        <div class="no-show-card-name">🚫 ${b}</div>
+        <div class="no-show-card-meta">แจ้งโดย: ${info.by || '—'}</div>
+        <div class="no-show-card-meta">เวลา: ${info.at || '—'}</div>
+        ${email ? `<div class="no-show-card-meta">📧 ${email}</div>` : ''}
+        <button class="btn-undo-noshow" onclick="adminCancelNoShow('${b}')">✅ หนังกลับมาฉายแล้ว</button>
+      </div>
+    </div>`;
+  }).join('');
+}
 
 function renderMissingBranches() {
   const alertBox = document.getElementById('missingAlert');
   const allOkBar = document.getElementById('allOkBar');
   const grid = document.getElementById('missingBranchGrid');
   const countBadge = document.getElementById('missingCount');
-
   if (!alertBox || !branches.length) return;
-
-  // Find branches that have NO data in rawP1 for the selected date
   const keyedBranches = new Set(rawP1.map(d => d.b));
-  const missing = branches.filter(b => !keyedBranches.has(b));
+  const noShowBranches = new Set(Object.keys(noShowData));
+  // Also exclude branches where ALL their movies are no-show
+  const movieNoShowBranches = new Set(
+    Object.entries(movieNoShowData)
+      .filter(([b, movies]) => {
+        // If all main movies are marked no-show for this branch
+        if (!moviesM.length) return false;
+        return moviesM.every(m => {
+          const k = m.replace(/[.#$[\]/]/g, '_');
+          return !!movies[k];
+        });
+      })
+      .map(([b]) => b)
+  );
+  const missing = branches.filter(b => !keyedBranches.has(b) && !noShowBranches.has(b) && !movieNoShowBranches.has(b));
+
+  renderNoShowBanner();
+  updateNoShowButtons();
 
   if (missing.length === 0) {
     alertBox.style.display = 'none';
     allOkBar.style.display = 'flex';
     return;
   }
-
   allOkBar.style.display = 'none';
   alertBox.style.display = 'block';
   countBadge.innerText = missing.length;
-
   grid.innerHTML = missing.map(b => {
     const email = permissions[b] || null;
     return `<div class="missing-branch-item" onclick="jumpToBranch('${b}')" title="คลิกเพื่อเลือกสาขานี้">
@@ -1634,20 +1683,27 @@ function toggleMissingPanel() {
   chevron.classList.toggle('open', !isOpen);
 }
 
+function toggleNoShowPanel() {
+  const grid = document.getElementById('noShowGrid');
+  const header = document.getElementById('noShowBannerHeader');
+  const chevron = document.getElementById('noShowChevron');
+  const isOpen = grid.classList.contains('open');
+  grid.classList.toggle('open', !isOpen);
+  header.classList.toggle('open', !isOpen);
+  chevron.classList.toggle('open', !isOpen);
+}
+
 function jumpToBranch(branchName) {
-  // Set branch input and re-render
   const inp = document.getElementById('branchInput');
   const dd = document.getElementById('branchDropdown');
   inp.value = branchName;
   dd.value = branchName;
   renderAll();
-  // Scroll to input panel
   setTimeout(() => {
     const panel = document.getElementById('inputBox1');
     if (panel) panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }, 100);
 }
-
 
 function exportToCSV(tab) {
   const date = document.getElementById('targetDate').value || "Unknown_Date";
